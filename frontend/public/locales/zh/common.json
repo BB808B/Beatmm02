@@ -1,0 +1,65 @@
+{
+  "title": "缅甸DJ平台",
+  "nav": {
+    "home": "首页",
+    "music": "音乐",
+    "dj": "DJ",
+    "live": "直播",
+    "ranking": "排行榜",
+    "profile": "个人中心",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出"
+  },
+  "home": {
+    "welcome": "欢迎来到缅甸DJ平台",
+    "subtitle": "发现最棒的越南鼓DJ音乐",
+    "featured": "精选音乐",
+    "trending": "热门趋势",
+    "newReleases": "最新发布"
+  },
+  "auth": {
+    "phone": "手机号码",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "login": "登录",
+    "register": "注册",
+    "forgotPassword": "忘记密码？",
+    "noAccount": "没有账号？",
+    "hasAccount": "已有账号？",
+    "registerNow": "立即注册",
+    "loginNow": "立即登录"
+  },
+  "player": {
+    "play": "播放",
+    "pause": "暂停",
+    "next": "下一首",
+    "previous": "上一首",
+    "volume": "音量",
+    "shuffle": "随机播放",
+    "repeat": "重复播放"
+  },
+  "profile": {
+    "myProfile": "我的资料",
+    "myMusic": "我的音乐",
+    "myWallet": "我的钱包",
+    "settings": "设置",
+    "djApplication": "DJ认证申请",
+    "balance": "余额",
+    "recharge": "充值",
+    "withdraw": "提现"
+  },
+  "common": {
+    "search": "搜索",
+    "submit": "提交",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "edit": "编辑",
+    "delete": "删除",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功"
+  }
+}
+

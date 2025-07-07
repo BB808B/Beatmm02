@@ -1,0 +1,65 @@
+{
+  "title": "Myanmar DJ Platform",
+  "nav": {
+    "home": "Home",
+    "music": "Music",
+    "dj": "DJ",
+    "live": "Live",
+    "ranking": "Ranking",
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "home": {
+    "welcome": "Welcome to Myanmar DJ Platform",
+    "subtitle": "Discover the best Vietnamese drum DJ music",
+    "featured": "Featured Music",
+    "trending": "Trending",
+    "newReleases": "New Releases"
+  },
+  "auth": {
+    "phone": "Phone Number",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "login": "Login",
+    "register": "Register",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerNow": "Register Now",
+    "loginNow": "Login Now"
+  },
+  "player": {
+    "play": "Play",
+    "pause": "Pause",
+    "next": "Next",
+    "previous": "Previous",
+    "volume": "Volume",
+    "shuffle": "Shuffle",
+    "repeat": "Repeat"
+  },
+  "profile": {
+    "myProfile": "My Profile",
+    "myMusic": "My Music",
+    "myWallet": "My Wallet",
+    "settings": "Settings",
+    "djApplication": "DJ Application",
+    "balance": "Balance",
+    "recharge": "Recharge",
+    "withdraw": "Withdraw"
+  },
+  "common": {
+    "search": "Search",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  }
+}
+
