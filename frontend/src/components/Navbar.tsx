@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Navbar, Nav, Container, Dropdown, Form, Button } from 'react-bootstrap';
-import { FaSearch, FaUser, FaMusic, FaHome, FaTrophy, FaBroadcastTower } from 'react-icons/fa';
+import { FaSearch, FaUser, FaMusic, FaHome, FaTrophy, FaBroadcastTower, FaFileContract } from 'react-icons/fa';
 import { NavbarProps, Language } from '@/types';
 
 const NavbarComponent: React.FC<NavbarProps> = ({ 
@@ -53,6 +53,10 @@ const NavbarComponent: React.FC<NavbarProps> = ({
             <Nav.Link href="/ranking" className="d-flex align-items-center">
               <FaTrophy className="me-1" />
               {translations.nav.ranking}
+            </Nav.Link>
+            <Nav.Link href="/rules" className="d-flex align-items-center">
+              <FaFileContract className="me-1" />
+              规则条款
             </Nav.Link>
           </Nav>
 
