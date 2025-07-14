@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
   description: "Discover the best Vietnamese drum DJ music in Myanmar",
   keywords: "Myanmar, DJ, Music, Vietnamese drum, Platform",
   authors: [{ name: "Myanmar DJ Platform" }],
-  viewport: "width=device-width, initial-scale=1",
+  // viewport 已移至 _document.tsx
 };
 
 export default function RootLayout({
@@ -20,12 +21,7 @@ export default function RootLayout({
   return (
     <html lang="zh">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        {/* 这些元标签已移至 _document.tsx */}
       </head>
       <body className={inter.className}>
         <div id="root">
@@ -35,4 +31,3 @@ export default function RootLayout({
     </html>
   );
 }
-
