@@ -10,7 +10,6 @@ export default function RulesPage() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
 
-  // 加载翻译文件
   useEffect(() => {
     const loadTranslations = async () => {
       try {
@@ -19,7 +18,6 @@ export default function RulesPage() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // 使用默认翻译
         setTranslations({
           title: '缅甸DJ平台',
           nav: {
@@ -112,7 +110,6 @@ export default function RulesPage() {
 
       <main style={{ paddingTop: '80px', paddingBottom: '40px' }}>
         <Container>
-          {/* 页面标题 */}
           <Row className="mb-4">
             <Col>
               <div className="d-flex align-items-center mb-3">
@@ -134,7 +131,6 @@ export default function RulesPage() {
             </Col>
           </Row>
 
-          {/* 使用条款 */}
           <Row className="mb-5">
             <Col>
               <Card className="card-custom">
@@ -184,7 +180,6 @@ export default function RulesPage() {
             </Col>
           </Row>
 
-          {/* 打赏与提现规则 */}
           <Row className="mb-5">
             <Col>
               <Card className="card-custom">
@@ -230,7 +225,6 @@ export default function RulesPage() {
             </Col>
           </Row>
 
-          {/* DJ认证规则 */}
           <Row className="mb-5">
             <Col>
               <Card className="card-custom">
@@ -244,7 +238,7 @@ export default function RulesPage() {
                   <ul className="list-unstyled">
                     <li className="mb-3 d-flex">
                       <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>1</span>
-                      <span>任何 BeatMM 用户均可在"申请成为DJ"页面提交申请，填写个人信息与上传音乐作品。</span>
+                      <span>任何 BeatMM 用户均可在「申请成为DJ」页面提交申请，填写个人信息与上传音乐作品。</span>
                     </li>
                     <li className="mb-3 d-flex">
                       <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>2</span>
@@ -286,7 +280,6 @@ export default function RulesPage() {
             </Col>
           </Row>
 
-          {/* 重要提醒 */}
           <Row>
             <Col>
               <Card className="card-custom border-warning">
@@ -310,4 +303,3 @@ export default function RulesPage() {
     </>
   );
 }
-
