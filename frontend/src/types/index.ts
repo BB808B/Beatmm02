@@ -29,7 +29,7 @@ export interface Track {
   created_at: string;
 }
 
-// 翻译类型
+// 翻译类型 (已修改)
 export interface Translations {
   title: string;
   nav: {
@@ -42,6 +42,7 @@ export interface Translations {
     login: string;
     register: string;
     logout: string;
+    rules: string; // <-- 新增这一行，解决 'rules' 不存在的问题
   };
   home: {
     welcome: string;
@@ -93,6 +94,44 @@ export interface Translations {
     error: string;
     success: string;
   };
+  // 根据您login/page.tsx的fallback，还需要添加 rulesPage:
+  rulesPage: {
+    title: string;
+    subtitle: string;
+    section1Title: string;
+    section1Item1: string;
+    section1Item2: string;
+    section1Item3: string;
+    section1Item4: string;
+    section1Item5: string;
+    section1Item6: string;
+    section1Item7: string;
+    section1Item8: string;
+    section2Title: string;
+    section2Item1: string;
+    section2Item2: string;
+    section2Item3: string;
+    section2Item4: string;
+    section2Item5: string;
+    section2Item6: string;
+    section2Item7: string;
+    section3Title: string;
+    section3Item1: string;
+    section3Item2: string;
+    section3Item3: string;
+    section3Item4Title: string;
+    section3Item4Perm1: string;
+    section3Item4Perm2: string;
+    section3Item4Perm3: string;
+    section3Item4Perm4: string;
+    section3Item5: string;
+    section3Item6: string;
+    section3Item7: string;
+    importantReminderTitle: string;
+    importantReminderText1: string;
+    importantReminderText2: string;
+    importantReminderText3: string;
+  };
 }
 
 // 语言选项类型
@@ -137,4 +176,3 @@ export interface MusicCardProps {
   onLike: (trackId: string) => void;
   translations: Translations;
 }
-
