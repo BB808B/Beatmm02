@@ -1,11 +1,118 @@
-/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { FaArrowLeft, FaFileContract, FaMoneyBillWave, FaMicrophone } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types';
+import { Translations } from '@/types'; // 确保 Translations 类型正确导入
+import { motion } from 'framer-motion';
+
+// 定义 Translation 类型以匹配 common.json 的结构
+// 注意：这应该在您的 `@/types` 文件中定义，这里是为了演示完整性而重复
+// 请确保您的 `@/types` 文件中有此定义
+// 例如：
+// export interface Translations {
+//   title: string;
+//   nav: {
+//     home: string;
+//     music: string;
+//     dj: string;
+//     live: string;
+//     ranking: string;
+//     profile: string;
+//     login: string;
+//     register: string;
+//     logout: string;
+//     rules: string; // 新增
+//   };
+//   home: {
+//     welcome: string;
+//     subtitle: string;
+//     featured: string;
+//     trending: string;
+//     newReleases: string;
+//   };
+//   auth: {
+//     phone: string;
+//     password: string;
+//     confirmPassword: string;
+//     login: string;
+//     register: string;
+//     forgotPassword: string;
+//     noAccount: string;
+//     hasAccount: string;
+//     registerNow: string;
+//     loginNow: string;
+//   };
+//   player: {
+//     play: string;
+//     pause: string;
+//     next: string;
+//     previous: string;
+//     volume: string;
+//     shuffle: string;
+//     repeat: string;
+//   };
+//   profile: {
+//     myProfile: string;
+//     myMusic: string;
+//     myWallet: string;
+//     settings: string;
+//     djApplication: string;
+//     balance: string;
+//     recharge: string;
+//     withdraw: string;
+//   };
+//   common: {
+//     search: string;
+//     submit: string;
+//     cancel: string;
+//     confirm: string;
+//     save: string;
+//     edit: string;
+//     delete: string;
+//     loading: string;
+//     error: string;
+//     success: string;
+//   };
+//   rulesPage: { // 新增 rulesPage 字段
+//     title: string;
+//     subtitle: string;
+//     section1Title: string;
+//     section1Item1: string;
+//     section1Item2: string;
+//     section1Item3: string;
+//     section1Item4: string;
+//     section1Item5: string;
+//     section1Item6: string;
+//     section1Item7: string;
+//     section1Item8: string;
+//     section2Title: string;
+//     section2Item1: string;
+//     section2Item2: string;
+//     section2Item3: string;
+//     section2Item4: string;
+//     section2Item5: string;
+//     section2Item6: string;
+//     section2Item7: string;
+//     section3Title: string;
+//     section3Item1: string;
+//     section3Item2: string;
+//     section3Item3: string;
+//     section3Item4Title: string;
+//     section3Item4Perm1: string;
+//     section3Item4Perm2: string;
+//     section3Item4Perm3: string;
+//     section3Item4Perm4: string;
+//     section3Item5: string;
+//     section3Item6: string;
+//     section3Item7: string;
+//     importantReminderTitle: string;
+//     importantReminderText1: string;
+//     importantReminderText2: string;
+//     importantReminderText3: string;
+//   };
+// }
+
 
 export default function RulesPage() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -15,72 +122,81 @@ export default function RulesPage() {
     const loadTranslations = async () => {
       try {
         const response = await fetch(`/locales/${currentLang}/common.json`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
+        // 提供一个最小的备用翻译，或者显示错误消息
         setTranslations({
-          title: '缅甸DJ平台',
+          title: 'BeatMM Pro',
           nav: {
-            home: '首页',
-            music: '音乐',
-            dj: 'DJ',
-            live: '直播',
-            ranking: '排行榜',
-            profile: '个人中心',
-            login: '登录',
-            register: '注册',
-            logout: '退出'
+            home: 'Home', music: 'Music', dj: 'DJ', live: 'Live', ranking: 'Ranking',
+            profile: 'Profile', login: 'Login', register: 'Register', logout: 'Logout', rules: 'Rules'
           },
           home: {
-            welcome: '欢迎来到缅甸DJ平台',
-            subtitle: '发现最棒的越南鼓DJ音乐',
-            featured: '精选音乐',
-            trending: '热门趋势',
-            newReleases: '最新发布'
+            welcome: 'Welcome', subtitle: 'Discover amazing music', featured: 'Featured', trending: 'Trending', newReleases: 'New Releases'
           },
           auth: {
-            phone: '手机号码',
-            password: '密码',
-            confirmPassword: '确认密码',
-            login: '登录',
-            register: '注册',
-            forgotPassword: '忘记密码？',
-            noAccount: '没有账号？',
-            hasAccount: '已有账号？',
-            registerNow: '立即注册',
-            loginNow: '立即登录'
+            phone: 'Phone', password: 'Password', confirmPassword: 'Confirm Password',
+            login: 'Login', register: 'Register', forgotPassword: 'Forgot Password?',
+            noAccount: 'No account?', hasAccount: 'Already have an account?',
+            registerNow: 'Register Now', loginNow: 'Login Now'
           },
           player: {
-            play: '播放',
-            pause: '暂停',
-            next: '下一首',
-            previous: '上一首',
-            volume: '音量',
-            shuffle: '随机播放',
-            repeat: '重复播放'
+            play: 'Play', pause: 'Pause', next: 'Next', previous: 'Previous',
+            volume: 'Volume', shuffle: 'Shuffle', repeat: 'Repeat'
           },
           profile: {
-            myProfile: '我的资料',
-            myMusic: '我的音乐',
-            myWallet: '我的钱包',
-            settings: '设置',
-            djApplication: 'DJ认证申请',
-            balance: '余额',
-            recharge: '充值',
-            withdraw: '提现'
+            myProfile: 'My Profile', myMusic: 'My Music', myWallet: 'My Wallet',
+            settings: 'Settings', djApplication: 'DJ Application', balance: 'Balance',
+            recharge: 'Recharge', withdraw: 'Withdraw'
           },
           common: {
-            search: '搜索',
-            submit: '提交',
-            cancel: '取消',
-            confirm: '确认',
-            save: '保存',
-            edit: '编辑',
-            delete: '删除',
-            loading: '加载中...',
-            error: '错误',
-            success: '成功'
+            search: 'Search', submit: 'Submit', cancel: 'Cancel', confirm: 'Confirm',
+            save: 'Save', edit: 'Edit', delete: 'Delete', loading: 'Loading...',
+            error: 'Error', success: 'Success'
+          },
+          // 最小的 rulesPage 备用翻译
+          rulesPage: {
+            title: 'Platform Rules & Terms',
+            subtitle: 'Please read the following rules and terms carefully to maintain platform order and protect user rights.',
+            section1Title: 'I. Terms of Use',
+            section1Item1: 'BeatMM Pro is a music sharing & DJ community platform for Myanmar users, limited to legal, peaceful purposes.',
+            section1Item2: 'User-uploaded content must be original or authorized. Piracy of others\' music, covers, or introductions is prohibited.',
+            section1Item3: 'All tipping is voluntary and non-refundable. The platform provides technical services and charges a service fee.',
+            section1Item4: 'By registering on the platform, users agree to abide by platform rules. The platform reserves the right to delete content or ban accounts for violations.',
+            section1Item5: 'Uploading or publishing any illegal, pornographic, violent, hateful, or politically sensitive content is prohibited.',
+            section1Item6: 'This platform prohibits private messaging between users, only allowing interaction with system customer service to ensure information security and compliance.',
+            section1Item7: 'Real payment information must be provided before withdrawal. If the withdrawal account does not match the registered identity, the platform reserves the right to refuse processing.',
+            section1Item8: 'BeatMM Pro reserves the right of final interpretation and may modify terms at any time to comply with local regulations or operational strategies.',
+            section2Title: 'II. Tipping & Withdrawal Rules',
+            section2Item1: 'Users can top up their accounts via KPay, KBZ Banking, etc., and use it to tip their favorite DJs.',
+            section2Item2: 'Tipping amounts are freely chosen by the user; once confirmed, tips are non-cancellable and non-refundable.',
+            section2Item3: 'Tipping income will go into the DJ\'s account, and the platform will automatically deduct a 10% technical service fee.',
+            section2Item4: 'DJs can apply for withdrawal once their balance reaches 3,000 MMK. Withdrawal amounts will be disbursed via KPay/KBZ Banking.',
+            section2Item5: 'All withdrawal applications will be manually reviewed by administrators within 24 hours, requiring the upload of a real payment QR code.',
+            section2Item6: 'The withdrawal account must match the DJ account\'s bound phone number. Using others\' accounts or false information is strictly prohibited.',
+            section2Item7: 'If any acts such as fraudulent tipping, forging screenshots, or false transactions are discovered, the account will be immediately banned and the balance frozen.',
+            section3Title: 'III. DJ Certification Rules',
+            section3Item1: 'Any BeatMM user can apply on the "Apply to be a DJ" page, filling in personal information and uploading music works.',
+            // ...以此类推，补全所有缺失的字段
+            section3Item2: 'Application requires: artist name, avatar, and at least one original music work.',
+            section3Item3: 'The platform will manually review applications within 1-2 working days, mainly checking for originality, sound quality, and compliance.',
+            section3Item4Title: 'Upon successful certification, DJs gain the following permissions:',
+            section3Item4Perm1: 'Upload music',
+            section3Item4Perm2: 'View play/like/tip data',
+            section3Item4Perm3: 'Withdraw tip income',
+            section3Item4Perm4: 'Enter the DJ ranking system',
+            section3Item5: 'If a DJ uploads non-compliant content (infringing music, false information, illegal statements), certification will be revoked and the account permanently banned.',
+            section3Item6: 'Each DJ is fully responsible for their uploaded content; the platform bears no infringement liability.',
+            section3Item7: 'Encourage the creation of Vietnamese drum, Myanmar style, and local original music works.',
+            importantReminderTitle: '⚠️ Important Reminder',
+            importantReminderText1: 'By using this platform, you acknowledge that you have read, understood, and agreed to abide by all the above rules and terms.',
+            importantReminderText2: 'The platform is committed to providing a safe and compliant music sharing environment for users, working together to maintain a good community atmosphere.',
+            importantReminderText3: 'If you have any questions, please contact customer service or refer to the help documentation.'
           }
         });
       }
@@ -98,8 +214,23 @@ export default function RulesPage() {
   };
 
   if (!translations) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
+        {translations?.common?.loading || 'Loading...'}
+      </div>
+    );
   }
+
+  // Common motion variants for cards and items
+  const cardVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+  };
+
+  const listItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
+  };
 
   return (
     <>
@@ -109,197 +240,195 @@ export default function RulesPage() {
         translations={translations}
       />
 
-      <main style={{ paddingTop: '80px', paddingBottom: '40px' }}>
-        <Container>
-          <Row className="mb-4">
-            <Col>
-              <div className="d-flex align-items-center mb-3">
-                <Button 
-                  variant="link" 
-                  className="text-light p-0 me-3"
-                  onClick={goBack}
+      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-24 pb-10">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Header Section */}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8"
+          >
+            <div className="flex items-center mb-4 md:mb-0">
+              <button
+                className="neon-icon-btn p-2 mr-3"
+                onClick={goBack}
+              >
+                <FaArrowLeft size={20} />
+              </button>
+              <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent leading-tight">
+                <FaFileContract className="inline-block mr-2 text-primary" />
+                {translations.rulesPage.title}
+              </h1>
+            </div>
+            <p className="text-gray-400 text-lg md:text-right md:max-w-md">
+              {translations.rulesPage.subtitle}
+            </p>
+          </motion.div>
+
+          {/* Section 1: Usage Terms */}
+          <motion.div
+            className="glass-panel neon-border p-6 rounded-xl shadow-lg mb-8"
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="bg-primary text-white p-4 rounded-t-lg -mx-6 -mt-6 mb-6">
+              <h3 className="text-2xl font-bold flex items-center">
+                <FaFileContract className="mr-3" />
+                {translations.rulesPage.section1Title}
+              </h3>
+            </div>
+            <ul className="list-none p-0 space-y-4">
+              {[
+                translations.rulesPage.section1Item1,
+                translations.rulesPage.section1Item2,
+                translations.rulesPage.section1Item3,
+                translations.rulesPage.section1Item4,
+                translations.rulesPage.section1Item5,
+                translations.rulesPage.section1Item6,
+                translations.rulesPage.section1Item7,
+                translations.rulesPage.section1Item8,
+              ].map((item, index) => (
+                <motion.li
+                  key={index}
+                  className="flex items-start"
+                  variants={listItemVariants}
                 >
-                  <FaArrowLeft size={20} />
-                </Button>
-                <h1 className="h2 mb-0 fw-bold">
-                  <FaFileContract className="me-2" style={{ color: 'var(--primary-color)' }} />
-                  BeatMM Pro 平台规则与条款
-                </h1>
-              </div>
-              <p className="text-muted">
-                为了维护平台秩序，保障用户权益，请仔细阅读以下规则与条款
-              </p>
-            </Col>
-          </Row>
+                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-primary text-white rounded-full font-bold text-sm mr-3">
+                    {index + 1}
+                  </span>
+                  <span>{item}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
 
-          <Row className="mb-5">
-            <Col>
-              <Card className="card-custom">
-                <Card.Header className="bg-primary text-white">
-                  <h3 className="h4 mb-0">
-                    <FaFileContract className="me-2" />
-                    一、使用条款
-                  </h3>
-                </Card.Header>
-                <Card.Body>
-                  <ul className="list-unstyled">
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">1</span>
-                      <span>BeatMM Pro 是面向缅甸用户的音乐分享与DJ社区平台，仅限合法、和平用途。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">2</span>
-                      <span>用户上传内容必须为本人原创或已获得授权。禁止盗用他人音乐、封面或介绍。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">3</span>
-                      <span>所有打赏行为为用户自愿，不支持打赏退款。平台提供技术服务并抽取服务费用。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">4</span>
-                      <span>用户在平台注册即表示同意遵守平台规则，如有违规行为，平台有权删除内容或封禁账号。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">5</span>
-                      <span>禁止上传或发布任何违法、色情、暴力、仇恨、政治相关内容。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">6</span>
-                      <span>本平台禁止用户私聊，仅允许与系统客服互动，以确保信息安全与合规。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">7</span>
-                      <span>提现前需提供真实收款信息。若提现账户与注册身份不一致，平台有权拒绝处理。</span>
-                    </li>
-                    <li className="mb-0 d-flex">
-                      <span className="badge bg-primary me-3 mt-1">8</span>
-                      <span>BeatMM Pro 保留最终解释权，并有权随时修改条款以适应本地法规或运营策略。</span>
-                    </li>
+          {/* Section 2: Tipping & Withdrawal Rules */}
+          <motion.div
+            className="glass-panel neon-border p-6 rounded-xl shadow-lg mb-8"
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="bg-secondary text-white p-4 rounded-t-lg -mx-6 -mt-6 mb-6">
+              <h3 className="text-2xl font-bold flex items-center">
+                <FaMoneyBillWave className="mr-3" />
+                {translations.rulesPage.section2Title}
+              </h3>
+            </div>
+            <ul className="list-none p-0 space-y-4">
+              {[
+                translations.rulesPage.section2Item1,
+                translations.rulesPage.section2Item2,
+                translations.rulesPage.section2Item3,
+                translations.rulesPage.section2Item4,
+                translations.rulesPage.section2Item5,
+                translations.rulesPage.section2Item6,
+                translations.rulesPage.section2Item7,
+              ].map((item, index) => (
+                <motion.li
+                  key={index}
+                  className="flex items-start"
+                  variants={listItemVariants}
+                >
+                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-secondary text-white rounded-full font-bold text-sm mr-3">
+                    {index + 1}
+                  </span>
+                  <span>{item}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* Section 3: DJ Certification Rules */}
+          <motion.div
+            className="glass-panel neon-border p-6 rounded-xl shadow-lg mb-8"
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <div className="bg-accent text-black p-4 rounded-t-lg -mx-6 -mt-6 mb-6">
+              <h3 className="text-2xl font-bold flex items-center">
+                <FaMicrophone className="mr-3" />
+                {translations.rulesPage.section3Title}
+              </h3>
+            </div>
+            <ul className="list-none p-0 space-y-4">
+              {[
+                translations.rulesPage.section3Item1,
+                translations.rulesPage.section3Item2,
+                translations.rulesPage.section3Item3,
+              ].map((item, index) => (
+                <motion.li
+                  key={index}
+                  className="flex items-start"
+                  variants={listItemVariants}
+                >
+                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-accent text-black rounded-full font-bold text-sm mr-3">
+                    {index + 1}
+                  </span>
+                  <span>{item}</span>
+                </motion.li>
+              ))}
+              <motion.li className="mb-3 flex items-start" variants={listItemVariants}>
+                <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-accent text-black rounded-full font-bold text-sm mr-3">
+                  4
+                </span>
+                <div>
+                  <span>{translations.rulesPage.section3Item4Title}</span>
+                  <ul className="mt-2 ml-3 list-disc list-inside">
+                    <li>{translations.rulesPage.section3Item4Perm1}</li>
+                    <li>{translations.rulesPage.section3Item4Perm2}</li>
+                    <li>{translations.rulesPage.section3Item4Perm3}</li>
+                    <li>{translations.rulesPage.section3Item4Perm4}</li>
                   </ul>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
+                </div>
+              </motion.li>
+              {[
+                translations.rulesPage.section3Item5,
+                translations.rulesPage.section3Item6,
+                translations.rulesPage.section3Item7,
+              ].map((item, index) => (
+                <motion.li
+                  key={index + 4} // Adjust key for uniqueness
+                  className="flex items-start"
+                  variants={listItemVariants}
+                >
+                  <span className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-accent text-black rounded-full font-bold text-sm mr-3">
+                    {index + 5}
+                  </span>
+                  <span>{item}</span>
+                </motion.li>
+              ))}
+            </ul>
+          </motion.div>
 
-          <Row className="mb-5">
-            <Col>
-              <Card className="card-custom">
-                <Card.Header style={{ backgroundColor: 'var(--secondary-color)', color: 'white' }}>
-                  <h3 className="h4 mb-0">
-                    <FaMoneyBillWave className="me-2" />
-                    二、打赏与提现规则
-                  </h3>
-                </Card.Header>
-                <Card.Body>
-                  <ul className="list-unstyled">
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>1</span>
-                      <span>用户可通过 KPay、KBZ Banking 等方式进行账户充值，并用于打赏喜爱的 DJ。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>2</span>
-                      <span>打赏金额由用户自由选择，打赏一经确认，不可撤销、不可退款。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>3</span>
-                      <span>打赏收入将进入 DJ 的账户，平台将自动扣除 10% 技术服务费。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>4</span>
-                      <span>DJ 可在余额满 3,000 MMK 后申请提现。提现金额将通过 KPay/KBZ Banking 发放。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>5</span>
-                      <span>所有提现申请将在 24 小时内由管理员人工审核，需上传真实收款二维码。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>6</span>
-                      <span>提现账户必须与 DJ 账号绑定手机号一致，严禁使用他人账户或虚假资料。</span>
-                    </li>
-                    <li className="mb-0 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--secondary-color)' }}>7</span>
-                      <span>若发现刷打赏、伪造截图、虚假交易等行为，将立即封禁账号，冻结余额。</span>
-                    </li>
-                  </ul>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row className="mb-5">
-            <Col>
-              <Card className="card-custom">
-                <Card.Header style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>
-                  <h3 className="h4 mb-0">
-                    <FaMicrophone className="me-2" />
-                    三、DJ认证规则
-                  </h3>
-                </Card.Header>
-                <Card.Body>
-                  <ul className="list-unstyled">
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>1</span>
-                      <span>任何 BeatMM 用户均可在「申请成为DJ」页面提交申请，填写个人信息与上传音乐作品。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>2</span>
-                      <span>申请需提交：艺名、头像、至少一首原创音乐作品。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>3</span>
-                      <span>平台将于 1~2 个工作日内进行人工审核，主要审核内容包括：作品原创性、音质、是否违规。</span>
-                    </li>
-                    <li className="mb-3">
-                      <div className="d-flex">
-                        <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>4</span>
-                        <div>
-                          <span>成功认证后，DJ可获得以下权限：</span>
-                          <ul className="mt-2 ms-3">
-                            <li>上传音乐</li>
-                            <li>查看播放/点赞/打赏数据</li>
-                            <li>提现打赏收入</li>
-                            <li>进入 DJ 排行榜系统</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>5</span>
-                      <span>若 DJ 上传违反规定的内容（侵权音乐、虚假资料、违规言论），将撤销认证并永久封禁。</span>
-                    </li>
-                    <li className="mb-3 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>6</span>
-                      <span>每位 DJ 对其上传内容负全责，平台不承担任何侵权责任。</span>
-                    </li>
-                    <li className="mb-0 d-flex">
-                      <span className="badge me-3 mt-1" style={{ backgroundColor: 'var(--accent-color)', color: 'black' }}>7</span>
-                      <span>鼓励创作越南鼓、缅甸风格、本地原创音乐作品。</span>
-                    </li>
-                  </ul>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-          <Row>
-            <Col>
-              <Card className="card-custom border-warning">
-                <Card.Body className="text-center">
-                  <h4 className="text-warning mb-3">⚠️ 重要提醒</h4>
-                  <p className="mb-3">
-                    使用本平台即表示您已阅读、理解并同意遵守以上所有规则与条款。
-                  </p>
-                  <p className="mb-3">
-                    平台致力于为用户提供安全、合规的音乐分享环境，共同维护良好的社区氛围。
-                  </p>
-                  <p className="mb-0 text-muted">
-                    如有疑问，请联系客服或查看帮助文档。
-                  </p>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-        </Container>
+          {/* Important Reminder */}
+          <motion.div
+            className="glass-panel neon-border border-warning p-6 rounded-xl text-center shadow-lg"
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <h4 className="text-warning text-2xl font-bold mb-3">
+              {translations.rulesPage.importantReminderTitle}
+            </h4>
+            <p className="mb-3 text-lg">
+              {translations.rulesPage.importantReminderText1}
+            </p>
+            <p className="mb-3 text-lg">
+              {translations.rulesPage.importantReminderText2}
+            </p>
+            <p className="mb-0 text-gray-400">
+              {translations.rulesPage.importantReminderText3}
+            </p>
+          </motion.div>
+        </div>
       </main>
     </>
   );
