@@ -12,7 +12,7 @@ export interface Translations {
     login: string;
     register: string;
     logout: string;
-    rules: string;
+    rules: string; // ✅ 关键修复字段，确保不报错
   };
   home: {
     welcome: string;
