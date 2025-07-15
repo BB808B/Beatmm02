@@ -3,8 +3,45 @@
 
 import { useEffect, useRef } from "react";
 
+// 粒子类定义
+class Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  color: string;
+  
+  constructor(canvas: HTMLCanvasElement) {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 3 + 1.5; // 减小粒子尺寸
+    this.speedX = Math.random() * 2 - 1;
+    this.speedY = Math.random() * 2 - 1;
+    this.color = `hsla(${265 + Math.random() * 40}, 80%, 60%, ${0.05 + Math.random() * 0.1})`; // 更一致的色调
+  }
+  
+  update(canvas: HTMLCanvasElement) {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    
+    // 边界反弹
+    if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+    if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+  }
+  
+  draw(ctx: CanvasRenderingContext2D) {
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
 const FluidBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationFrameId = useRef<number>(0);
+  const particlesRef = useRef<Particle[]>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -17,70 +54,33 @@ const FluidBackground = () => {
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+      
+      // 重置粒子
+      particlesRef.current = [];
+      const particleCount = Math.min(80, Math.floor(window.innerWidth / 15));
+      for (let i = 0; i < particleCount; i++) {
+        particlesRef.current.push(new Particle(canvas));
+      }
     };
     
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
     
-    // 流体背景参数
-    const particles: Particle[] = [];
-    const particleCount = Math.min(50, Math.floor(window.innerWidth / 20));
-    
-    // 粒子类
-    class Particle {
-      x: number;
-      y: number;
-      size: number;
-      speedX: number;
-      speedY: number;
-      color: string;
-      
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 5 + 2;
-        this.speedX = Math.random() * 3 - 1.5;
-        this.speedY = Math.random() * 3 - 1.5;
-        this.color = `hsla(${Math.random() * 360}, 70%, 60%, 0.1)`;
-      }
-      
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        
-        if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-        if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
-      }
-      
-      draw() {
-        if (!ctx) return;
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    
-    // 创建粒子
-    for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
-    }
-    
     // 连接粒子
-    const connect = () => {
-      if (!ctx) return;
+    const connectParticles = () => {
+      const maxDistance = 120;
+      const particles = particlesRef.current;
       
-      const maxDistance = 100;
       for (let a = 0; a < particles.length; a++) {
-        for (let b = a; b < particles.length; b++) {
+        for (let b = a + 1; b < particles.length; b++) {
           const dx = particles[a].x - particles[b].x;
           const dy = particles[a].y - particles[b].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
           
           if (distance < maxDistance) {
             const opacity = 1 - distance / maxDistance;
-            ctx.strokeStyle = `hsla(265, 70%, 60%, ${opacity * 0.2})`;
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = `hsla(275, 80%, 70%, ${opacity * 0.15})`;
+            ctx.lineWidth = 0.8;
             ctx.beginPath();
             ctx.moveTo(particles[a].x, particles[a].y);
             ctx.lineTo(particles[b].x, particles[b].y);
@@ -91,42 +91,43 @@ const FluidBackground = () => {
     };
     
     // 动画循环
-    let animationFrameId: number;
     const animate = () => {
       if (!ctx || !canvas) return;
       
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      // 使用半透明填充创建拖尾效果
+      ctx.fillStyle = "rgba(15, 12, 41, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // 添加渐变背景
+      // 添加径向渐变背景
       const gradient = ctx.createRadialGradient(
         canvas.width / 2,
         canvas.height / 2,
         0,
         canvas.width / 2,
         canvas.height / 2,
-        Math.max(canvas.width, canvas.height) / 2
+        Math.max(canvas.width, canvas.height) / 1.5
       );
-      gradient.addColorStop(0, "rgba(15, 12, 41, 0.8)");
-      gradient.addColorStop(1, "rgba(36, 34, 62, 0.5)");
+      gradient.addColorStop(0, "rgba(25, 20, 60, 0.3)");
+      gradient.addColorStop(1, "rgba(15, 12, 41, 0.1)");
       
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
       // 更新和绘制粒子
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
+      particlesRef.current.forEach(particle => {
+        particle.update(canvas);
+        particle.draw(ctx);
       });
       
-      connect();
-      animationFrameId = requestAnimationFrame(animate);
+      connectParticles();
+      animationFrameId.current = requestAnimationFrame(animate);
     };
     
     animate();
     
     return () => {
       window.removeEventListener("resize", resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(animationFrameId.current);
     };
   }, []);
 
@@ -142,6 +143,7 @@ const FluidBackground = () => {
         height: "100%",
         zIndex: -1
       }}
+      aria-hidden="true" // 对屏幕阅读器隐藏
     />
   );
 };
