@@ -1,142 +1,179 @@
+/* src/app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 导入Bootstrap CSS */
-@import 'bootstrap/dist/css/bootstrap.min.css';
-
-/* 自定义样式 */
+/* === 霓虹主题变量 === */
 :root {
-  --primary-color: #ff6b35;
-  --secondary-color: #004e89;
-  --accent-color: #ffd23f;
-  --dark-bg: #1a1a1a;
-  --card-bg: #2d2d2d;
-  --text-light: #ffffff;
-  --text-muted: #b0b0b0;
+  /* 主色调 */
+  --primary: #6a11cb;
+  --secondary: #2575fc;
+  --accent: #ff2d75;
+  --success: #00ff9d;
+  
+  /* 背景与文本 */
+  --glass-bg: rgba(30, 30, 46, 0.6);
+  --text-light: rgba(255, 255, 255, 0.9);
+  
+  /* 霓虹效果 */
+  --neon-glow: 0 0 10px rgba(106, 17, 203, 0.7), 
+               0 0 20px rgba(37, 117, 252, 0.5);
+  --neon-text-glow: 0 0 5px rgba(106, 17, 203, 0.5),
+                    0 0 10px rgba(37, 117, 252, 0.3),
+                    0 0 15px rgba(255, 45, 117, 0.2);
 }
 
+/* === 基础样式 === */
 body {
-  background: linear-gradient(135deg, var(--dark-bg) 0%, var(--secondary-color) 100%);
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   color: var(--text-light);
-  font-family: 'Inter', sans-serif;
   min-height: 100vh;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  line-height: 1.6;
 }
 
-/* 卡片样式 */
-.card-custom {
-  background: var(--card-bg);
+/* === 霓虹文字效果 === */
+.neon-text {
+  text-shadow: var(--neon-text-glow);
+}
+
+/* === 霓虹按钮 === */
+.neon-btn {
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  backdrop-filter: blur(10px);
+  padding: 12px 24px;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 500;
 }
 
-.card-custom:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
-}
-
-/* 按钮样式 */
-.btn-primary-custom {
-  background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
-  border: none;
-  border-radius: 25px;
-  padding: 12px 30px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-primary-custom:hover {
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
-}
-
-/* 导航栏样式 */
-.navbar-custom {
-  background: rgba(26, 26, 26, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* 音乐播放器样式 */
-.music-player {
-  background: var(--card-bg);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-}
-
-/* 搜索框样式 */
-.search-input {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 25px;
-  color: var(--text-light);
-  padding: 10px 20px;
-}
-
-.search-input:focus {
+.neon-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
-  color: var(--text-light);
+  transform: translateY(-3px);
+  box-shadow: 0 0 20px rgba(37, 117, 252, 0.5);
 }
 
-/* 语言切换器样式 */
-.language-switcher {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.neon-btn:active {
+  transform: translateY(1px);
+}
+
+/* === 状态指示器 === */
+.status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 10px var(--success);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+}
+
+/* === 玻璃拟态面板 === */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
   border-radius: 20px;
-  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--neon-glow), 0 10px 30px rgba(0, 0, 0, 0.3);
+  padding: 25px;
+  margin-bottom: 25px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
 }
 
-/* 动画效果 */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.glass-panel:hover {
+  transform: translateY(-5px);
 }
 
-.fade-in-up {
-  animation: fadeInUp 0.6s ease-out;
+/* === 标题样式 === */
+.section-title {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(106, 17, 203, 0.5);
+  font-family: 'Orbitron', sans-serif;
 }
 
-/* 响应式设计 */
+/* === 布局容器 === */
+.holographic-container {
+  position: relative;
+  z-index: 2;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* === 响应式调整 === */
 @media (max-width: 768px) {
-  .card-custom {
-    margin-bottom: 1rem;
+  .glass-panel {
+    padding: 15px;
+    margin-bottom: 15px;
   }
   
-  .music-player {
+  .section-title {
+    font-size: 1.5rem;
+  }
+  
+  .neon-btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  .holographic-container {
     padding: 10px;
   }
 }
 
-/* 滚动条样式 */
-::-webkit-scrollbar {
-  width: 8px;
+/* === 信息卡片 === */
+.info-card {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 15px;
+  transition: all 0.3s ease;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--dark-bg);
+.info-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-3px);
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--primary-color);
-  border-radius: 4px;
+.info-label {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-bottom: 5px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-color);
+.info-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--accent);
 }
 
+/* === 网格布局 === */
+.deployment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
