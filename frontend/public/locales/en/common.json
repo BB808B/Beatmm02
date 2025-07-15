@@ -9,7 +9,8 @@
     "profile": "Profile",
     "login": "Login",
     "register": "Register",
-    "logout": "Logout"
+    "logout": "Logout",
+    "rules": "Rules"
   },
   "home": {
     "welcome": "Welcome to Myanmar DJ Platform",
@@ -62,4 +63,3 @@
     "success": "Success"
   }
 }
-
