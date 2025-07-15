@@ -64,7 +64,8 @@ export default function LoginPage() {
             save: 'Save', edit: 'Edit', delete: 'Delete', loading: 'Loading...',
             error: 'Error', success: 'Success'
           },
-          rulesPage: { // Minimal fallback for rulesPage
+          // 完整的回退 translations.rulesPage 对象
+          rulesPage: {
             title: 'Platform Rules',
             subtitle: 'Read our rules.',
             section1Title: 'Terms',
@@ -162,7 +163,7 @@ export default function LoginPage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-3xl font-extrabold text-center mb-6
-                       text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
+                        text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
           >
             <FaSignInAlt className="inline-block mr-3" />
             {translations.auth.loginTitle}
@@ -230,8 +231,8 @@ export default function LoginPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full neon-button py-3 rounded-lg font-bold text-lg flex items-center justify-center
-                         transition-all duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                          transition-all duration-300
+                          disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? (
