@@ -1,48 +1,37 @@
-{
+"rulesPage": {
   "title": "Platform Rules & Terms",
   "subtitle": "To maintain platform order and protect user rights, please carefully read the following rules and terms",
-  "sections": {
-    "terms": {
-      "title": "Terms of Use",
-      "items": [
-        "BeatMM Pro is a music sharing and DJ community platform for Myanmar users, limited to legal and peaceful purposes only.",
-        "User-uploaded content must be original or authorized. Stealing others' music, covers, or descriptions is prohibited.",
-        "All tipping behaviors are voluntary by users, and tip refunds are not supported. The platform provides technical services and charges service fees.",
-        "User registration on the platform indicates agreement to comply with platform rules. For violations, the platform has the right to delete content or ban accounts.",
-        "Uploading or publishing any illegal, pornographic, violent, hateful, or political content is prohibited.",
-        "This platform prohibits user private messaging and only allows interaction with system customer service to ensure information security and compliance.",
-        "Real payment information must be provided before withdrawal. If the withdrawal account does not match the registered identity, the platform has the right to refuse processing.",
-        "BeatMM Pro reserves the right of final interpretation and may modify terms at any time to adapt to local regulations or operational strategies."
-      ]
-    },
-    "payment": {
-      "title": "Tipping & Withdrawal Rules",
-      "items": [
-        "Users can recharge their accounts through KPay, KBZ Banking, etc., and use them to tip their favorite DJs.",
-        "Tip amounts are freely chosen by users. Once confirmed, tips cannot be revoked or refunded.",
-        "Tip income will enter the DJ's account, and the platform will automatically deduct a 10% technical service fee.",
-        "DJs can apply for withdrawal when their balance reaches 3,000 MMK. Withdrawal amounts will be distributed through KPay/KBZ Banking.",
-        "All withdrawal applications will be manually reviewed by administrators within 24 hours, requiring upload of real payment QR codes.",
-        "Withdrawal accounts must match the phone number bound to the DJ account. Using others' accounts or false information is strictly prohibited.",
-        "If fake tipping, forged screenshots, or fraudulent transactions are discovered, accounts will be immediately banned and balances frozen."
-      ]
-    },
-    "dj": {
-      "title": "DJ Certification Rules",
-      "items": [
-        "Any BeatMM user can submit applications on the 'Apply to Become DJ' page, filling in personal information and uploading music works.",
-        "Applications must submit: stage name, avatar, at least one original music work.",
-        "The platform will conduct manual review within 1-2 business days, mainly reviewing: work originality, sound quality, and compliance.",
-        "After successful certification, DJs can obtain permissions: upload music, view data, withdraw income, enter ranking system.",
-        "If DJs upload content that violates regulations (infringing music, false information, violating comments), certification will be revoked and permanently banned.",
-        "Each DJ is fully responsible for their uploaded content, and the platform bears no copyright infringement liability.",
-        "Creation of Vietnamese drum, Myanmar style, and local original music works is encouraged."
-      ]
-    }
-  },
-  "warning": {
-    "title": "Important Notice",
-    "content": "Using this platform indicates that you have read, understood, and agreed to comply with all the above rules and terms. The platform is committed to providing users with a safe and compliant music sharing environment, working together to maintain a good community atmosphere. If you have questions, please contact customer service or check help documentation."
-  }
+  "section1Title": "Terms of Use",
+  "section1Item1": "BeatMM Pro is a music sharing and DJ community platform for Myanmar users, limited to legal and peaceful purposes only.",
+  "section1Item2": "User-uploaded content must be original or authorized. Stealing others' music, covers, or descriptions is prohibited.",
+  "section1Item3": "All tipping behaviors are voluntary by users, and tip refunds are not supported. The platform provides technical services and charges service fees.",
+  "section1Item4": "User registration on the platform indicates agreement to comply with platform rules. For violations, the platform has the right to delete content or ban accounts.",
+  "section1Item5": "Uploading or publishing any illegal, pornographic, violent, hateful, or political content is prohibited.",
+  "section1Item6": "This platform prohibits user private messaging and only allows interaction with system customer service to ensure information security and compliance.",
+  "section1Item7": "Real payment information must be provided before withdrawal. If the withdrawal account does not match the registered identity, the platform has the right to refuse processing.",
+  "section1Item8": "BeatMM Pro reserves the right of final interpretation and may modify terms at any time to adapt to local regulations or operational strategies.",
+  "section2Title": "Tipping & Withdrawal Rules",
+  "section2Item1": "Users can recharge their accounts through KPay, KBZ Banking, etc., and use them to tip their favorite DJs.",
+  "section2Item2": "Tip amounts are freely chosen by users. Once confirmed, tips cannot be revoked or refunded.",
+  "section2Item3": "Tip income will enter the DJ's account, and the platform will automatically deduct a 10% technical service fee.",
+  "section2Item4": "DJs can apply for withdrawal when their balance reaches 3,000 MMK. Withdrawal amounts will be distributed through KPay/KBZ Banking.",
+  "section2Item5": "All withdrawal applications will be manually reviewed by administrators within 24 hours, requiring upload of real payment QR codes.",
+  "section2Item6": "Withdrawal accounts must match the phone number bound to the DJ account. Using others' accounts or false information is strictly prohibited.",
+  "section2Item7": "If fake tipping, forged screenshots, or fraudulent transactions are discovered, accounts will be immediately banned and balances frozen.",
+  "section3Title": "DJ Certification Rules",
+  "section3Item1": "Any BeatMM user can submit applications on the 'Apply to Become DJ' page, filling in personal information and uploading music works.",
+  "section3Item2": "Applications must submit: stage name, avatar, at least one original music work.",
+  "section3Item3": "The platform will conduct manual review within 1-2 business days, mainly reviewing: work originality, sound quality, and compliance.",
+  "section3Item4Title": "Certified DJ Permissions",
+  "section3Item4Perm1": "Upload music",
+  "section3Item4Perm2": "View data",
+  "section3Item4Perm3": "Withdraw income",
+  "section3Item4Perm4": "Enter ranking system",
+  "section3Item5": "If DJs upload content that violates regulations (infringing music, false information, violating comments), certification will be revoked and permanently banned.",
+  "section3Item6": "Each DJ is fully responsible for their uploaded content, and the platform bears no copyright infringement liability.",
+  "section3Item7": "Creation of Vietnamese drum, Myanmar style, and local original music works is encouraged.",
+  "importantReminderTitle": "Important Notice",
+  "importantReminderText1": "Using this platform indicates that you have read, understood, and agreed to comply with all the above rules and terms.",
+  "importantReminderText2": "The platform is committed to providing users with a safe and compliant music sharing environment.",
+  "importantReminderText3": "If you have questions, please contact customer service or check help documentation."
 }
-
