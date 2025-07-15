@@ -20,16 +20,23 @@
     "newReleases": "New Releases"
   },
   "auth": {
+    "loginTitle": "Login",
     "phone": "Phone Number",
     "password": "Password",
     "confirmPassword": "Confirm Password",
-    "login": "Login",
+    "loginButton": "Login",
     "register": "Register",
     "forgotPassword": "Forgot Password?",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
     "registerNow": "Register Now",
-    "loginNow": "Login Now"
+    "loginNow": "Login Now",
+    "registerTitle": "Register",
+    "registerButton": "Register",
+    "loginSuccess": "Login successful",
+    "loginError": "Login failed",
+    "phoneRequired": "Phone number is required",
+    "passwordRequired": "Password is required"
   },
   "player": {
     "play": "Play",
