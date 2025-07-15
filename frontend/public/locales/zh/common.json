@@ -9,7 +9,8 @@
     "profile": "个人中心",
     "login": "登录",
     "register": "注册",
-    "logout": "退出"
+    "logout": "退出",
+    "rules": "规则"
   },
   "home": {
     "welcome": "欢迎来到缅甸DJ平台",
@@ -62,4 +63,3 @@
     "success": "成功"
   }
 }
-
