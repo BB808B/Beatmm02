@@ -41,9 +41,11 @@ export default function LoginPage() {
             loginTitle: 'Welcome to Login',
             phone: 'Phone Number',
             password: 'Password',
+            confirmPassword: 'Confirm Password', // <--- 新增此行
             loginButton: 'Login',
             forgotPassword: 'Forgot Password?',
             noAccount: 'No account?',
+            hasAccount: 'Already have an account?', // <--- 新增此行
             registerNow: 'Register Now',
             loginSuccess: 'Login successful!',
             loginError: 'Login failed. Please check your phone number or password.',
@@ -163,7 +165,7 @@ export default function LoginPage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-3xl font-extrabold text-center mb-6
-                        text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
+                         text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
           >
             <FaSignInAlt className="inline-block mr-3" />
             {translations.auth.loginTitle}
@@ -231,8 +233,8 @@ export default function LoginPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="w-full neon-button py-3 rounded-lg font-bold text-lg flex items-center justify-center
-                          transition-all duration-300
-                          disabled:opacity-50 disabled:cursor-not-allowed"
+                           transition-all duration-300
+                           disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading}
             >
               {loading ? (
