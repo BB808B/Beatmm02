@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import FluidBackground from "@/components/FluidBackground"; // 新增动态背景组件
+import NeonBorders from "@/components/NeonBorders"; // 新增霓虹边框组件
 import { useEffect } from "react";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -33,6 +34,23 @@ const neonTheme = `
     color: var(--text-light);
     min-height: 100vh;
     overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  }
+  
+  .cyberpunk-theme {
+    background: transparent;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .holographic-container {
+    position: relative;
+    z-index: 2;
+    padding: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
   
   .glass-panel {
@@ -62,6 +80,79 @@ const neonTheme = `
     display: inline-block;
     font-weight: 700;
     text-shadow: 0 0 5px rgba(106, 17, 203, 0.5);
+    font-family: 'Orbitron', sans-serif;
+  }
+  
+  /* 霓虹灯文字效果 */
+  .neon-text {
+    text-shadow: 
+      0 0 5px rgba(106, 17, 203, 0.5),
+      0 0 10px rgba(37, 117, 252, 0.3),
+      0 0 15px rgba(255, 45, 117, 0.2);
+  }
+  
+  /* 按钮霓虹效果 */
+  .neon-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 24px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
+  }
+  
+  .neon-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 0 20px rgba(37, 117, 252, 0.5);
+  }
+  
+  .neon-btn:active {
+    transform: translateY(1px);
+  }
+  
+  /* 状态指示器 */
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #00ff9d;
+    box-shadow: 0 0 10px #00ff9d;
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.5); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+  }
+  
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .glass-panel {
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .section-title {
+      font-size: 1.5rem;
+    }
+    
+    .neon-btn {
+      padding: 10px 15px;
+      font-size: 0.9rem;
+    }
+    
+    .holographic-container {
+      padding: 10px;
+    }
   }
 `;
 
@@ -96,15 +187,12 @@ export default function RootLayout({
         {/* 动态流体背景 */}
         <FluidBackground />
         
-        {/* 霓虹灯顶部装饰 */}
-        <div className="neon-top-bar"></div>
+        {/* 霓虹灯装饰边框 */}
+        <NeonBorders />
         
         <div id="root" className="holographic-container">
           {children}
         </div>
-        
-        {/* 霓虹灯底部装饰 */}
-        <div className="neon-bottom-bar"></div>
       </body>
     </html>
   );
