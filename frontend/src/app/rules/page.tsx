@@ -1,3 +1,5 @@
+// src/app/rules/page.tsx
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -5,113 +7,6 @@ import { FaArrowLeft, FaFileContract, FaMoneyBillWave, FaMicrophone } from 'reac
 import NavbarComponent from '@/components/Navbar';
 import { Translations } from '@/types'; // 确保 Translations 类型正确导入
 import { motion } from 'framer-motion';
-
-// 定义 Translation 类型以匹配 common.json 的结构
-// 注意：这应该在您的 `@/types` 文件中定义，这里是为了演示完整性而重复
-// 请确保您的 `@/types` 文件中有此定义
-// 例如：
-// export interface Translations {
-//   title: string;
-//   nav: {
-//     home: string;
-//     music: string;
-//     dj: string;
-//     live: string;
-//     ranking: string;
-//     profile: string;
-//     login: string;
-//     register: string;
-//     logout: string;
-//     rules: string; // 新增
-//   };
-//   home: {
-//     welcome: string;
-//     subtitle: string;
-//     featured: string;
-//     trending: string;
-//     newReleases: string;
-//   };
-//   auth: {
-//     phone: string;
-//     password: string;
-//     confirmPassword: string;
-//     login: string;
-//     register: string;
-//     forgotPassword: string;
-//     noAccount: string;
-//     hasAccount: string;
-//     registerNow: string;
-//     loginNow: string;
-//   };
-//   player: {
-//     play: string;
-//     pause: string;
-//     next: string;
-//     previous: string;
-//     volume: string;
-//     shuffle: string;
-//     repeat: string;
-//   };
-//   profile: {
-//     myProfile: string;
-//     myMusic: string;
-//     myWallet: string;
-//     settings: string;
-//     djApplication: string;
-//     balance: string;
-//     recharge: string;
-//     withdraw: string;
-//   };
-//   common: {
-//     search: string;
-//     submit: string;
-//     cancel: string;
-//     confirm: string;
-//     save: string;
-//     edit: string;
-//     delete: string;
-//     loading: string;
-//     error: string;
-//     success: string;
-//   };
-//   rulesPage: { // 新增 rulesPage 字段
-//     title: string;
-//     subtitle: string;
-//     section1Title: string;
-//     section1Item1: string;
-//     section1Item2: string;
-//     section1Item3: string;
-//     section1Item4: string;
-//     section1Item5: string;
-//     section1Item6: string;
-//     section1Item7: string;
-//     section1Item8: string;
-//     section2Title: string;
-//     section2Item1: string;
-//     section2Item2: string;
-//     section2Item3: string;
-//     section2Item4: string;
-//     section2Item5: string;
-//     section2Item6: string;
-//     section2Item7: string;
-//     section3Title: string;
-//     section3Item1: string;
-//     section3Item2: string;
-//     section3Item3: string;
-//     section3Item4Title: string;
-//     section3Item4Perm1: string;
-//     section3Item4Perm2: string;
-//     section3Item4Perm3: string;
-//     section3Item4Perm4: string;
-//     section3Item5: string;
-//     section3Item6: string;
-//     section3Item7: string;
-//     importantReminderTitle: string;
-//     importantReminderText1: string;
-//     importantReminderText2: string;
-//     importantReminderText3: string;
-//   };
-// }
 
 
 export default function RulesPage() {
@@ -131,72 +26,101 @@ export default function RulesPage() {
         console.error('Failed to load translations:', error);
         // 提供一个最小的备用翻译，或者显示错误消息
         setTranslations({
-          title: 'BeatMM Pro',
+          title: '缅甸DJ平台', // Updated title for consistency
           nav: {
-            home: 'Home', music: 'Music', dj: 'DJ', live: 'Live', ranking: 'Ranking',
-            profile: 'Profile', login: 'Login', register: 'Register', logout: 'Logout', rules: 'Rules'
+            home: '首页', music: '音乐', dj: 'DJ', live: '直播', ranking: '排行榜',
+            profile: '个人中心', login: '登录', register: '注册', logout: '退出', rules: '规则'
           },
           home: {
-            welcome: 'Welcome', subtitle: 'Discover amazing music', featured: 'Featured', trending: 'Trending', newReleases: 'New Releases'
+            welcome: '欢迎来到缅甸DJ平台', subtitle: '发现最棒的越南鼓DJ音乐', featured: '精选音乐', trending: '热门趋势', newReleases: '最新发布'
           },
           auth: {
-            phone: 'Phone', password: 'Password', confirmPassword: 'Confirm Password',
-            login: 'Login', register: 'Register', forgotPassword: 'Forgot Password?',
-            noAccount: 'No account?', hasAccount: 'Already have an account?',
-            registerNow: 'Register Now', loginNow: 'Login Now'
+            // 确保与 src/types/index.ts 中的 Translations 接口的 auth 部分完全匹配
+            loginTitle: '登录', // Added to match types
+            phone: '手机号码',
+            password: '密码',
+            confirmPassword: '确认密码',
+            loginButton: '登录', // Changed from 'login'
+            registerButton: '注册', // Changed from 'register'
+            forgotPassword: '忘记密码？',
+            noAccount: '没有账号？',
+            hasAccount: '已有账号？',
+            registerNow: '立即注册',
+            loginNow: '立即登录',
+            loginSuccess: '登录成功！', // Added to match types
+            loginError: '登录失败。', // Added to match types
+            phoneRequired: '手机号码不能为空', // Added to match types
+            passwordRequired: '密码不能为空', // Added to match types
+            confirmPasswordRequired: '请确认密码', // Added to match types
+            passwordMismatch: '密码不匹配', // Added to match types
+            registerSuccess: '注册成功！', // Added to match types
+            registerError: '注册失败。' // Added to match types
           },
           player: {
-            play: 'Play', pause: 'Pause', next: 'Next', previous: 'Previous',
-            volume: 'Volume', shuffle: 'Shuffle', repeat: 'Repeat'
+            play: '播放', pause: '暂停', next: '下一首', previous: '上一首',
+            volume: '音量', shuffle: '随机播放', repeat: '重复播放'
           },
           profile: {
-            myProfile: 'My Profile', myMusic: 'My Music', myWallet: 'My Wallet',
-            settings: 'Settings', djApplication: 'DJ Application', balance: 'Balance',
-            recharge: 'Recharge', withdraw: 'Withdraw'
+            myProfile: '我的资料',
+            editProfile: '编辑资料', // Added to match types
+            myMusic: '我的音乐',
+            myWallet: '我的钱包',
+            balance: '余额',
+            recharge: '充值',
+            withdraw: '提现',
+            settings: '设置',
+            djApplication: 'DJ认证申请',
+            logout: '退出登录', // Added to match types
+            phone: '手机号码', // Added to match types
+            username: '用户名', // Added to match types
+            greeting: '你好，{username}！', // Added to match types
+            djStatus: 'DJ状态：', // Added to match types
+            notDj: '未认证', // Added to match types
+            isDj: '已认证' // Added to match types
           },
           common: {
-            search: 'Search', submit: 'Submit', cancel: 'Cancel', confirm: 'Confirm',
-            save: 'Save', edit: 'Edit', delete: 'Delete', loading: 'Loading...',
-            error: 'Error', success: 'Success'
+            search: '搜索', submit: '提交', cancel: '取消', confirm: '确认',
+            save: '保存', edit: '编辑', delete: '删除', loading: '加载中...',
+            error: '错误', success: '成功',
+            viewDetails: '查看详情' // Added to match types
           },
-          // 最小的 rulesPage 备用翻译
+          // 最小的 rulesPage 备用翻译 (已补全所有缺失的字段)
           rulesPage: {
-            title: 'Platform Rules & Terms',
-            subtitle: 'Please read the following rules and terms carefully to maintain platform order and protect user rights.',
-            section1Title: 'I. Terms of Use',
-            section1Item1: 'BeatMM Pro is a music sharing & DJ community platform for Myanmar users, limited to legal, peaceful purposes.',
-            section1Item2: 'User-uploaded content must be original or authorized. Piracy of others\' music, covers, or introductions is prohibited.',
-            section1Item3: 'All tipping is voluntary and non-refundable. The platform provides technical services and charges a service fee.',
-            section1Item4: 'By registering on the platform, users agree to abide by platform rules. The platform reserves the right to delete content or ban accounts for violations.',
-            section1Item5: 'Uploading or publishing any illegal, pornographic, violent, hateful, or politically sensitive content is prohibited.',
-            section1Item6: 'This platform prohibits private messaging between users, only allowing interaction with system customer service to ensure information security and compliance.',
-            section1Item7: 'Real payment information must be provided before withdrawal. If the withdrawal account does not match the registered identity, the platform reserves the right to refuse processing.',
-            section1Item8: 'BeatMM Pro reserves the right of final interpretation and may modify terms at any time to comply with local regulations or operational strategies.',
-            section2Title: 'II. Tipping & Withdrawal Rules',
-            section2Item1: 'Users can top up their accounts via KPay, KBZ Banking, etc., and use it to tip their favorite DJs.',
-            section2Item2: 'Tipping amounts are freely chosen by the user; once confirmed, tips are non-cancellable and non-refundable.',
-            section2Item3: 'Tipping income will go into the DJ\'s account, and the platform will automatically deduct a 10% technical service fee.',
-            section2Item4: 'DJs can apply for withdrawal once their balance reaches 3,000 MMK. Withdrawal amounts will be disbursed via KPay/KBZ Banking.',
-            section2Item5: 'All withdrawal applications will be manually reviewed by administrators within 24 hours, requiring the upload of a real payment QR code.',
-            section2Item6: 'The withdrawal account must match the DJ account\'s bound phone number. Using others\' accounts or false information is strictly prohibited.',
-            section2Item7: 'If any acts such as fraudulent tipping, forging screenshots, or false transactions are discovered, the account will be immediately banned and the balance frozen.',
-            section3Title: 'III. DJ Certification Rules',
-            section3Item1: 'Any BeatMM user can apply on the "Apply to be a DJ" page, filling in personal information and uploading music works.',
-            // ...以此类推，补全所有缺失的字段
-            section3Item2: 'Application requires: artist name, avatar, and at least one original music work.',
-            section3Item3: 'The platform will manually review applications within 1-2 working days, mainly checking for originality, sound quality, and compliance.',
-            section3Item4Title: 'Upon successful certification, DJs gain the following permissions:',
-            section3Item4Perm1: 'Upload music',
-            section3Item4Perm2: 'View play/like/tip data',
-            section3Item4Perm3: 'Withdraw tip income',
-            section3Item4Perm4: 'Enter the DJ ranking system',
-            section3Item5: 'If a DJ uploads non-compliant content (infringing music, false information, illegal statements), certification will be revoked and the account permanently banned.',
-            section3Item6: 'Each DJ is fully responsible for their uploaded content; the platform bears no infringement liability.',
-            section3Item7: 'Encourage the creation of Vietnamese drum, Myanmar style, and local original music works.',
-            importantReminderTitle: '⚠️ Important Reminder',
-            importantReminderText1: 'By using this platform, you acknowledge that you have read, understood, and agreed to abide by all the above rules and terms.',
-            importantReminderText2: 'The platform is committed to providing a safe and compliant music sharing environment for users, working together to maintain a good community atmosphere.',
-            importantReminderText3: 'If you have any questions, please contact customer service or refer to the help documentation.'
+            title: "平台规则与条款",
+            subtitle: "为了维护平台秩序，保障用户权益，请仔细阅读以下规则与条款",
+            section1Title: "一、使用条款", // Changed to match common.json style
+            section1Item1: "BeatMM Pro 是面向缅甸用户的音乐分享与DJ社区平台，仅限合法、和平用途。",
+            section1Item2: "用户上传内容必须为本人原创或已获得授权。禁止盗用他人音乐、封面或介绍。",
+            section1Item3: "所有打赏行为为用户自愿，不支持打赏退款。平台提供技术服务并抽取服务费用。",
+            section1Item4: "用户在平台注册即表示同意遵守平台规则，如有违规行为，平台有权删除内容或封禁账号。",
+            section1Item5: "禁止上传或发布任何违法、色情、暴力、仇恨、政治相关内容。",
+            section1Item6: "本平台禁止用户私聊，仅允许与系统客服互动，以确保信息安全与合规。",
+            section1Item7: "提现前需提供真实收款信息。若提现账户与注册身份不一致，平台有权拒绝处理。",
+            section1Item8: "BeatMM Pro 保留最终解释权，并有权随时修改条款以适应本地法规或运营策略。",
+            section2Title: "二、打赏与提现规则", // Changed to match common.json style
+            section2Item1: "用户可通过 KPay、KBZ Banking 等方式进行账户充值，并用于打赏喜爱的 DJ。",
+            section2Item2: "打赏金额由用户自由选择，打赏一经确认，不可撤销、不可退款。",
+            section2Item3: "打赏收入将进入 DJ 的账户，平台将自动扣除 10% 技术服务费。",
+            section2Item4: "DJ 可在余额满 3,000 MMK 后申请提现。提现金额将通过 KPay/KBZ Banking 发放。",
+            section2Item5: "所有提现申请将在 24 小时内由管理员人工审核，需上传真实收款二维码。",
+            section2Item6: "提现账户必须与 DJ 账号绑定手机号一致，严禁使用他人账户或虚假资料。",
+            section2Item7: "若发现刷打赏、伪造截图、虚假交易等行为，将立即封禁账号，冻结余额。",
+            section3Title: "三、DJ认证规则", // Changed to match common.json style
+            section3Item1: "任何 BeatMM 用户均可在“申请成为DJ”页面提交申请，填写个人信息与上传音乐作品。",
+            section3Item2: "申请需提交：艺名、头像、至少一首原创音乐作品。",
+            section3Item3: "平台将于 1~2 个工作日内进行人工审核，主要审核内容包括：作品原创性、音质、是否违规。",
+            section3Item4Title: "DJ权限", // Corrected as per common.json
+            section3Item4Perm1: "上传音乐",
+            section3Item4Perm2: "查看数据",
+            section3Item4Perm3: "提现收入",
+            section3Item4Perm4: "进入排行榜",
+            section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。",
+            section3Item6: "每位 DJ 对其上传内容负全责，平台不承担任何侵权责任。",
+            section3Item7: "鼓励创作越南鼓、缅甸风格、本地原创音乐作品。",
+            importantReminderTitle: "重要提醒",
+            importantReminderText1: "使用本平台即表示您已阅读、理解并同意遵守以上所有规则与条款。",
+            importantReminderText2: "平台致力于为用户提供安全、合规的音乐分享环境，共同维护良好的社区氛围。",
+            importantReminderText3: "如有疑问，请联系客服或查看帮助文档。"
           }
         });
       }
@@ -216,7 +140,7 @@ export default function RulesPage() {
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {translations?.common?.loading || 'Loading...'}
+        {translations?.common?.loading || '加载中...'} {/* Changed 'Loading...' to '加载中...' for consistency */}
       </div>
     );
   }
