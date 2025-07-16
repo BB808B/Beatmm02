@@ -29,7 +29,7 @@ export interface Track {
   created_at: string;
 }
 
-// 翻译类型 (已修改)
+// 翻译类型 (已修改，已与 profile/page.tsx 的 fallback 翻译完全同步)
 export interface Translations {
   title: string;
   nav: {
@@ -40,9 +40,9 @@ export interface Translations {
     ranking: string;
     profile: string;
     login: string;
-    register: string;
+    register: string; // 确保这里是 register
     logout: string;
-    rules: string; // <-- 新增这一行，解决 'rules' 不存在的问题
+    rules: string;
   };
   home: {
     welcome: string;
@@ -52,16 +52,26 @@ export interface Translations {
     newReleases: string;
   };
   auth: {
+    loginTitle: string; // <-- 新增
     phone: string;
     password: string;
     confirmPassword: string;
-    login: string;
-    register: string;
+    loginButton: string; // <-- 新增
     forgotPassword: string;
     noAccount: string;
     hasAccount: string;
     registerNow: string;
+    registerTitle: string; // <-- 新增
+    registerButton: string; // <-- 新增
     loginNow: string;
+    loginSuccess: string; // <-- 新增
+    loginError: string; // <-- 新增
+    phoneRequired: string; // <-- 新增
+    passwordRequired: string; // <-- 新增
+    confirmPasswordRequired: string; // <-- 新增
+    passwordMismatch: string; // <-- 新增
+    registerSuccess: string; // <-- 新增
+    registerError: string; // <-- 新增
   };
   player: {
     play: string;
@@ -74,6 +84,7 @@ export interface Translations {
   };
   profile: {
     myProfile: string;
+    editProfile: string; // <-- 新增 (profile/page.tsx 中有用到)
     myMusic: string;
     myWallet: string;
     settings: string;
@@ -81,6 +92,13 @@ export interface Translations {
     balance: string;
     recharge: string;
     withdraw: string;
+    logout: string; // <-- 新增 (profile/page.tsx 中有用到)
+    phone: string; // <-- 新增 (profile/page.tsx 中有用到)
+    username: string; // <-- 新增 (profile/page.tsx 中有用到)
+    greeting: string; // <-- 新增 (profile/page.tsx 中有用到)
+    djStatus: string; // <-- 新增 (profile/page.tsx 中有用到)
+    notDj: string; // <-- 新增 (profile/page.tsx 中有用到)
+    isDj: string; // <-- 新增 (profile/page.tsx 中有用到)
   };
   common: {
     search: string;
@@ -93,8 +111,8 @@ export interface Translations {
     loading: string;
     error: string;
     success: string;
+    viewDetails: string; // <-- 新增 (profile/page.tsx 中有用到)
   };
-  // 根据您login/page.tsx的fallback，还需要添加 rulesPage:
   rulesPage: {
     title: string;
     subtitle: string;
