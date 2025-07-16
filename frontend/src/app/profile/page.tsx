@@ -47,7 +47,7 @@ export default function ProfilePage() {
             ranking: "排行榜",
             profile: "个人中心",
             login: "登录",
-             推送: "注册", // 这里原来是 register: "注册"
+            register: "注册", // <-- 这里是唯一需要改动的地方，将 "推送" 改回 "register"
             logout: "退出",
             rules: "规则"
           },
@@ -308,7 +308,7 @@ export default function ProfilePage() {
                 onClick={() => router.push('/dj-apply')} // 假设有DJ申请页面
               >
                 {translations.common.submit}
-              </motion.button> {/* <-- 修正这里：删除了多余的 ".motion" */}
+              </motion.button>
             </motion.div>
 
             <motion.div
@@ -327,7 +327,7 @@ export default function ProfilePage() {
                 onClick={() => router.push('/settings')} // 假设有设置页面
               >
                 {translations.common.viewDetails}
-              </motion.button> {/* <-- 修正这里：删除了多余的 ".motion" */}
+              </motion.button>
             </motion.div>
           </div>
 
