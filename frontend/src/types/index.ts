@@ -1,5 +1,23 @@
 // src/types/index.ts
 
+export interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  albumArt: string;
+  audioSrc: string;
+  duration: string; // 例如 "3:45"
+}
+
+export interface CarouselSlide {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  link: string;
+}
+
+
 export interface Translations {
   title: string;
   nav: {
@@ -81,8 +99,8 @@ export interface Translations {
     error: string;
     success: string;
     viewDetails: string; // Added
-    on: string; // <--- **新增加的**
-    off: string; // <--- **新增加的**
+    on: string; // Added
+    off: string; // Added
   };
   rulesPage: {
     title: string;
