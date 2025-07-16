@@ -7,6 +7,8 @@ export interface Track {
   albumArt: string;
   audioSrc: string;
   duration: string; // 例如 "3:45"
+  isLiked: boolean; // <--- **新增加的**
+  likes: number;    // <--- **新增加的**
 }
 
 export interface CarouselSlide {
