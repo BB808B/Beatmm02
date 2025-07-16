@@ -29,7 +29,7 @@ export interface Track {
   created_at: string;
 }
 
-// 翻译类型 (已修改，已与 profile/page.tsx 的 fallback 翻译完全同步)
+// 翻译类型 (已修正以匹配 login/page.tsx 的 fallback 翻译)
 export interface Translations {
   title: string;
   nav: {
@@ -40,9 +40,9 @@ export interface Translations {
     ranking: string;
     profile: string;
     login: string;
-    register: string; // 确保这里是 register
+    register: string;
     logout: string;
-    rules: string;
+    rules: string; // 确保这里有 rules
   };
   home: {
     welcome: string;
@@ -52,26 +52,27 @@ export interface Translations {
     newReleases: string;
   };
   auth: {
-    loginTitle: string; // <-- 新增
+    loginTitle: string;
     phone: string;
     password: string;
     confirmPassword: string;
-    loginButton: string; // <-- 新增
+    loginButton: string;
     forgotPassword: string;
     noAccount: string;
-    hasAccount: string;
+    hasAccount: string; // login/page.tsx fallback 中没有，但之前的 profile/page.tsx 里有，这里加上
     registerNow: string;
-    registerTitle: string; // <-- 新增
-    registerButton: string; // <-- 新增
-    loginNow: string;
-    loginSuccess: string; // <-- 新增
-    loginError: string; // <-- 新增
-    phoneRequired: string; // <-- 新增
-    passwordRequired: string; // <-- 新增
-    confirmPasswordRequired: string; // <-- 新增
-    passwordMismatch: string; // <-- 新增
-    registerSuccess: string; // <-- 新增
-    registerError: string; // <-- 新增
+    loginNow: string; // login/page.tsx fallback 中没有，但之前的 profile/page.tsx 里有，这里加上
+    loginSuccess: string;
+    loginError: string;
+    phoneRequired: string;
+    passwordRequired: string;
+    // 下面这些在 login/page.tsx 的 auth fallback 中缺失，但 profile/page.tsx 和通用情况下可能需要，为了完整性添加
+    registerTitle?: string; // 可选，因为 login/page.tsx fallback 里没有
+    registerButton?: string; // 可选，因为 login/page.tsx fallback 里没有
+    confirmPasswordRequired?: string; // 可选，因为 login/page.tsx fallback 里没有
+    passwordMismatch?: string; // 可选，因为 login/page.tsx fallback 里没有
+    registerSuccess?: string; // 可选，因为 login/page.tsx fallback 里没有
+    registerError?: string; // 可选，因为 login/page.tsx fallback 里没有
   };
   player: {
     play: string;
@@ -84,7 +85,6 @@ export interface Translations {
   };
   profile: {
     myProfile: string;
-    editProfile: string; // <-- 新增 (profile/page.tsx 中有用到)
     myMusic: string;
     myWallet: string;
     settings: string;
@@ -92,13 +92,15 @@ export interface Translations {
     balance: string;
     recharge: string;
     withdraw: string;
-    logout: string; // <-- 新增 (profile/page.tsx 中有用到)
-    phone: string; // <-- 新增 (profile/page.tsx 中有用到)
-    username: string; // <-- 新增 (profile/page.tsx 中有用到)
-    greeting: string; // <-- 新增 (profile/page.tsx 中有用到)
-    djStatus: string; // <-- 新增 (profile/page.tsx 中有用到)
-    notDj: string; // <-- 新增 (profile/page.tsx 中有用到)
-    isDj: string; // <-- 新增 (profile/page.tsx 中有用到)
+    // 之前在 profile/page.tsx 提到的字段，为了完整性添加到这里
+    editProfile?: string;
+    logout?: string;
+    phone?: string;
+    username?: string;
+    greeting?: string;
+    djStatus?: string;
+    notDj?: string;
+    isDj?: string;
   };
   common: {
     search: string;
@@ -111,7 +113,7 @@ export interface Translations {
     loading: string;
     error: string;
     success: string;
-    viewDetails: string; // <-- 新增 (profile/page.tsx 中有用到)
+    viewDetails?: string; // 之前 profile/page.tsx 里有，这里添加
   };
   rulesPage: {
     title: string;
