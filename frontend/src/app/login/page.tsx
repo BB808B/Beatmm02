@@ -151,7 +151,7 @@ export default function LoginPage() {
             importantReminderText2: "平台致力于为用户提供安全、合规的音乐分享环境，共同维护良好的社区氛围。",
             importantReminderText3: "如有疑问，请联系客服或查看帮助文档。"
           },
-          settingsPage: { // <--- 修复: 添加缺失的 settingsPage
+          settingsPage: {
             title: "设置",
             language: "语言",
             theme: "主题",
@@ -224,7 +224,7 @@ export default function LoginPage() {
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {translations?.common?.loading || '加载中...'} {/* Updated for consistency */}
+        {'加载中...'} {/* <--- 修复: 直接显示硬编码文本，因为此时 translations 肯定为 null */}
       </div>
     );
   }
