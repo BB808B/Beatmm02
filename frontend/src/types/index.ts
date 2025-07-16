@@ -1,35 +1,5 @@
-// 用户相关类型
-export interface User {
-  id: string;
-  phone: string;
-  role: 'user' | 'dj' | 'admin' | 'super_admin';
-  balance: number;
-  is_dj: boolean;
-  is_active: boolean;
-  created_at: string;
-  last_login?: string;
-  nickname?: string;
-  avatar_url?: string;
-}
+// src/types/index.ts
 
-// 音乐轨道类型
-export interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  duration: number;
-  url: string;
-  cover: string;
-  plays: number;
-  likes: number;
-  isLiked?: boolean;
-  uploader_id?: string;
-  genre?: string;
-  tags?: string[];
-  created_at: string;
-}
-
-// 翻译类型 (已修正以匹配 login/page.tsx 的 fallback 翻译)
 export interface Translations {
   title: string;
   nav: {
@@ -42,7 +12,7 @@ export interface Translations {
     login: string;
     register: string;
     logout: string;
-    rules: string; // 确保这里有 rules
+    rules: string;
   };
   home: {
     welcome: string;
@@ -56,23 +26,21 @@ export interface Translations {
     phone: string;
     password: string;
     confirmPassword: string;
-    loginButton: string;
+    loginButton: string; // Changed from login
+    registerButton: string; // Changed from register
     forgotPassword: string;
     noAccount: string;
-    hasAccount: string; // login/page.tsx fallback 中没有，但之前的 profile/page.tsx 里有，这里加上
+    hasAccount: string;
     registerNow: string;
-    loginNow: string; // login/page.tsx fallback 中没有，但之前的 profile/page.tsx 里有，这里加上
+    loginNow: string;
     loginSuccess: string;
     loginError: string;
     phoneRequired: string;
     passwordRequired: string;
-    // 下面这些在 login/page.tsx 的 auth fallback 中缺失，但 profile/page.tsx 和通用情况下可能需要，为了完整性添加
-    registerTitle?: string; // 可选，因为 login/page.tsx fallback 里没有
-    registerButton?: string; // 可选，因为 login/page.tsx fallback 里没有
-    confirmPasswordRequired?: string; // 可选，因为 login/page.tsx fallback 里没有
-    passwordMismatch?: string; // 可选，因为 login/page.tsx fallback 里没有
-    registerSuccess?: string; // 可选，因为 login/page.tsx fallback 里没有
-    registerError?: string; // 可选，因为 login/page.tsx fallback 里没有
+    confirmPasswordRequired: string;
+    passwordMismatch: string;
+    registerSuccess: string;
+    registerError: string;
   };
   player: {
     play: string;
@@ -85,22 +53,21 @@ export interface Translations {
   };
   profile: {
     myProfile: string;
+    editProfile: string; // Added
     myMusic: string;
     myWallet: string;
-    settings: string;
-    djApplication: string;
     balance: string;
     recharge: string;
     withdraw: string;
-    // 之前在 profile/page.tsx 提到的字段，为了完整性添加到这里
-    editProfile?: string;
-    logout?: string;
-    phone?: string;
-    username?: string;
-    greeting?: string;
-    djStatus?: string;
-    notDj?: string;
-    isDj?: string;
+    settings: string;
+    djApplication: string;
+    logout: string; // Added
+    phone: string; // Added
+    username: string; // Added
+    greeting: string; // Added
+    djStatus: string; // Added
+    notDj: string; // Added
+    isDj: string; // Added
   };
   common: {
     search: string;
@@ -113,7 +80,9 @@ export interface Translations {
     loading: string;
     error: string;
     success: string;
-    viewDetails?: string; // 之前 profile/page.tsx 里有，这里添加
+    viewDetails: string; // Added
+    on: string; // <--- **新增加的**
+    off: string; // <--- **新增加的**
   };
   rulesPage: {
     title: string;
@@ -152,47 +121,22 @@ export interface Translations {
     importantReminderText2: string;
     importantReminderText3: string;
   };
-}
-
-// 语言选项类型
-export interface Language {
-  code: string;
-  name: string;
-  flag: string;
-}
-
-// 轮播图类型
-export interface CarouselSlide {
-  id: number;
-  title: string;
-  subtitle: string;
-  image: string;
-  buttonText: string;
-}
-
-// 组件Props类型
-export interface NavbarProps {
-  currentLang: string;
-  onLanguageChange: (lang: string) => void;
-  translations: Translations;
-}
-
-export interface MusicPlayerProps {
-  currentTrack: Track | null;
-  isPlaying: boolean;
-  onPlay: () => void;
-  onPause: () => void;
-  onNext: () => void;
-  onPrevious: () => void;
-  translations: Translations;
-}
-
-export interface MusicCardProps {
-  track: Track;
-  isPlaying: boolean;
-  isCurrentTrack: boolean;
-  onPlay: (track: Track) => void;
-  onPause: () => void;
-  onLike: (trackId: string) => void;
-  translations: Translations;
+  settingsPage: { // Added settingsPage
+    title: string;
+    language: string;
+    theme: string;
+    notifications: string;
+    privacy: string;
+    account: string;
+    security: string;
+    darkMode: string;
+    lightMode: string;
+    pushNotifications: string;
+    emailNotifications: string;
+    updateProfile: string;
+    changePassword: string;
+    deleteAccount: string;
+    twoFactorAuth: string;
+    activityLog: string;
+  };
 }
