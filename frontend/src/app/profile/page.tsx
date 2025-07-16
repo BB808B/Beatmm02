@@ -47,7 +47,7 @@ export default function ProfilePage() {
             ranking: "排行榜",
             profile: "个人中心",
             login: "登录",
-            register: "注册", // <-- 这里是唯一需要改动的地方，将 "推送" 改回 "register"
+            register: "注册",
             logout: "退出",
             rules: "规则"
           },
@@ -63,7 +63,7 @@ export default function ProfilePage() {
             phone: "手机号码",
             password: "密码",
             confirmPassword: "确认密码",
-            loginButton: "登录", // 确保是 loginButton
+            loginButton: "登录",
             forgotPassword: "忘记密码？",
             noAccount: "没有账号？",
             hasAccount: "已有账号？",
@@ -204,7 +204,7 @@ export default function ProfilePage() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
             className="text-3xl font-extrabold text-center mb-8
-                       text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
+                        text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
           >
             <FaUserCircle className="inline-block mr-3" />
             {translations.profile.myProfile}
@@ -222,7 +222,7 @@ export default function ProfilePage() {
             </motion.div>
             <div className="text-center md:text-left flex-grow">
               <h3 className="text-2xl font-bold mb-2">
-                {translations.profile.greeting.replace('{username}', userData.nickname)}
+                {translations.profile?.greeting?.replace('{username}', userData.nickname)}
               </h3>
               <p className="text-gray-300 mb-1">{translations.profile.phone}: {userData.phone}</p>
               <p className="text-gray-300 mb-4">
@@ -335,7 +335,7 @@ export default function ProfilePage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="w-full neon-button py-3 rounded-lg font-bold text-lg flex items-center justify-center mt-8
-                       transition-all duration-300"
+                        transition-all duration-300"
             onClick={handleLogout}
           >
             <FaSignOutAlt className="mr-2" />
