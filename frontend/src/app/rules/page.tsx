@@ -137,10 +137,11 @@ export default function RulesPage() {
     window.history.back();
   };
 
+  // 修复点：当 translations 为 null 时，直接显示硬编码的加载信息
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {translations?.common?.loading || '加载中...'} {/* Changed 'Loading...' to '加载中...' for consistency */}
+        加载中...
       </div>
     );
   }
