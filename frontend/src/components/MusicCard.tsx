@@ -1,148 +1,105 @@
-'use client';
+// src/components/MusicCard.tsx
 
 import React from 'react';
-import { FaPlay, FaPause, FaHeart, FaRegHeart, FaShare } from 'react-icons/fa';
 import Image from 'next/image';
-import { MusicCardProps } from '@/types';
 import { motion } from 'framer-motion';
+import { FaPlay, FaPause, FaHeart, FaShareAlt, FaEye } from 'react-icons/fa'; // 引入 FaEye for likes
+
+interface MusicCardProps {
+  id: string;
+  title: string;
+  artist: string;
+  coverImage: string;
+  audioSrc: string; // 确保有 audioSrc
+  duration?: string; // 可选的播放时长
+  isLiked: boolean;
+  likes?: number; // 新增点赞数
+  isPlaying: boolean;
+  onPlayPause: (id: string) => void;
+  onLikeToggle: (id: string) => void;
+  onShare: (id: string) => void;
+}
 
 const MusicCard: React.FC<MusicCardProps> = ({
-  track,
+  id,
+  title,
+  artist,
+  coverImage,
+  audioSrc,
+  duration,
+  isLiked,
+  likes,
   isPlaying,
-  isCurrentTrack,
-  onPlay,
-  onPause,
-  onLike,
-  translations
+  onPlayPause,
+  onLikeToggle,
+  onShare,
 }) => {
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const formatPlays = (plays: number) => {
-    if (plays >= 1000000) {
-      return `${(plays / 1000000).toFixed(1)}M`;
-    } else if (plays >= 1000) {
-      return `${(plays / 1000).toFixed(1)}K`;
-    }
-    return plays.toString();
-  };
-
   return (
-    <motion.div 
-      className="glass-panel h-full flex flex-col overflow-hidden"
-      whileHover={{ y: -5, boxShadow: '0 0 25px rgba(106, 17, 203, 0.8)' }}
+    <motion.div
+      className="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer relative"
+      whileHover={{ y: -5 }}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="relative group">
+      <div className="relative w-full h-48 sm:h-64">
         <Image
-          src={track.cover}
-          alt={track.title}
-          width={300}
-          height={200}
-          className="w-full h-48 object-cover"
-          style={{ borderTopLeftRadius: '20px', borderTopRightRadius: '20px' }}
+          src={coverImage}
+          alt={title}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          style={{ objectFit: 'cover' }}
+          className="rounded-t-lg"
         />
-        
-        {/* 播放按钮覆盖层 */}
-        <div 
-          className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        >
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
           <motion.button
-            className="neon-btn rounded-full w-16 h-16 flex items-center justify-center"
-            onClick={() => {
-              if (isCurrentTrack && isPlaying) {
-                onPause();
-              } else {
-                onPlay(track);
-              }
-            }}
+            className="text-white text-4xl p-3 rounded-full bg-primary-dark hover:bg-primary transition-colors duration-200"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            onClick={() => onPlayPause(id)}
           >
-            {isCurrentTrack && isPlaying ? 
-              <FaPause className="text-xl" /> : 
-              <FaPlay className="text-xl ml-1" />
-            }
+            {isPlaying ? <FaPause /> : <FaPlay />}
           </motion.button>
-        </div>
-
-        {/* 播放状态指示器 */}
-        {isCurrentTrack && (
-          <div 
-            className="absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-medium"
-            style={{ 
-              background: 'rgba(0, 255, 157, 0.2)',
-              backdropFilter: 'blur(10px)',
-              boxShadow: '0 0 10px rgba(0, 255, 157, 0.5)'
-            }}
-          >
-            <span className="flex items-center gap-1">
-              <span className="status-dot"></span>
-              {isPlaying ? translations.player.play : translations.player.pause}
-            </span>
-          </div>
-        )}
-
-        {/* 播放次数 */}
-        <div className="absolute bottom-3 left-3 px-2 py-1 rounded-full text-xs bg-black/50 backdrop-blur-sm">
-          {formatPlays(track.plays)} {translations.common.plays || '播放'}
-        </div>
-
-        {/* 时长 */}
-        <div className="absolute bottom-3 right-3 px-2 py-1 rounded-full text-xs bg-black/50 backdrop-blur-sm">
-          {formatDuration(track.duration)}
         </div>
       </div>
 
-      <div className="p-4 flex-grow flex flex-col">
-        <div className="mb-3 flex-grow">
-          <h3 className="font-bold text-lg truncate neon-text">
-            {track.title}
-          </h3>
-          <p className="text-gray-300 truncate">
-            {track.artist}
-          </p>
+      <div className="p-4 flex flex-col justify-between h-[calc(100%-12rem)] sm:h-[calc(100%-16rem)]"> {/* Adjust height based on image */}
+        <div>
+          <h3 className="text-xl font-bold text-white truncate mb-1">{title}</h3>
+          <p className="text-gray-400 text-sm truncate">{artist}</p>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="flex gap-3">
-            <button
-              className="text-gray-300 hover:text-accent transition-colors"
-              onClick={() => onLike(track.id)}
-            >
-              <span className="flex items-center gap-1">
-                {track.isLiked ? 
-                  <FaHeart className="text-accent" /> : 
-                  <FaRegHeart />
-                }
-                <span className="text-sm">{track.likes}</span>
-              </span>
-            </button>
-            
-            <button className="text-gray-300 hover:text-accent transition-colors">
-              <FaShare />
-            </button>
-          </div>
+        <div className="flex items-center justify-between mt-3 text-sm text-gray-400">
+          {duration && (
+            <span className="flex items-center">
+              {duration}
+            </span>
+          )}
+          {likes !== undefined && (
+            <span className="flex items-center ml-auto">
+              <FaEye className="mr-1 text-primary-light" /> {likes}
+            </span>
+          )}
+        </div>
 
+        <div className="flex justify-around items-center mt-4">
           <motion.button
-            className="neon-btn text-sm px-3 py-1.5 flex items-center gap-1"
-            onClick={() => {
-              if (isCurrentTrack && isPlaying) {
-                onPause();
-              } else {
-                onPlay(track);
-              }
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className={`p-2 rounded-full transition-colors duration-200 ${isLiked ? 'text-red-500 hover:bg-gray-700' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onLikeToggle(id)}
+            aria-label={isLiked ? "Unlike" : "Like"}
           >
-            {isCurrentTrack && isPlaying ? 
-              <><FaPause /> {translations.player.pause}</> : 
-              <><FaPlay className="ml-0.5" /> {translations.player.play}</>
-            }
+            <FaHeart className="text-lg" />
+          </motion.button>
+          <motion.button
+            className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-200"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => onShare(id)}
+            aria-label="Share"
+          >
+            <FaShareAlt className="text-lg" />
           </motion.button>
         </div>
       </div>
