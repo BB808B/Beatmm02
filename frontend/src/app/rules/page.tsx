@@ -4,6 +4,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+// 修复：添加了 FaCog 的导入
+import { FaCog } from 'react-icons/fa'; // <--- 确保这一行存在并包含 FaCog
 import NavbarComponent from '@/components/Navbar';
 import { Translations } from '@/types'; // 确保从正确的路径导入 Translations 类型
 
@@ -45,8 +47,7 @@ export default function RulesPage() {
             newReleases: "最新发布"
           },
           auth: {
-            // 确保与 src/types/index.ts 中的 Translations 接口的 auth 部分完全匹配
-            loginTitle: '登录', // Added to match types
+            loginTitle: '登录',
             phone: '手机号码',
             password: '密码',
             confirmPassword: '确认密码',
@@ -65,7 +66,7 @@ export default function RulesPage() {
             passwordMismatch: '密码不匹配',
             registerSuccess: '注册成功！',
             registerError: '注册失败.',
-            registerTitle: "注册" // <--- 修复：添加了缺失的属性
+            registerTitle: "注册"
           },
           player: {
             play: "播放",
