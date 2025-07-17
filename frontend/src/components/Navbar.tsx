@@ -1,411 +1,211 @@
+// src/components/Navbar.tsx
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { FaSearch, FaUser, FaMusic, FaHome, FaTrophy, FaBroadcastTower, FaFileContract, FaTimes } from 'react-icons/fa';
-import { NavbarProps, Language } from '@/types';
+import { NavbarProps, Language } from '@/types'; // 确保导入 NavbarProps 和 Language
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
 
-const NavbarComponent: React.FC<NavbarProps> = ({ 
-  currentLang, 
-  onLanguageChange, 
-  translations 
-}) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
+const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange, translations }) => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const languages: Language[] = [
-    { code: 'zh', name: '中文', flag: '🇨🇳' },
-    { code: 'my', name: 'မြန်မာ', flag: '🇲🇲' },
-    { code: 'en', name: 'English', flag: '🇺🇸' }
-  ];
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Search query:', searchQuery);
-    setIsSearchOpen(false);
+    handleResize(); // Set initial value
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
-  // 点击外部关闭搜索框
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsSearchOpen(false);
-      }
-    };
+  const menuVariants = {
+    hidden: { x: '100%' },
+    visible: { x: '0%', transition: { type: 'spring', stiffness: 120, damping: 17 } },
+    exit: { x: '100%', transition: { type: 'spring', stiffness: 120, damping: 17 } },
+  };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  // 滚动检测
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+  const handleLanguageClick = (lang: Language) => {
+    onLanguageChange(lang);
+    if (isMobile) {
+      setIsMenuOpen(false); // Close menu on language change for mobile
+    }
+  };
 
   const navItems = [
-    { href: "/", icon: <FaHome />, label: translations.nav.home },
-    { href: "/music", icon: <FaMusic />, label: translations.nav.music },
-    { href: "/dj", icon: <FaBroadcastTower />, label: translations.nav.dj },
-    { href: "/ranking", icon: <FaTrophy />, label: translations.nav.ranking },
-    { href: "/rules", icon: <FaFileContract />, label: "规则条款" }
-  ];
-
-  const userMenuItems = [
-    { href: "/login", label: translations.nav.login },
-    { href: "/register", label: translations.nav.register },
-    { href: "/profile", label: translations.profile.myProfile },
-    { href: "/wallet", label: translations.profile.myWallet }
+    { name: translations.nav.home, icon: FaHome, href: '/' },
+    { name: translations.nav.music, icon: FaMusic, href: '/music' },
+    { name: translations.nav.dj, icon: FaBroadcastTower, href: '/dj' },
+    { name: translations.nav.live, icon: FaTrophy, href: '/live' }, // Changed icon to FaTrophy for Live (assuming leaderboard/competition aspect)
+    { name: translations.nav.ranking, icon: FaTrophy, href: '/ranking' }, // FaTrophy for Ranking
+    { name: translations.nav.profile, icon: FaUser, href: '/profile' },
+    { name: translations.nav.rules, icon: FaFileContract, href: '/rules' }, // Added Rules page
   ];
 
   return (
-    <>
-      {/* 导航栏 */}
-      <motion.nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled ? 'glass-panel neon-border py-2' : 'bg-transparent py-4'
-        }`}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          {/* 品牌标志 */}
-          <motion.a 
-            href="/" 
-            className="flex items-center gap-2"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="neon-logo w-10 h-10 rounded-full flex items-center justify-center">
-              <FaMusic className="text-xl" />
+    <nav className="fixed w-full z-50 bg-gradient-to-r from-gray-900 to-black shadow-lg py-3 px-4 md:px-8">
+      <div className="container mx-auto flex justify-between items-center">
+        {/* Logo */}
+        <Link href="/" className="flex items-center space-x-2">
+          <Image src="/images/logo.png" alt="BeatMM Pro Logo" width={40} height={40} className="rounded-full" />
+          <span className="text-white text-2xl font-bold tracking-tight hidden sm:block">BeatMM Pro</span>
+        </Link>
+
+        {/* Search Bar (Desktop Only) */}
+        <div className="relative flex-grow mx-4 md:mx-8 hidden md:block max-w-md">
+          <input
+            type="text"
+            placeholder={translations.common.search}
+            className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-dark border border-gray-700"
+          />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
+
+        {/* Desktop Nav Items & User Actions */}
+        <div className="hidden md:flex items-center space-x-6">
+          <ul className="flex space-x-6">
+            {navItems.map((item) => (
+              <li key={item.name}>
+                <Link href={item.href} className="text-gray-300 hover:text-primary-light flex items-center transition-colors duration-200 group">
+                  <item.icon className="mr-2 text-xl group-hover:text-primary" />
+                  <span className="text-lg font-medium">{item.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+          {/* Language Selector Desktop */}
+          <div className="relative group">
+            <button className="text-gray-300 hover:text-primary-light flex items-center transition-colors duration-200">
+              <span className="text-lg font-medium uppercase">{currentLang}</span>
+              <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            <div className="absolute right-0 mt-2 w-24 bg-gray-800 rounded-md shadow-lg py-1 hidden group-hover:block transition-all duration-200 ease-out transform origin-top-right">
+              <button
+                onClick={() => handleLanguageClick('zh')}
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-primary-light w-full text-left"
+              >
+                中文
+              </button>
+              <button
+                onClick={() => handleLanguageClick('my')}
+                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-primary-light w-full text-left"
+              >
+                Myanmar
+              </button>
             </div>
-            <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-              {translations.title}
-            </span>
-          </motion.a>
-
-          {/* 桌面导航 */}
-          <div className="hidden md:flex items-center gap-8">
-            {/* 导航链接 */}
-            <div className="flex gap-6">
-              {navItems.map((item, index) => (
-                <motion.a
-                  key={index}
-                  href={item.href}
-                  className="flex items-center gap-2 font-medium hover:text-accent transition-colors"
-                  whileHover={{ y: -2 }}
-                >
-                  <span className="text-primary">{item.icon}</span>
-                  {item.label}
-                </motion.a>
-              ))}
-            </div>
-
-            {/* 搜索按钮 */}
-            <motion.button
-              className="neon-icon-btn"
-              onClick={() => setIsSearchOpen(true)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <FaSearch />
-            </motion.button>
-
-            {/* 语言切换器 */}
-            <Dropdown 
-              currentLang={currentLang} 
-              languages={languages} 
-              onLanguageChange={onLanguageChange}
-            />
-
-            {/* 用户菜单 */}
-            <Dropdown 
-              trigger={
-                <motion.button 
-                  className="neon-icon-btn"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <FaUser />
-                </motion.button>
-              }
-              items={userMenuItems}
-            />
           </div>
+          {/* Login/Register (Placeholder) */}
+          <Link href="/login" className="px-5 py-2 rounded-full text-lg font-semibold neon-button">
+            {translations.nav.login}
+          </Link>
+        </div>
 
-          {/* 移动端菜单按钮 */}
-          <button 
-            className="md:hidden neon-icon-btn"
-            onClick={() => setIsMobileMenuOpen(true)}
-          >
-            <div className="w-6 flex flex-col gap-1">
-              <span className="h-0.5 bg-white w-full"></span>
-              <span className="h-0.5 bg-white w-3/4"></span>
-              <span className="h-0.5 bg-white w-full"></span>
-            </div>
+        {/* Mobile Menu Button */}
+        <div className="md:hidden flex items-center space-x-4">
+          <button className="text-gray-300 text-2xl" onClick={toggleMenu}>
+            ☰
           </button>
         </div>
-      </motion.nav>
+      </div>
 
-      {/* 移动端菜单 */}
+      {/* Mobile Menu Overlay */}
       <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div 
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div 
-              className="glass-panel h-full w-80 max-w-full ml-auto p-6"
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25 }}
-            >
-              <div className="flex justify-between items-center mb-8">
-                <div className="flex items-center gap-2">
-                  <div className="neon-logo w-10 h-10 rounded-full flex items-center justify-center">
-                    <FaMusic className="text-xl" />
-                  </div>
-                  <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent">
-                    {translations.title}
-                  </span>
-                </div>
-                <button 
-                  className="neon-icon-btn"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaTimes />
-                </button>
-              </div>
-
-              {/* 移动端导航链接 */}
-              <div className="flex flex-col gap-4 mb-8">
-                {navItems.map((item, index) => (
-                  <motion.a
-                    key={index}
-                    href={item.href}
-                    className="flex items-center gap-3 py-3 px-4 rounded-lg hover:bg-white/10 transition-colors"
-                    whileHover={{ x: 5 }}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <span className="text-primary text-lg">{item.icon}</span>
-                    <span className="font-medium">{item.label}</span>
-                  </motion.a>
-                ))}
-              </div>
-
-              {/* 语言切换器 */}
-              <div className="mb-6">
-                <h3 className="text-gray-400 mb-3">选择语言</h3>
-                <div className="flex flex-wrap gap-2">
-                  {languages.map((lang) => (
-                    <motion.button
-                      key={lang.code}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                        currentLang === lang.code 
-                          ? 'bg-gradient-to-r from-primary to-accent' 
-                          : 'bg-gray-800 hover:bg-gray-700'
-                      }`}
-                      onClick={() => {
-                        onLanguageChange(lang.code);
-                        setIsMobileMenuOpen(false);
-                      }}
-                      whileHover={{ scale: 1.05 }}
-                    >
-                      {lang.flag} {lang.name}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 用户菜单 */}
-              <div>
-                <h3 className="text-gray-400 mb-3">用户菜单</h3>
-                <div className="flex flex-col gap-2">
-                  {userMenuItems.map((item, index) => (
-                    <motion.a
-                      key={index}
-                      href={item.href}
-                      className="py-2 px-4 rounded-lg hover:bg-white/10 transition-colors"
-                      whileHover={{ x: 5 }}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      {item.label}
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* 搜索框 */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div 
-            className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div 
-              className="glass-panel neon-border max-w-2xl w-full p-6"
-              ref={searchRef}
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">搜索音乐和DJ</h2>
-                <button 
-                  className="neon-icon-btn"
-                  onClick={() => setIsSearchOpen(false)}
-                >
-                  <FaTimes />
-                </button>
-              </div>
-              
-              <form onSubmit={handleSearch} className="relative">
-                <input
-                  type="text"
-                  placeholder="输入歌曲名、DJ或专辑..."
-                  className="w-full bg-gray-800/50 border border-white/10 rounded-full py-4 pl-5 pr-14 focus:outline-none focus:ring-2 focus:ring-accent"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 neon-icon-btn w-10 h-10"
-                >
-                  <FaSearch />
-                </button>
-              </form>
-              
-              <div className="mt-6">
-                <h3 className="text-gray-400 mb-3">热门搜索</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['越南鼓', '电子音乐', 'DJ Mix', '最新专辑', '排行榜'].map((tag, index) => (
-                    <motion.button
-                      key={index}
-                      className="px-3 py-1.5 bg-gray-800/50 rounded-full text-sm hover:bg-gray-700 transition-colors"
-                      whileHover={{ scale: 1.05 }}
-                      onClick={() => {
-                        setSearchQuery(tag);
-                        handleSearch(new Event('submit') as any);
-                      }}
-                    >
-                      {tag}
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
-
-// 下拉菜单组件
-const Dropdown: React.FC<{
-  currentLang?: string;
-  languages?: Language[];
-  onLanguageChange?: (code: string) => void;
-  trigger?: React.ReactNode;
-  items?: { href: string; label: string }[];
-}> = ({ currentLang, languages, onLanguageChange, trigger, items }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // 点击外部关闭下拉菜单
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <motion.button
-        className="flex items-center"
-        onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.05 }}
-      >
-        {trigger ? (
-          trigger
-        ) : (
-          <div className="flex items-center gap-1 px-3 py-1.5 bg-gray-800/50 rounded-full">
-            <span>{languages?.find(lang => lang.code === currentLang)?.flag}</span>
-            <span>{languages?.find(lang => lang.code === currentLang)?.name}</span>
-          </div>
-        )}
-      </motion.button>
-
-      <AnimatePresence>
-        {isOpen && (
+        {isMenuOpen && (
           <motion.div
-            className="absolute right-0 mt-2 w-48 glass-panel rounded-xl overflow-hidden z-50"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+            ref={menuRef}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            variants={menuVariants}
+            className="fixed top-0 right-0 w-64 h-full bg-gradient-to-b from-gray-900 to-black shadow-2xl p-6 md:hidden z-50 overflow-y-auto"
           >
-            {languages ? (
-              languages.map((lang) => (
-                <motion.a
-                  key={lang.code}
-                  className={`flex items-center gap-2 px-4 py-3 hover:bg-white/10 transition-colors ${
-                    currentLang === lang.code ? 'text-accent' : ''
+            <div className="flex justify-end mb-6">
+              <button onClick={toggleMenu} className="text-gray-300 text-3xl">
+                <FaTimes />
+              </button>
+            </div>
+            {/* Mobile Search Bar */}
+            <div className="relative mb-6">
+              <input
+                type="text"
+                placeholder={translations.common.search}
+                className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-dark border border-gray-700"
+              />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            </div>
+
+            <ul className="space-y-4">
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <Link href={item.href} onClick={toggleMenu} className="text-gray-300 hover:text-primary-light flex items-center py-2 text-xl font-medium transition-colors duration-200">
+                    <item.icon className="mr-3 text-2xl" />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-4 border-t border-gray-700 mt-4">
+                <Link href="/login" onClick={toggleMenu} className="block px-4 py-2 rounded-full text-xl font-semibold neon-button text-center">
+                  {translations.nav.login}
+                </Link>
+              </li>
+            </ul>
+
+            {/* Language Selector Mobile */}
+            <div className="mt-8 pt-4 border-t border-gray-700">
+              <h3 className="text-lg font-bold text-white mb-3">语言 / Language</h3>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => handleLanguageClick('zh')}
+                  className={`px-4 py-2 rounded-lg text-lg font-medium transition-colors duration-200 ${
+                    currentLang === 'zh' ? 'bg-primary text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
-                  onClick={() => {
-                    onLanguageChange?.(lang.code);
-                    setIsOpen(false);
-                  }}
-                  whileHover={{ x: 5 }}
                 >
-                  <span className="text-lg">{lang.flag}</span>
-                  <span>{lang.name}</span>
-                </motion.a>
-              ))
-            ) : (
-              items?.map((item, index) => (
-                <motion.a
-                  key={index}
-                  href={item.href}
-                  className="block px-4 py-3 hover:bg-white/10 transition-colors"
-                  onClick={() => setIsOpen(false)}
-                  whileHover={{ x: 5 }}
+                  中文
+                </button>
+                <button
+                  onClick={() => handleLanguageClick('my')}
+                  className={`px-4 py-2 rounded-lg text-lg font-medium transition-colors duration-200 ${
+                    currentLang === 'my' ? 'bg-primary text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
                 >
-                  {item.label}
-                </motion.a>
-              ))
-            )}
+                  Myanmar
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </nav>
   );
 };
 
