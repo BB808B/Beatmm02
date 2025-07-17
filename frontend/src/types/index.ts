@@ -1,23 +1,18 @@
 // src/types/index.ts
 
-// 定义通用的翻译类型
-export interface CommonTranslations {
-  search: string;
-  submit: string;
-  cancel: string;
-  confirm: string;
-  save: string;
-  edit: string;
-  delete: string;
-  loading: string;
-  error: string;
-  success: string;
-  viewDetails: string;
-  on: string;
-  off: string;
+// 定义 Translations 接口，包含应用程序的所有文本内容
+export interface Translations {
+  title: string;
+  nav: NavTranslations;
+  home: HomeTranslations;
+  auth: AuthTranslations;
+  player: PlayerTranslations;
+  profile: ProfileTranslations;
+  common: CommonTranslations;
+  rulesPage: RulesPageTranslations; // 新增的 rulesPage 翻译
+  settingsPage: SettingsPageTranslations; // 新增的 settingsPage 翻译
 }
 
-// 定义导航栏的翻译类型
 export interface NavTranslations {
   home: string;
   music: string;
@@ -31,7 +26,6 @@ export interface NavTranslations {
   rules: string;
 }
 
-// 定义首页的翻译类型
 export interface HomeTranslations {
   welcome: string;
   subtitle: string;
@@ -40,13 +34,13 @@ export interface HomeTranslations {
   newReleases: string;
 }
 
-// 定义认证/登录/注册相关的翻译类型
 export interface AuthTranslations {
   loginTitle: string;
   phone: string;
   password: string;
   confirmPassword: string;
   loginButton: string;
+  registerButton: string;
   forgotPassword: string;
   noAccount: string;
   hasAccount: string;
@@ -60,11 +54,9 @@ export interface AuthTranslations {
   passwordMismatch: string;
   registerSuccess: string;
   registerError: string;
-  registerTitle: string; // <--- 修复: 添加缺失的 registerTitle 属性
-  registerButton: string;
+  registerTitle: string; // 确保这个属性在这里
 }
 
-// 定义播放器相关的翻译类型
 export interface PlayerTranslations {
   play: string;
   pause: string;
@@ -75,7 +67,6 @@ export interface PlayerTranslations {
   repeat: string;
 }
 
-// 定义个人中心相关的翻译类型
 export interface ProfileTranslations {
   myProfile: string;
   editProfile: string;
@@ -95,7 +86,22 @@ export interface ProfileTranslations {
   isDj: string;
 }
 
-// 定义规则页面的翻译类型
+export interface CommonTranslations {
+  search: string;
+  submit: string;
+  cancel: string;
+  confirm: string;
+  save: string;
+  edit: string;
+  delete: string;
+  loading: string;
+  error: string;
+  success: string;
+  viewDetails: string;
+  on: string;
+  off: string;
+}
+
 export interface RulesPageTranslations {
   title: string;
   subtitle: string;
@@ -134,7 +140,6 @@ export interface RulesPageTranslations {
   importantReminderText3: string;
 }
 
-// 定义设置页面的翻译类型
 export interface SettingsPageTranslations {
   title: string;
   language: string;
@@ -154,37 +159,17 @@ export interface SettingsPageTranslations {
   activityLog: string;
 }
 
-
-// 组合所有翻译类型
-export interface Translations {
-  title: string;
-  nav: NavTranslations;
-  home: HomeTranslations;
-  auth: AuthTranslations;
-  player: PlayerTranslations;
-  profile: ProfileTranslations;
-  common: CommonTranslations;
-  rulesPage: RulesPageTranslations;
-  settingsPage: SettingsPageTranslations;
-}
-
-// 定义音乐播放器轨道类型
-export interface Track {
+// >>> 新增 MusicCardProps 接口 <<<
+export interface MusicCardProps {
   id: string;
   title: string;
   artist: string;
-  albumArt: string;
-  audioSrc: string;
-  duration: string;
+  coverImage: string; // URL to the album cover
+  audioSrc: string;   // URL to the audio file
   isLiked: boolean;
-  likes: number;
-}
-
-// 定义轮播图幻灯片类型
-export interface CarouselSlide {
-  id: string;
-  imageUrl: string; // 使用 imageUrl 而不是 image
-  title: string;
-  description: string;
-  link: string;
+  isPlaying: boolean;
+  onPlayPause: (id: string) => void;
+  onLikeToggle: (id: string) => void;
+  onShare: (id: string) => void;
+  // 可以根据实际需求添加更多属性，例如 duration, views, etc.
 }
