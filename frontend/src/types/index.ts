@@ -27,7 +27,7 @@ export interface NavTranslations {
   rules: string;
 }
 
-// 首页翻译接口 (现在只包含 login/page.tsx 中实际使用的键)
+// 首页翻译接口
 export interface HomeTranslations {
   heroTitle: string;
   heroSubtitle: string;
@@ -37,7 +37,6 @@ export interface HomeTranslations {
   newReleasesTitle: string;
   viewAll: string;
 }
-
 
 // 认证（登录/注册）翻译接口
 export interface AuthTranslations {
@@ -74,7 +73,7 @@ export interface PlayerTranslations {
   repeat: string;
 }
 
-// 个人资料页翻译接口 (保持不变，因为上次已修复)
+// 个人资料页翻译接口
 export interface ProfileTranslations {
   myProfile: string;
   editProfile: string;
@@ -85,9 +84,6 @@ export interface ProfileTranslations {
   withdraw: string;
   djApplication: string;
   logout: string;
-  settings: string;
-  darkMode: string;
-  notifications: string;
   phone: string;
   username: string;
   greeting: string;
@@ -101,6 +97,9 @@ export interface ProfileTranslations {
   newPasswordPlaceholder: string;
   confirmPasswordPlaceholder: string;
   updateProfileButton: string;
+  settings: string;
+  darkMode: string;
+  notifications: string;
 }
 
 // 通用翻译接口
@@ -180,16 +179,19 @@ export interface SettingsPageTranslations {
 }
 
 
-// >>> 其他独立接口（非Translations的一部分） <<<
+// >>> 其他独立接口（非Translations一部分） <<<
 
-// Track 接口
+// Track 接口 - 添加缺失的属性
 export interface Track {
   id: string;
   title: string;
   artist: string;
-  coverImage: string;
+  coverImage: string; // 对应 albumArt
   audioSrc: string;
   isLiked?: boolean;
+  albumArt?: string; // 确保包含 albumArt，或者直接使用 coverImage
+  duration?: string; // 添加 duration
+  likes?: number; // 添加 likes
 }
 
 // CarouselSlide 接口
