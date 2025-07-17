@@ -2,12 +2,10 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-// 修复：添加了 FaCog 的导入
-import { FaCog } from 'react-icons/fa'; // <--- 确保这一行存在并包含 FaCog
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // 确保从正确的路径导入 Translations 类型
+import { Translations } from '@/types'; // 确保 Translations 类型被导入
 
 export default function RulesPage() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -24,7 +22,7 @@ export default function RulesPage() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 必须与 src/types/index.ts 中的 Translations 接口完全匹配
+        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -40,32 +38,34 @@ export default function RulesPage() {
             rules: "规则"
           },
           home: {
-            welcome: "欢迎来到缅甸DJ平台",
-            subtitle: "发现最棒的越南鼓DJ音乐",
-            featured: "精选音乐",
-            trending: "热门趋势",
-            newReleases: "最新发布"
+            heroTitle: "欢迎来到缅甸DJ平台", // 修正：将 'welcome' 改为 'heroTitle'
+            heroSubtitle: "发现最棒的越南鼓DJ音乐", // 修正：将 'subtitle' 改为 'heroSubtitle'
+            featuredMusicTitle: "精选音乐", // 修正：将 'featured' 改为 'featuredMusicTitle'
+            recentPlaysTitle: "热门趋势",   // 修正：将 'trending' 改为 'recentPlaysTitle'
+            topArtistsTitle: "热门艺术家",
+            newReleasesTitle: "最新发布",
+            viewAll: "查看全部"
           },
           auth: {
-            loginTitle: '登录',
-            phone: '手机号码',
-            password: '密码',
-            confirmPassword: '确认密码',
-            loginButton: '登录',
-            registerButton: '注册',
-            forgotPassword: '忘记密码？',
-            noAccount: '没有账号？',
-            hasAccount: '已有账号？',
-            registerNow: '立即注册',
-            loginNow: '立即登录',
-            loginSuccess: '登录成功！',
-            loginError: '登录失败。',
-            phoneRequired: '手机号码不能为空',
-            passwordRequired: '密码不能为空',
-            confirmPasswordRequired: '请确认密码',
-            passwordMismatch: '密码不匹配',
-            registerSuccess: '注册成功！',
-            registerError: '注册失败.',
+            loginTitle: "登录",
+            phone: "手机号码",
+            password: "密码",
+            confirmPassword: "确认密码",
+            loginButton: "登录",
+            registerButton: "注册",
+            forgotPassword: "忘记密码？",
+            noAccount: "没有账号？",
+            hasAccount: "已有账号？",
+            registerNow: "立即注册",
+            loginNow: "立即登录",
+            loginSuccess: "登录成功！",
+            loginError: "登录失败。",
+            phoneRequired: "手机号码不能为空",
+            passwordRequired: "密码不能为空",
+            confirmPasswordRequired: "请确认密码",
+            passwordMismatch: "密码不匹配",
+            registerSuccess: "注册成功！",
+            registerError: "注册失败。",
             registerTitle: "注册"
           },
           player: {
@@ -85,7 +85,6 @@ export default function RulesPage() {
             balance: "余额",
             recharge: "充值",
             withdraw: "提现",
-            settings: "设置",
             djApplication: "DJ认证申请",
             logout: "退出登录",
             phone: "手机号码",
@@ -93,7 +92,17 @@ export default function RulesPage() {
             greeting: "你好，{username}！",
             djStatus: "DJ状态：",
             notDj: "未认证",
-            isDj: "已认证"
+            isDj: "已认证",
+            title: "个人资料设置",
+            email: "邮箱",
+            changePassword: "修改密码",
+            currentPasswordPlaceholder: "当前密码",
+            newPasswordPlaceholder: "新密码",
+            confirmPasswordPlaceholder: "确认新密码",
+            updateProfileButton: "更新资料",
+            settings: "设置",
+            darkMode: "深色模式",
+            notifications: "通知"
           },
           common: {
             search: "搜索",
@@ -179,10 +188,35 @@ export default function RulesPage() {
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        加载中... {/* 直接显示加载文本，避免在 translations 为 null 时访问其属性 */}
+        Loading...
       </div>
     );
   }
+
+  // 动画变体
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    }
+  };
 
   return (
     <>
@@ -192,115 +226,201 @@ export default function RulesPage() {
         translations={translations}
       />
 
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white py-12 px-4 sm:px-6 lg:px-8 pt-20">
-        <motion.div
-          className="max-w-6xl mx-auto glass-panel neon-border p-8 rounded-xl shadow-2xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
+        <motion.section
+          className="text-center mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
         >
-          <motion.h1
-            className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mb-6 text-center"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
+          <h1 className="text-4xl font-bold text-primary mb-4">
             {translations.rulesPage.title}
-          </motion.h1>
-          <motion.p
-            className="text-lg sm:text-xl text-gray-300 mb-10 text-center max-w-3xl mx-auto"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
-          >
+          </h1>
+          <p className="text-gray-300 max-w-3xl mx-auto">
             {translations.rulesPage.subtitle}
-          </motion.p>
+          </p>
+        </motion.section>
 
-          <div className="space-y-12">
-            {/* Section 1: 使用条款 */}
-            <motion.section
-              className="bg-gray-800 bg-opacity-60 p-8 rounded-lg shadow-inner border border-gray-700"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-            >
-              <h2 className="text-3xl font-bold text-primary mb-6">{translations.rulesPage.section1Title}</h2>
-              <ul className="list-disc list-inside space-y-3 text-lg text-gray-200">
-                <li>{translations.rulesPage.section1Item1}</li>
-                <li>{translations.rulesPage.section1Item2}</li>
-                <li>{translations.rulesPage.section1Item3}</li>
-                <li>{translations.rulesPage.section1Item4}</li>
-                <li>{translations.rulesPage.section1Item5}</li>
-                <li>{translations.rulesPage.section1Item6}</li>
-                <li>{translations.rulesPage.section1Item7}</li>
-                <li>{translations.rulesPage.section1Item8}</li>
-              </ul>
-            </motion.section>
+        <motion.section
+          className="bg-gray-800 p-6 rounded-lg shadow-xl mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <h2 className="text-2xl font-semibold text-accent mb-4">{translations.rulesPage.section1Title}</h2>
+          <motion.ul
+            className="list-disc list-inside space-y-2 text-gray-300"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {[
+              translations.rulesPage.section1Item1,
+              translations.rulesPage.section1Item2,
+              translations.rulesPage.section1Item3,
+              translations.rulesPage.section1Item4,
+              translations.rulesPage.section1Item5,
+              translations.rulesPage.section1Item6,
+              translations.rulesPage.section1Item7,
+              translations.rulesPage.section1Item8
+            ].map((item, index) => (
+              <motion.li key={index} variants={itemVariants}>
+                {item}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.section>
 
-            {/* Section 2: 打赏与提现规则 */}
-            <motion.section
-              className="bg-gray-800 bg-opacity-60 p-8 rounded-lg shadow-inner border border-gray-700"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-            >
-              <h2 className="text-3xl font-bold text-accent mb-6">{translations.rulesPage.section2Title}</h2>
-              <ul className="list-disc list-inside space-y-3 text-lg text-gray-200">
-                <li>{translations.rulesPage.section2Item1}</li>
-                <li>{translations.rulesPage.section2Item2}</li>
-                <li>{translations.rulesPage.section2Item3}</li>
-                <li>{translations.rulesPage.section2Item4}</li>
-                <li>{translations.rulesPage.section2Item5}</li>
-                <li>{translations.rulesPage.section2Item6}</li>
-                <li>{translations.rulesPage.section2Item7}</li>
-              </ul>
-            </motion.section>
+        <motion.section
+          className="bg-gray-800 p-6 rounded-lg shadow-xl mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <h2 className="text-2xl font-semibold text-accent mb-4">{translations.rulesPage.section2Title}</h2>
+          <motion.ul
+            className="list-disc list-inside space-y-2 text-gray-300"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {[
+              translations.rulesPage.section2Item1,
+              translations.rulesPage.section2Item2,
+              translations.rulesPage.section2Item3,
+              translations.rulesPage.section2Item4,
+              translations.rulesPage.section2Item5,
+              translations.rulesPage.section2Item6,
+              translations.rulesPage.section2Item7
+            ].map((item, index) => (
+              <motion.li key={index} variants={itemVariants}>
+                {item}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.section>
 
-            {/* Section 3: DJ认证规则 */}
-            <motion.section
-              className="bg-gray-800 bg-opacity-60 p-8 rounded-lg shadow-inner border border-gray-700"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1.0, duration: 0.5 }}
-            >
-              <h2 className="text-3xl font-bold text-primary mb-6">{translations.rulesPage.section3Title}</h2>
-              <ul className="list-disc list-inside space-y-3 text-lg text-gray-200">
-                <li>{translations.rulesPage.section3Item1}</li>
-                <li>{translations.rulesPage.section3Item2}</li>
-                <li>{translations.rulesPage.section3Item3}</li>
-                <li>
-                  <span className="font-semibold">{translations.rulesPage.section3Item4Title}:</span>
-                  <ul className="list-circle list-inside ml-6 space-y-1">
-                    <li>{translations.rulesPage.section3Item4Perm1}</li>
-                    <li>{translations.rulesPage.section3Item4Perm2}</li>
-                    <li>{translations.rulesPage.section3Item4Perm3}</li>
-                    <li>{translations.rulesPage.section3Item4Perm4}</li>
-                  </ul>
-                </li>
-                <li>{translations.rulesPage.section3Item5}</li>
-                <li>{translations.rulesPage.section3Item6}</li>
-                <li>{translations.rulesPage.section3Item7}</li>
-              </ul>
-            </motion.section>
+        <motion.section
+          className="bg-gray-800 p-6 rounded-lg shadow-xl mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <h2 className="text-2xl font-semibold text-accent mb-4">{translations.rulesPage.section3Title}</h2>
+          <motion.ul
+            className="list-disc list-inside space-y-2 text-gray-300 mb-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {[
+              translations.rulesPage.section3Item1,
+              translations.rulesPage.section3Item2,
+              translations.rulesPage.section3Item3,
+            ].map((item, index) => (
+              <motion.li key={index} variants={itemVariants}>
+                {item}
+              </motion.li>
+            ))}
+          </motion.ul>
 
-            {/* Important Reminder */}
-            <motion.section
-              className="bg-red-900 bg-opacity-60 p-8 rounded-lg shadow-inner border border-red-700"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-            >
-              <h2 className="text-3xl font-bold text-red-300 mb-6 flex items-center">
-                <FaCog className="mr-3 text-red-400" /> {translations.rulesPage.importantReminderTitle}
-              </h2>
-              <ul className="list-disc list-inside space-y-3 text-lg text-red-100">
-                <li>{translations.rulesPage.importantReminderText1}</li>
-                <li>{translations.rulesPage.importantReminderText2}</li>
-                <li>{translations.rulesPage.importantReminderText3}</li>
-              </ul>
-            </motion.section>
-          </div>
-        </motion.div>
+          <h3 className="text-xl font-semibold text-primary mb-2">{translations.rulesPage.section3Item4Title}</h3>
+          <motion.ul
+            className="list-disc list-inside space-y-1 text-gray-300 mb-4 ml-4"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {[
+              translations.rulesPage.section3Item4Perm1,
+              translations.rulesPage.section3Item4Perm2,
+              translations.rulesPage.section3Item4Perm3,
+              translations.rulesPage.section3Item4Perm4
+            ].map((item, index) => (
+              <motion.li key={index} variants={itemVariants}>
+                {item}
+              </motion.li>
+            ))}
+          </motion.ul>
+
+          <motion.ul
+            className="list-disc list-inside space-y-2 text-gray-300"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {[
+              translations.rulesPage.section3Item5,
+              translations.rulesPage.section3Item6,
+              translations.rulesPage.section3Item7
+            ].map((item, index) => (
+              <motion.li key={index} variants={itemVariants}>
+                {item}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.section>
+
+        <motion.section
+          className="bg-gray-800 p-6 rounded-lg shadow-xl"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <h2 className="text-2xl font-semibold text-red-400 mb-4">{translations.rulesPage.importantReminderTitle}</h2>
+          <motion.ul
+            className="list-disc list-inside space-y-2 text-gray-300"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {[
+              translations.rulesPage.importantReminderText1,
+              translations.rulesPage.importantReminderText2,
+              translations.rulesPage.importantReminderText3
+            ].map((item, index) => (
+              <motion.li key={index} variants={itemVariants}>
+                {item}
+              </motion.li>
+            ))}
+          </motion.ul>
+        </motion.section>
       </main>
     </>
   );
