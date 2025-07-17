@@ -1,274 +1,155 @@
-'use client';
+// src/components/MusicPlayer.tsx
 
-import React, { useState, useRef, useEffect } from 'react';
-import { 
-  FaPlay, 
-  FaPause, 
-  FaStepForward, 
-  FaStepBackward, 
-  FaVolumeUp, 
-  FaRandom, 
-  FaRedo,
-  FaHeart,
-  FaRegHeart
-} from 'react-icons/fa';
-import { MusicPlayerProps } from '@/types';
+import React from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { FaPlay, FaPause, FaStepBackward, FaStepForward, FaVolumeUp, FaVolumeOff, FaRandom, FaRedo } from 'react-icons/fa';
+import { Track } from '@/types'; // 确保 Track 类型被导入
+
+interface MusicPlayerProps {
+  currentTrack: Track;
+  isPlaying: boolean;
+  onPlayPause: () => void; // 只保留 onPlayPause，移除 onPlay 和 onPause
+  onNext: () => void;
+  onPrevious: () => void;
+  progress: number;
+  duration: number;
+  onSeek: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  volume: number;
+  onVolumeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isLooping: boolean;
+  onToggleLoop: () => void;
+  shuffleMode: boolean;
+  onToggleShuffle: () => void;
+}
 
 const MusicPlayer: React.FC<MusicPlayerProps> = ({
   currentTrack,
   isPlaying,
-  onPlay,
-  onPause,
+  onPlayPause, // 修正：只解构 onPlayPause
   onNext,
-  onPrevious
+  onPrevious,
+  progress,
+  duration,
+  onSeek,
+  volume,
+  onVolumeChange,
+  isLooping,
+  onToggleLoop,
+  shuffleMode,
+  onToggleShuffle,
 }) => {
-  const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolume] = useState(70);
-  const [isLiked, setIsLiked] = useState(false);
-  const [isShuffled, setIsShuffled] = useState(false);
-  const [isRepeated, setIsRepeated] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
-  }, [volume]);
-
-  useEffect(() => {
-    if (audioRef.current && currentTrack) {
-      if (isPlaying) {
-        audioRef.current.play();
-      } else {
-        audioRef.current.pause();
-      }
-    }
-  }, [isPlaying, currentTrack]);
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime);
-    }
+  // Helper to format time (e.g., 150 seconds -> 2:30)
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value);
-    setCurrentTime(time);
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-    }
-  };
-
-  const formatTime = (time: number) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  if (!currentTrack) {
-    return null;
-  }
-
-  // 进度百分比
-  const progressPercentage = (currentTime / currentTrack.duration) * 100;
 
   return (
-    <motion.div 
-      className="glass-panel neon-border fixed bottom-0 left-0 right-0 z-50"
-      initial={{ y: 100 }}
-      animate={{ y: 0 }}
-      transition={{ type: 'spring', damping: 25 }}
+    <motion.div
+      className="flex items-center justify-between p-4 bg-gray-900 rounded-lg shadow-xl"
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
     >
-      {/* 隐藏的音频元素 */}
-      <audio
-        ref={audioRef}
-        src={currentTrack.url}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={onNext}
-      />
-      
-      {/* 迷你播放器模式 */}
-      <div className={`transition-all ${isExpanded ? 'hidden' : 'block'}`}>
-        <div className="flex items-center justify-between p-3">
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <div 
-                className="w-12 h-12 bg-cover bg-center rounded-lg"
-                style={{ backgroundImage: `url(${currentTrack.cover})` }}
-              />
-              {isPlaying && (
-                <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-success shadow-[0_0_8px_#00ff9d] animate-pulse"></div>
-              )}
-            </div>
-            
-            <div className="max-w-[200px]">
-              <div className="font-bold truncate neon-text">{currentTrack.title}</div>
-              <div className="text-sm text-gray-300 truncate">{currentTrack.artist}</div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-4">
-            <button 
-              className="neon-btn text-sm p-2 rounded-full"
-              onClick={isPlaying ? onPause : onPlay}
-            >
-              {isPlaying ? <FaPause /> : <FaPlay />}
-            </button>
-            
-            <button 
-              className="neon-btn text-sm p-2 rounded-full"
-              onClick={() => setIsExpanded(true)}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      {/* 完整播放器模式 */}
-      <div className={`transition-all ${isExpanded ? 'block' : 'hidden'} p-5`}>
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div 
-                className="w-20 h-20 bg-cover bg-center rounded-xl"
-                style={{ backgroundImage: `url(${currentTrack.cover})` }}
-              />
-              <div className="absolute inset-0 rounded-xl shadow-[0_0_30px_rgba(106,17,203,0.7)] z-[-1]"></div>
-            </div>
-            
-            <div>
-              <div className="font-bold text-xl neon-text">{currentTrack.title}</div>
-              <div className="text-gray-300">{currentTrack.artist}</div>
-              
-              <div className="flex items-center gap-2 mt-2">
-                <button 
-                  className="text-gray-300 hover:text-accent transition-colors"
-                  onClick={() => setIsLiked(!isLiked)}
-                >
-                  {isLiked ? <FaHeart className="text-accent" /> : <FaRegHeart />}
-                </button>
-                <span className="text-sm">|</span>
-                <span className="text-sm text-gray-400">
-                  {Math.floor(currentTrack.plays / 1000)}K 播放
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <button 
-            className="neon-btn p-2 rounded-full"
-            onClick={() => setIsExpanded(false)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
-        </div>
-        
-        {/* 进度条 */}
-        <div className="mb-6">
-          <div className="flex justify-between text-sm mb-1">
-            <span>{formatTime(currentTime)}</span>
-            <span>{formatTime(currentTrack.duration)}</span>
-          </div>
-          
-          <div className="relative h-2 rounded-full bg-gray-700 overflow-hidden">
-            <motion.div 
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-accent"
-              animate={{ width: `${progressPercentage}%` }}
-              transition={{ duration: 0.2 }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent border border-white/10"></div>
-          </div>
-          
-          <input
-            type="range"
-            min="0"
-            max={currentTrack.duration}
-            value={currentTime}
-            onChange={handleSeek}
-            className="absolute w-full h-2 opacity-0 cursor-pointer"
-            style={{ marginTop: '-8px' }}
+      {/* Track Info */}
+      <div className="flex items-center space-x-4 flex-grow min-w-0">
+        <div className="relative w-16 h-16 flex-shrink-0">
+          <Image
+            src={currentTrack.coverImage}
+            alt={currentTrack.title}
+            fill
+            sizes="64px"
+            style={{ objectFit: 'cover' }}
+            className="rounded-md shadow-md"
           />
         </div>
-        
-        {/* 控制按钮 */}
-        <div className="flex justify-center items-center gap-6 mb-6">
-          <motion.button
-            className={`neon-control-btn ${isShuffled ? 'text-accent' : 'text-gray-300'}`}
-            onClick={() => setIsShuffled(!isShuffled)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaRandom className="text-xl" />
-          </motion.button>
-          
-          <motion.button 
-            className="neon-control-btn"
-            onClick={onPrevious}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaStepBackward className="text-xl" />
-          </motion.button>
-          
-          <motion.button
-            className="neon-control-btn w-16 h-16 text-2xl"
-            onClick={isPlaying ? onPause : onPlay}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            {isPlaying ? <FaPause /> : <FaPlay className="ml-1" />}
-          </motion.button>
-          
-          <motion.button 
-            className="neon-control-btn"
-            onClick={onNext}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaStepForward className="text-xl" />
-          </motion.button>
-          
-          <motion.button
-            className={`neon-control-btn ${isRepeated ? 'text-accent' : 'text-gray-300'}`}
-            onClick={() => setIsRepeated(!isRepeated)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <FaRedo className="text-xl" />
-          </motion.button>
+        <div className="flex flex-col truncate">
+          <h3 className="text-lg font-semibold text-white truncate">{currentTrack.title}</h3>
+          <p className="text-sm text-gray-400 truncate">{currentTrack.artist}</p>
         </div>
-        
-        {/* 音量控制 */}
-        <div className="flex items-center gap-3">
-          <FaVolumeUp className="text-gray-400 text-xl" />
-          <div className="relative flex-grow">
-            <div className="h-2 rounded-full bg-gray-700">
-              <motion.div 
-                className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
-                animate={{ width: `${volume}%` }}
-                transition={{ duration: 0.2 }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent border border-white/10"></div>
-            </div>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={volume}
-              onChange={(e) => setVolume(parseInt(e.target.value))}
-              className="absolute w-full h-2 opacity-0 cursor-pointer"
-              style={{ top: '-4px' }}
-            />
-          </div>
-          <span className="text-sm text-gray-400 w-10">{volume}%</span>
-        </div>
+      </div>
+
+      {/* Controls */}
+      <div className="flex items-center space-x-4 mx-4 flex-shrink-0">
+        <motion.button
+          onClick={onToggleShuffle}
+          className={`p-2 rounded-full transition-colors duration-200 ${shuffleMode ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="Toggle Shuffle"
+        >
+          <FaRandom className="text-lg" />
+        </motion.button>
+
+        <motion.button
+          onClick={onPrevious}
+          className="p-2 text-white hover:text-primary transition-colors duration-200"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="Previous Track"
+        >
+          <FaStepBackward className="text-xl" />
+        </motion.button>
+
+        <motion.button
+          onClick={onPlayPause}
+          className="p-3 rounded-full bg-primary-dark text-white hover:bg-primary transition-colors duration-200"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label={isPlaying ? "Pause" : "Play"}
+        >
+          {isPlaying ? <FaPause className="text-2xl" /> : <FaPlay className="text-2xl" />}
+        </motion.button>
+
+        <motion.button
+          onClick={onNext}
+          className="p-2 text-white hover:text-primary transition-colors duration-200"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="Next Track"
+        >
+          <FaStepForward className="text-xl" />
+        </motion.button>
+
+        <motion.button
+          onClick={onToggleLoop}
+          className={`p-2 rounded-full transition-colors duration-200 ${isLooping ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          aria-label="Toggle Loop"
+        >
+          <FaRedo className="text-lg" />
+        </motion.button>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="flex items-center space-x-2 flex-grow mx-4">
+        <span className="text-xs text-gray-400">{formatTime(progress)}</span>
+        <input
+          type="range"
+          min="0"
+          max={duration}
+          value={progress}
+          onChange={onSeek}
+          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none"
+        />
+        <span className="text-xs text-gray-400">{formatTime(duration)}</span>
+      </div>
+
+      {/* Volume Control */}
+      <div className="flex items-center space-x-2 flex-shrink-0 min-w-[100px]">
+        {volume > 0 ? <FaVolumeUp className="text-lg text-gray-400" /> : <FaVolumeOff className="text-lg text-gray-400" />}
+        <input
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value={volume}
+          onChange={onVolumeChange}
+          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none"
+        />
       </div>
     </motion.div>
   );
