@@ -1,70 +1,33 @@
 // src/types/index.ts
 
-// 重要的：Translations 接口，用于多语言文本
+// 定义整个应用的翻译结构
 export interface Translations {
-  login: {
-    welcome: string;
-    usernamePlaceholder: string;
-    passwordPlaceholder: string;
-    rememberMe: string;
-    forgotPassword: string;
-    signInButton: string;
-    signUpLink: string;
-    signUpText: string;
-  };
-  home: {
-    heroTitle: string;
-    heroSubtitle: string;
-    featuredMusicTitle: string;
-    recentPlaysTitle: string;
-    topArtistsTitle: string;
-    newReleasesTitle: string;
-    viewAll: string;
-  };
-  navbar: {
-    home: string;
-    music: string;
-    profile: string;
-    rules: string;
-    logout: string;
-    login: string; // 如果未登录用户导航栏也有登录选项
-    language: string;
-  };
-  profile: {
-    title: string;
-    username: string;
-    email: string;
-    changePassword: string;
-    currentPasswordPlaceholder: string;
-    newPasswordPlaceholder: string;
-    confirmPasswordPlaceholder: string;
-    updateProfileButton: string;
-    settings: string;
-    darkMode: string;
-    notifications: string;
-  };
-  rules: {
-    title: string;
-    generalRules: string;
-    musicUploadRules: string;
-    communityGuidelines: string;
-    copyrightPolicy: string;
-  };
-  // 根据你应用的实际需求，这里可以添加更多页面或组件的翻译字段
+  title: string; // 应用的整体标题
+  nav: NavTranslations; // 导航栏翻译
+  home: HomeTranslations; // 首页翻译
+  auth: AuthTranslations; // 认证（登录/注册）翻译
+  player: PlayerTranslations; // 音乐播放器翻译
+  profile: ProfileTranslations; // 个人资料页翻译
+  common: CommonTranslations; // 公共/通用翻译
+  rulesPage: RulesPageTranslations; // 规则页翻译
+  settingsPage: SettingsPageTranslations; // 设置页翻译
 }
 
-// NavTranslations (如果你的 Navbar.tsx 明确需要这个单独的类型)
+// 导航栏翻译接口
 export interface NavTranslations {
   home: string;
   music: string;
+  dj: string;
+  live: string;
+  ranking: string;
   profile: string;
-  rules: string;
-  logout: string;
   login: string;
-  language: string;
+  register: string;
+  logout: string;
+  rules: string;
 }
 
-// HomeTranslations (如果你的 page.tsx 明确需要这个单独的类型)
+// 首页翻译接口 (已根据实际使用调整)
 export interface HomeTranslations {
   heroTitle: string;
   heroSubtitle: string;
@@ -73,7 +36,158 @@ export interface HomeTranslations {
   topArtistsTitle: string;
   newReleasesTitle: string;
   viewAll: string;
+  // 以前的 'welcome', 'subtitle', 'featured', 'trending', 'newReleases' 已经映射到这里了
+  // 如果需要，也可以保留旧的键名，但为了保持与页面组件一致，这里使用新的
+  welcome: string; // 确保兼容 login/page.tsx 中的 fallback
+  subtitle: string; // 确保兼容 login/page.tsx 中的 fallback
+  featured: string; // 确保兼容 login/page.tsx 中的 fallback
+  trending: string; // 确保兼容 login/page.tsx 中的 fallback
+  newReleases: string; // 确保兼容 login/page.tsx 中的 fallback
 }
+
+
+// 认证（登录/注册）翻译接口
+export interface AuthTranslations {
+  loginTitle: string;
+  phone: string;
+  password: string;
+  confirmPassword: string;
+  loginButton: string;
+  registerButton: string;
+  forgotPassword: string;
+  noAccount: string;
+  hasAccount: string;
+  registerNow: string;
+  loginNow: string;
+  loginSuccess: string;
+  loginError: string;
+  phoneRequired: string;
+  passwordRequired: string;
+  confirmPasswordRequired: string;
+  passwordMismatch: string;
+  registerSuccess: string;
+  registerError: string;
+  registerTitle: string;
+}
+
+// 音乐播放器翻译接口
+export interface PlayerTranslations {
+  play: string;
+  pause: string;
+  next: string;
+  previous: string;
+  volume: string;
+  shuffle: string;
+  repeat: string;
+}
+
+// 个人资料页翻译接口 (已根据实际使用调整和补充)
+export interface ProfileTranslations {
+  myProfile: string;
+  editProfile: string;
+  myMusic: string;
+  myWallet: string;
+  balance: string;
+  recharge: string;
+  withdraw: string;
+  djApplication: string;
+  logout: string;
+  settings: string;
+  darkMode: string;
+  notifications: string;
+  phone: string;
+  username: string;
+  greeting: string;
+  djStatus: string;
+  notDj: string;
+  isDj: string;
+  title: string;
+  email: string;
+  changePassword: string;
+  currentPasswordPlaceholder: string;
+  newPasswordPlaceholder: string;
+  confirmPasswordPlaceholder: string;
+  updateProfileButton: string;
+}
+
+// 通用翻译接口
+export interface CommonTranslations {
+  search: string;
+  submit: string;
+  cancel: string;
+  confirm: string;
+  save: string;
+  edit: string;
+  delete: string;
+  loading: string;
+  error: string;
+  success: string;
+  viewDetails: string;
+  on: string;
+  off: string;
+}
+
+// 规则页翻译接口
+export interface RulesPageTranslations {
+  title: string;
+  subtitle: string;
+  section1Title: string;
+  section1Item1: string;
+  section1Item2: string;
+  section1Item3: string;
+  section1Item4: string;
+  section1Item5: string;
+  section1Item6: string;
+  section1Item7: string;
+  section1Item8: string;
+  section2Title: string;
+  section2Item1: string;
+  section2Item2: string;
+  section2Item3: string;
+  section2Item4: string;
+  section2Item5: string;
+  section2Item6: string;
+  section2Item7: string;
+  section3Title: string;
+  section3Item1: string;
+  section3Item2: string;
+  section3Item3: string;
+  section3Item4Title: string;
+  section3Item4Perm1: string;
+  section3Item4Perm2: string;
+  section3Item4Perm3: string;
+  section3Item4Perm4: string;
+  section3Item5: string;
+  section3Item6: string;
+  section3Item7: string;
+  importantReminderTitle: string;
+  importantReminderText1: string;
+  importantReminderText2: string;
+  importantReminderText3: string;
+}
+
+// 设置页翻译接口
+export interface SettingsPageTranslations {
+  title: string;
+  language: string;
+  theme: string;
+  notifications: string;
+  privacy: string;
+  account: string;
+  security: string;
+  darkMode: string;
+  lightMode: string;
+  pushNotifications: string;
+  emailNotifications: string;
+  updateProfile: string;
+  changePassword: string;
+  deleteAccount: string;
+  twoFactorAuth: string;
+  activityLog: string;
+}
+
+
+// >>> 其他独立接口（非Translations的一部分） <<<
 
 // Track 接口
 export interface Track {
@@ -107,7 +221,7 @@ export interface MusicCardProps {
   onShare: (id: string) => void;
 }
 
-// MusicPlayerProps 接口 (如果 MusicPlayer.tsx 需要)
+// MusicPlayerProps 接口
 export interface MusicPlayerProps {
   currentTrack: Track | null;
   isPlaying: boolean;
@@ -124,5 +238,3 @@ export interface MusicPlayerProps {
   shuffleMode: boolean;
   onToggleShuffle: () => void;
 }
-
-// 其他常用的类型，例如 User, APIResponse 等，如果需要可以添加
