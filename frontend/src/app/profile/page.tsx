@@ -116,8 +116,8 @@ export default function ProfilePage() {
             error: "错误",
             success: "成功",
             viewDetails: "查看详情",
-            on: "开启", // <--- 确保这里有这一行
-            off: "关闭" // <--- 确保这里有这一行
+            on: "开启",
+            off: "关闭"
           },
           rulesPage: {
             title: "平台规则与条款",
@@ -194,7 +194,7 @@ export default function ProfilePage() {
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {translations?.common?.loading || '加载中...'}
+        加载中... {/* 直接显示加载文本，避免在 translations 为 null 时访问其属性 */}
       </div>
     );
   }
