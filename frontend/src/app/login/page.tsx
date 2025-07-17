@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaSignInAlt } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // <--- 修复: 确保从正确的路径导入 Translations 类型
+import { Translations } from '@/types';
 
 export default function LoginPage() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -55,9 +55,9 @@ export default function LoginPage() {
             loginTitle: "登录",
             phone: "手机号码",
             password: "密码",
-            confirmPassword: "确认密码", // <--- 修复: 添加缺失的属性
+            confirmPassword: "确认密码",
             loginButton: "登录",
-            registerButton: "注册", // <--- 修复: 添加缺失的属性
+            registerButton: "注册",
             forgotPassword: "忘记密码？",
             noAccount: "没有账号？",
             hasAccount: "已有账号？",
@@ -67,10 +67,11 @@ export default function LoginPage() {
             loginError: "登录失败。",
             phoneRequired: "手机号码不能为空",
             passwordRequired: "密码不能为空",
-            confirmPasswordRequired: "请确认密码", // <--- 修复: 添加缺失的属性
-            passwordMismatch: "密码不匹配", // <--- 修复: 添加缺失的属性
-            registerSuccess: "注册成功！", // <--- 修复: 添加缺失的属性
-            registerError: "注册失败。" // <--- 修复: 添加缺失的属性
+            confirmPasswordRequired: "请确认密码",
+            passwordMismatch: "密码不匹配",
+            registerSuccess: "注册成功！",
+            registerError: "注册失败。",
+            registerTitle: "注册" // <--- 修复: 添加缺失的 registerTitle 属性
           },
           player: {
             play: "播放",
@@ -83,7 +84,7 @@ export default function LoginPage() {
           },
           profile: {
             myProfile: "我的资料",
-            editProfile: "编辑资料", // <--- 修复: 添加缺失的属性
+            editProfile: "编辑资料",
             myMusic: "我的音乐",
             myWallet: "我的钱包",
             balance: "余额",
@@ -91,13 +92,13 @@ export default function LoginPage() {
             withdraw: "提现",
             settings: "设置",
             djApplication: "DJ认证申请",
-            logout: "退出登录", // <--- 修复: 添加缺失的属性
-            phone: "手机号码", // <--- 修复: 添加缺失的属性
-            username: "用户名", // <--- 修复: 添加缺失的属性
-            greeting: "你好，{username}！", // <--- 修复: 添加缺失的属性
-            djStatus: "DJ状态：", // <--- 修复: 添加缺失的属性
-            notDj: "未认证", // <--- 修复: 添加缺失的属性
-            isDj: "已认证" // <--- 修复: 添加缺失的属性
+            logout: "退出登录",
+            phone: "手机号码",
+            username: "用户名",
+            greeting: "你好，{username}！",
+            djStatus: "DJ状态：",
+            notDj: "未认证",
+            isDj: "已认证"
           },
           common: {
             search: "搜索",
@@ -110,9 +111,9 @@ export default function LoginPage() {
             loading: "加载中...",
             error: "错误",
             success: "成功",
-            viewDetails: "查看详情", // <--- 修复: 添加缺失的属性
-            on: "开启", // <--- 修复: 添加缺失的属性
-            off: "关闭" // <--- 修复: 添加缺失的属性
+            viewDetails: "查看详情",
+            on: "开启",
+            off: "关闭"
           },
           rulesPage: {
             title: "平台规则与条款",
@@ -224,7 +225,7 @@ export default function LoginPage() {
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {'加载中...'} {/* <--- 修复: 直接显示硬编码文本，因为此时 translations 肯定为 null */}
+        {'加载中...'}
       </div>
     );
   }
