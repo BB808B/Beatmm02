@@ -18,7 +18,7 @@ export default function ProfilePage() { // 注意：这里将导出函数名改�
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = 0);
+  const [duration, setDuration] = useState(0); // 修复：这里缺少了 useState
   const [volume, setVolume] = useState(0.5);
   const [isLooping, setIsLooping] = useState(false);
   const [shuffleMode, setShuffleMode] = useState(false);
