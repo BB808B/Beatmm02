@@ -1,15 +1,16 @@
 // src/app/page.tsx
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaPlay, FaPause, FaHeart, FaShareAlt, FaSearch } from 'react-icons/fa';
-import NavbarComponent from '@/components/Navbar'; // 确保正确导入 NavbarComponent
-import MusicPlayer from '@/components/MusicPlayer'; // 确保正确导入 MusicPlayer
-import MusicCard from '@/components/MusicCard'; // 确保正确导入 MusicCard
-import Carousel from '@/components/Carousel'; // 重点：确保这一行是正确的，导入的是 Carousel
-import { Track, CarouselSlide, Translations } from '@/types'; // 确保导入 Track 和 Translations
+import NavbarComponent from '@/components/Navbar';
+import MusicPlayer from '@/components/MusicPlayer';
+import MusicCard from '@/components/MusicCard';
+import Carousel from '@/components/Carousel';
+import { Track, CarouselSlide, Translations } from '@/types';
 
 export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -67,6 +68,7 @@ export default function Home() {
             logout: "退出",
             rules: "规则"
           },
+          // 确保 home 翻译部分与 types/index.ts 中的 HomeTranslations 类型完全一致
           home: {
             heroTitle: "欢迎来到缅甸DJ平台",
             heroSubtitle: "发现最棒的越南鼓DJ音乐",
