@@ -74,7 +74,7 @@ export default function ProfilePage() {
             confirmPasswordRequired: "请确认密码",
             passwordMismatch: "密码不匹配",
             registerSuccess: "注册成功！",
-            registerError: "注册失败。",
+            registerError: "注册失败.",
             registerTitle: "注册"
           },
           player: {
@@ -116,8 +116,8 @@ export default function ProfilePage() {
             error: "错误",
             success: "成功",
             viewDetails: "查看详情",
-            on: "开启", // <--- 修复: 添加缺失的 on 属性
-            off: "关闭" // <--- 修复: 添加缺失的 off 属性
+            on: "开启", // <--- 确保这里有这一行
+            off: "关闭" // <--- 确保这里有这一行
           },
           rulesPage: {
             title: "平台规则与条款",
