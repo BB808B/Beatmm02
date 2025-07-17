@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaSignInAlt } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types';
+import { Translations } from '@/types'; // 确保从正确的路径导入 Translations 类型
 
 export default function LoginPage() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -29,7 +29,7 @@ export default function LoginPage() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // fallback translations fully match the Translations type
+        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -44,12 +44,15 @@ export default function LoginPage() {
             logout: "退出",
             rules: "规则"
           },
+          // 修复：home 属性的键名与 HomeTranslations 接口匹配
           home: {
-            welcome: "欢迎来到缅甸DJ平台",
-            subtitle: "发现最棒的越南鼓DJ音乐",
-            featured: "精选音乐",
-            trending: "热门趋势",
-            newReleases: "最新发布"
+            heroTitle: "欢迎来到缅甸DJ平台", // 对应之前的 'welcome'
+            heroSubtitle: "发现最棒的越南鼓DJ音乐", // 对应之前的 'subtitle'
+            featuredMusicTitle: "精选音乐", // 对应之前的 'featured'
+            recentPlaysTitle: "热门趋势", // 对应之前的 'trending'
+            topArtistsTitle: "热门艺术家", // 新增，请根据实际情况调整翻译
+            newReleasesTitle: "最新发布", // 对应之前的 'newReleases'
+            viewAll: "查看全部" // 新增，请根据实际情况调整翻译
           },
           auth: {
             loginTitle: "登录",
@@ -71,7 +74,7 @@ export default function LoginPage() {
             passwordMismatch: "密码不匹配",
             registerSuccess: "注册成功！",
             registerError: "注册失败。",
-            registerTitle: "注册" // <--- 修复: 添加缺失的 registerTitle 属性
+            registerTitle: "注册"
           },
           player: {
             play: "播放",
@@ -186,11 +189,11 @@ export default function LoginPage() {
     setError(null);
 
     if (!phone) {
-      setError(translations?.auth?.phoneRequired || 'Phone number is required');
+      setError(translations?.auth?.phoneRequired || '手机号码不能为空');
       return;
     }
     if (!password) {
-      setError(translations?.auth?.passwordRequired || 'Password is required');
+      setError(translations?.auth?.passwordRequired || '密码不能为空');
       return;
     }
 
@@ -323,7 +326,7 @@ export default function LoginPage() {
             <p className="text-gray-300 mb-2">
               {translations.auth.forgotPassword}{' '}
               <a href="#" className="text-primary hover:underline transition-colors duration-200">
-                {translations.auth.confirmPassword}
+                {translations.auth.confirmPassword} {/* 这里可能应该是一个链接文本，而不是confirmPassword */}
               </a>
             </p>
             <p className="text-gray-300">
