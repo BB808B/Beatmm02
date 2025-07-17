@@ -1,15 +1,14 @@
 // src/components/MusicPlayer.tsx
 
-import React from 'react';
+import React, { FC } from 'react';
+import { FaPlay, FaPause, FaStepBackward, FaStepForward, FaVolumeUp, FaVolumeMute, FaRandom, FaRedo } from 'react-icons/fa';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { FaPlay, FaPause, FaStepBackward, FaStepForward, FaVolumeUp, FaVolumeOff, FaRandom, FaRedo } from 'react-icons/fa';
-import { Track } from '@/types'; // 确保 Track 类型被导入
+import { Track } from '@/types'; // Ensure Track is imported
 
 interface MusicPlayerProps {
   currentTrack: Track;
   isPlaying: boolean;
-  onPlayPause: () => void; // 只保留 onPlayPause，移除 onPlay 和 onPause
+  onPlayPause: () => void;
   onNext: () => void;
   onPrevious: () => void;
   progress: number;
@@ -23,10 +22,17 @@ interface MusicPlayerProps {
   onToggleShuffle: () => void;
 }
 
-const MusicPlayer: React.FC<MusicPlayerProps> = ({
+const formatTime = (seconds: number) => {
+  if (isNaN(seconds) || seconds < 0) return '0:00';
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+};
+
+const MusicPlayer: FC<MusicPlayerProps> = ({
   currentTrack,
   isPlaying,
-  onPlayPause, // 修正：只解构 onPlayPause
+  onPlayPause,
   onNext,
   onPrevious,
   progress,
@@ -39,119 +45,78 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   shuffleMode,
   onToggleShuffle,
 }) => {
-  // Helper to format time (e.g., 150 seconds -> 2:30)
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
   return (
-    <motion.div
-      className="flex items-center justify-between p-4 bg-gray-900 rounded-lg shadow-xl"
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-    >
+    <div className="flex items-center justify-between p-4 bg-gray-900 rounded-lg shadow-lg text-white mx-auto max-w-7xl">
       {/* Track Info */}
-      <div className="flex items-center space-x-4 flex-grow min-w-0">
-        <div className="relative w-16 h-16 flex-shrink-0">
-          <Image
-            src={currentTrack.coverImage}
-            alt={currentTrack.title}
-            fill
-            sizes="64px"
-            style={{ objectFit: 'cover' }}
-            className="rounded-md shadow-md"
+      <div className="flex items-center flex-grow min-w-0 mr-4">
+        <Image
+          src={currentTrack.coverImage || '/images/default-album.jpg'}
+          alt={currentTrack.title}
+          width={64}
+          height={64}
+          className="rounded-lg shadow-md flex-shrink-0"
+        />
+        <div className="ml-3 truncate">
+          <h3 className="text-lg font-semibold truncate text-primary">{currentTrack.title}</h3>
+          <p className="text-gray-400 text-sm truncate">{currentTrack.artist}</p>
+        </div>
+      </div>
+
+      {/* Playback Controls */}
+      <div className="flex flex-col items-center flex-grow-0 mx-4 w-full sm:w-auto">
+        <div className="flex items-center space-x-4 mb-2">
+          <button onClick={onPrevious} className="text-gray-400 hover:text-white transition-colors duration-200 text-xl">
+            <FaStepBackward />
+          </button>
+          <button onClick={onPlayPause} className="bg-primary text-white p-3 rounded-full hover:bg-primary-dark transition-colors duration-200 text-2xl shadow-lg">
+            {isPlaying ? <FaPause /> : <FaPlay />}
+          </button>
+          <button onClick={onNext} className="text-gray-400 hover:text-white transition-colors duration-200 text-xl">
+            <FaStepForward />
+          </button>
+        </div>
+        {/* Progress Bar */}
+        <div className="flex items-center w-full">
+          <span className="text-xs text-gray-400 mr-2 min-w-[30px] text-right">{formatTime(progress)}</span>
+          <input
+            type="range"
+            min="0"
+            max={duration || 0}
+            value={progress}
+            onChange={onSeek}
+            className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:rounded-full"
           />
-        </div>
-        <div className="flex flex-col truncate">
-          <h3 className="text-lg font-semibold text-white truncate">{currentTrack.title}</h3>
-          <p className="text-sm text-gray-400 truncate">{currentTrack.artist}</p>
+          <span className="text-xs text-gray-400 ml-2 min-w-[30px]">{formatTime(duration)}</span>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center space-x-4 mx-4 flex-shrink-0">
-        <motion.button
-          onClick={onToggleShuffle}
-          className={`p-2 rounded-full transition-colors duration-200 ${shuffleMode ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label="Toggle Shuffle"
-        >
-          <FaRandom className="text-lg" />
-        </motion.button>
-
-        <motion.button
-          onClick={onPrevious}
-          className="p-2 text-white hover:text-primary transition-colors duration-200"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label="Previous Track"
-        >
-          <FaStepBackward className="text-xl" />
-        </motion.button>
-
-        <motion.button
-          onClick={onPlayPause}
-          className="p-3 rounded-full bg-primary-dark text-white hover:bg-primary transition-colors duration-200"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? <FaPause className="text-2xl" /> : <FaPlay className="text-2xl" />}
-        </motion.button>
-
-        <motion.button
-          onClick={onNext}
-          className="p-2 text-white hover:text-primary transition-colors duration-200"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label="Next Track"
-        >
-          <FaStepForward className="text-xl" />
-        </motion.button>
-
-        <motion.button
-          onClick={onToggleLoop}
-          className={`p-2 rounded-full transition-colors duration-200 ${isLooping ? 'text-primary' : 'text-gray-400 hover:text-white'}`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          aria-label="Toggle Loop"
-        >
-          <FaRedo className="text-lg" />
-        </motion.button>
+      {/* Volume and Options */}
+      <div className="flex items-center space-x-4 ml-4">
+        <div className="flex items-center group relative hidden md:flex">
+          <button className="text-gray-400 hover:text-white text-xl">
+            {volume === 0 ? <FaVolumeMute /> : <FaVolumeUp />}
+          </button>
+          <div className="absolute bottom-full mb-2 p-2 bg-gray-800 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={onVolumeChange}
+              orient="vertical"
+              className="w-2 h-24 bg-gray-700 rounded-lg appearance-none cursor-pointer volume-vertical [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg"
+            />
+          </div>
+        </div>
+        <button onClick={onToggleShuffle} className={`text-xl ${shuffleMode ? 'text-primary' : 'text-gray-400'} hover:text-white transition-colors duration-200`}>
+          <FaRandom />
+        </button>
+        <button onClick={onToggleLoop} className={`text-xl ${isLooping ? 'text-primary' : 'text-gray-400'} hover:text-white transition-colors duration-200`}>
+          <FaRedo />
+        </button>
       </div>
-
-      {/* Progress Bar */}
-      <div className="flex items-center space-x-2 flex-grow mx-4">
-        <span className="text-xs text-gray-400">{formatTime(progress)}</span>
-        <input
-          type="range"
-          min="0"
-          max={duration}
-          value={progress}
-          onChange={onSeek}
-          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer range-lg [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none"
-        />
-        <span className="text-xs text-gray-400">{formatTime(duration)}</span>
-      </div>
-
-      {/* Volume Control */}
-      <div className="flex items-center space-x-2 flex-shrink-0 min-w-[100px]">
-        {volume > 0 ? <FaVolumeUp className="text-lg text-gray-400" /> : <FaVolumeOff className="text-lg text-gray-400" />}
-        <input
-          type="range"
-          min="0"
-          max="1"
-          step="0.01"
-          value={volume}
-          onChange={onVolumeChange}
-          className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer range-sm [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:appearance-none"
-        />
-      </div>
-    </motion.div>
+    </div>
   );
 };
 
