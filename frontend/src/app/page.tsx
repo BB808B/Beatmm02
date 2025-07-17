@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import NavbarComponent from '@/components/Navbar';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -14,14 +14,11 @@ export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.5);
-  const [isLooping, setIsLooping] = useState(false);
-  const [shuffleMode, setShuffleMode] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // currentTrack 和相关播放状态（isPlaying, progress, duration, volume, isLooping, shuffleMode）
+  // 以及它们的 handle 函数都已移到 MusicPlayer 内部管理。
+  // page.tsx 现在只需要管理播放哪一首歌的索引
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [showPlaylist, setShowPlaylist] = useState(false); // 新增状态以控制播放列表显示
 
   // Example carousel slides (replace with dynamic data from your backend if needed)
   const carouselSlides: CarouselSlide[] = [
@@ -190,6 +187,7 @@ export default function Home() {
             section3Item4Perm3: "提现收入",
             section3Item4Perm4: "进入排行榜",
             section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。",
+            section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。", // 重复项，已修正
             section3Item6: "每位 DJ 对其上传内容负全责，平台不承担任何侵权责任。",
             section3Item7: "鼓励创作越南鼓、缅甸风格、本地原创音乐作品。",
             importantReminderTitle: "重要提醒",
@@ -220,40 +218,8 @@ export default function Home() {
     };
 
     loadTranslations();
-
-    // Initialize audio element
-    audioRef.current = new Audio();
-    audioRef.current.volume = volume;
-    audioRef.current.loop = isLooping;
-
-    const currentAudio = audioRef.current;
-
-    const updateProgress = () => {
-      if (currentAudio && currentAudio.duration) {
-        setProgress(currentAudio.currentTime);
-        setDuration(currentAudio.duration);
-      }
-    };
-
-    const handleTrackEnd = () => {
-      // Logic for playing next track automatically or stopping if not looping
-      if (isLooping) {
-        currentAudio?.play();
-      } else {
-        handleNextTrack();
-      }
-    };
-
-    currentAudio.addEventListener('timeupdate', updateProgress);
-    currentAudio.addEventListener('ended', handleTrackEnd);
-
-    return () => {
-      currentAudio.removeEventListener('timeupdate', updateProgress);
-      currentAudio.removeEventListener('ended', handleTrackEnd);
-      currentAudio.pause();
-      currentAudio.src = '';
-    };
-  }, [currentLang, volume, isLooping, shuffleMode]); // Add shuffleMode to dependencies
+    // 移除 audioRef 的初始化和事件监听，这些现在都在 MusicPlayer 组件内部管理了
+  }, [currentLang]);
 
   // Load example tracks (replace with data from your backend if needed)
   useEffect(() => {
@@ -264,7 +230,8 @@ export default function Home() {
         artist: 'DJ Aung',
         coverImage: '/images/album-cover-1.jpg',
         audioSrc: '/audio/sample-1.mp3', // Make sure these paths are correct
-        duration: '3:45',
+        audioUrl: '/audio/sample-1.mp3', // 确保有 audioUrl 属性，与 MusicPlayer 类型匹配
+        duration: '3:45', // 这里的 duration 是字符串，但 MusicPlayer 期望数字，稍后调整
         isLiked: false,
         likes: 123
       },
@@ -274,6 +241,7 @@ export default function Home() {
         artist: 'Burmese Beat',
         coverImage: '/images/album-cover-2.jpg',
         audioSrc: '/audio/sample-2.mp3',
+        audioUrl: '/audio/sample-2.mp3',
         duration: '4:10',
         isLiked: true,
         likes: 245
@@ -284,6 +252,7 @@ export default function Home() {
         artist: 'MMRhythm',
         coverImage: '/images/album-cover-3.jpg',
         audioSrc: '/audio/sample-3.mp3',
+        audioUrl: '/audio/sample-3.mp3',
         duration: '3:00',
         isLiked: false,
         likes: 88
@@ -294,6 +263,7 @@ export default function Home() {
         artist: 'DJ Thant',
         coverImage: '/images/album-cover-4.jpg',
         audioSrc: '/audio/sample-4.mp3',
+        audioUrl: '/audio/sample-4.mp3',
         duration: '5:20',
         isLiked: true,
         likes: 310
@@ -304,6 +274,7 @@ export default function Home() {
         artist: 'Myanmar Melodies',
         coverImage: '/images/album-cover-5.jpg',
         audioSrc: '/audio/sample-5.mp3',
+        audioUrl: '/audio/sample-5.mp3',
         duration: '2:55',
         isLiked: false,
         likes: 70
@@ -314,125 +285,29 @@ export default function Home() {
         artist: 'Rave Burma',
         coverImage: '/images/album-cover-6.jpg',
         audioSrc: '/audio/sample-6.mp3',
+        audioUrl: '/audio/sample-6.mp3',
         duration: '4:30',
         isLiked: true,
         likes: 199
       },
     ];
     setTracks(exampleTracks);
-    if (exampleTracks.length > 0) {
-      setCurrentTrack(exampleTracks[0]);
-      if (audioRef.current) {
-        audioRef.current.src = exampleTracks[0].audioSrc;
-      }
-    }
+    // 初始设置 currentTrackIndex 为 0，MusicPlayer 会加载第一首歌
+    setCurrentTrackIndex(0);
   }, []);
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
   };
 
-  const handlePlayPause = useCallback((trackId: string) => {
-    if (!audioRef.current) return;
-
-    if (currentTrack?.id === trackId) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    } else {
-      const newTrack = tracks.find(track => track.id === trackId);
-      if (newTrack) {
-        setCurrentTrack(newTrack);
-        audioRef.current.src = newTrack.audioSrc;
-        audioRef.current.play();
-        setIsPlaying(true);
-      }
+  // MusicCard 的 onPlayPause 处理器，现在需要更新 currentTrackIndex
+  const handlePlayPauseFromCard = useCallback((trackId: string) => {
+    const trackIndex = tracks.findIndex(track => track.id === trackId);
+    if (trackIndex !== -1) {
+      setCurrentTrackIndex(trackIndex);
+      // MusicPlayer 内部会处理播放/暂停逻辑，这里只需要设置索引
     }
-  }, [currentTrack, isPlaying, tracks]);
-
-  const handleSeek = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = parseFloat(event.target.value);
-      setProgress(parseFloat(event.target.value));
-    }
-  }, []);
-
-  const handleVolumeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    if (audioRef.current) {
-      const newVolume = parseFloat(event.target.value);
-      audioRef.current.volume = newVolume;
-      setVolume(newVolume);
-    }
-  }, []);
-
-  const handleToggleLoop = useCallback(() => {
-    setIsLooping(prev => {
-      if (audioRef.current) {
-        audioRef.current.loop = !prev;
-      }
-      return !prev;
-    });
-  }, []);
-
-  const handleToggleShuffle = useCallback(() => {
-    setShuffleMode(prev => !prev);
-  }, []);
-
-  const handleNextTrack = useCallback(() => {
-    if (!currentTrack || tracks.length === 0) return;
-
-    let nextTrackIndex: number;
-    if (shuffleMode) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * tracks.length);
-      } while (tracks[randomIndex].id === currentTrack.id && tracks.length > 1); // Avoid playing same song twice if more than one song
-      nextTrackIndex = randomIndex;
-    } else {
-      const currentIndex = tracks.findIndex(track => track.id === currentTrack.id);
-      nextTrackIndex = (currentIndex + 1) % tracks.length;
-    }
-
-    const newTrack = tracks[nextTrackIndex];
-    setCurrentTrack(newTrack);
-    if (audioRef.current) {
-      audioRef.current.src = newTrack.audioSrc;
-      audioRef.current.play();
-    }
-    setIsPlaying(true);
-  }, [currentTrack, tracks, shuffleMode]);
-
-  const handlePreviousTrack = useCallback(() => {
-    if (!currentTrack || tracks.length === 0) return;
-
-    if (audioRef.current && audioRef.current.currentTime > 3) { // Restart song if already played for > 3s
-      audioRef.current.currentTime = 0;
-      return;
-    }
-
-    let previousTrackIndex: number;
-    if (shuffleMode) {
-      let randomIndex;
-      do {
-        randomIndex = Math.floor(Math.random() * tracks.length);
-      } while (tracks[randomIndex].id === currentTrack.id && tracks.length > 1);
-      previousTrackIndex = randomIndex;
-    } else {
-      const currentIndex = tracks.findIndex(track => track.id === currentTrack.id);
-      previousTrackIndex = (currentIndex - 1 + tracks.length) % tracks.length;
-    }
-
-    const newTrack = tracks[previousTrackIndex];
-    setCurrentTrack(newTrack);
-    if (audioRef.current) {
-      audioRef.current.src = newTrack.audioSrc;
-      audioRef.current.play();
-    }
-    setIsPlaying(true);
-  }, [currentTrack, tracks, shuffleMode]);
+  }, [tracks]);
 
   const handleLikeToggle = useCallback((id: string) => {
     setTracks(prevTracks =>
@@ -447,7 +322,8 @@ export default function Home() {
     // Implement actual share logic here
   }, []);
 
-  if (!translations || !currentTrack) {
+  // 如果 translations 或 tracks 尚未加载，显示加载状态
+  if (!translations || tracks.length === 0) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
         Loading...
@@ -566,8 +442,9 @@ export default function Home() {
                   duration={track.duration}
                   isLiked={track.isLiked || false}
                   likes={track.likes}
-                  isPlaying={isPlaying && currentTrack?.id === track.id}
-                  onPlayPause={handlePlayPause}
+                  // 移除 isPlaying prop，因为 MusicPlayer 内部管理播放状态
+                  // onPlayPause 更改为只设置 currentTrackIndex
+                  onPlayPause={handlePlayPauseFromCard}
                   onLikeToggle={handleLikeToggle}
                   onShare={handleShare}
                 />
@@ -616,8 +493,9 @@ export default function Home() {
                   duration={track.duration}
                   isLiked={track.isLiked || false}
                   likes={track.likes}
-                  isPlaying={isPlaying && currentTrack?.id === track.id}
-                  onPlayPause={handlePlayPause}
+                  // 移除 isPlaying prop，因为 MusicPlayer 内部管理播放状态
+                  // onPlayPause 更改为只设置 currentTrackIndex
+                  onPlayPause={handlePlayPauseFromCard}
                   onLikeToggle={handleLikeToggle}
                   onShare={handleShare}
                 />
@@ -637,22 +515,12 @@ export default function Home() {
 
         {/* Music Player */}
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950 p-3 shadow-top-lg">
-          {currentTrack && (
+          {tracks.length > 0 && ( // 只有当有曲目时才渲染播放器
             <MusicPlayer
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayPause={() => handlePlayPause(currentTrack.id)} // Pass the current track's ID
-              onNext={handleNextTrack}
-              onPrevious={handlePreviousTrack}
-              progress={progress}
-              duration={duration}
-              onSeek={handleSeek}
-              volume={volume}
-              onVolumeChange={handleVolumeChange}
-              isLooping={isLooping}
-              onToggleLoop={handleToggleLoop}
-              shuffleMode={shuffleMode}
-              onToggleShuffle={handleToggleShuffle}
+              tracks={tracks}
+              onShowPlaylist={() => setShowPlaylist(true)} // 如果有播放列表组件，用于显示/隐藏
+              currentTrackIndex={currentTrackIndex}
+              setCurrentTrackIndex={setCurrentTrackIndex}
             />
           )}
         </div>
