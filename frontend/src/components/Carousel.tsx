@@ -58,7 +58,8 @@ const Carousel: React.FC<CarouselProps> = ({ slides, autoPlayInterval = 5000 }) 
     exit: (direction: number) => ({
       x: direction < 0 ? '100%' : '-100%',
       opacity: 0,
-      position: 'absolute', // To prevent layout shift during exit
+      // 这里的 'position: 'absolute'' 是导致类型错误的根源，已移除。
+      // Framer Motion 会在 AnimatePresence 中自动处理离开动画元素的布局。
     }),
   };
 
