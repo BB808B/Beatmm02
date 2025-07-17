@@ -1,27 +1,30 @@
 // src/app/settings/page.tsx
 
-'use client'; // 确保是客户端组件
+'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaCog, FaLanguage, FaPaintBrush, FaBell, FaShieldAlt, FaUserCircle, FaLock, FaTrashAlt, FaKey, FaHistory, FaArrowLeft } from 'react-icons/fa';
+import { FaMoon, FaSun, FaBell, FaShieldAlt, FaKey, FaTrash, FaUserEdit, FaEnvelope, FaLock, FaGlobe } from 'react-icons/fa'; // 导入更多图标
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // 确保 Translations 类型正确导入
+import { Translations } from '@/types'; // 确保 Translations 类型被导入
 
 export default function SettingsPage() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-
-  // 模拟设置状态
-  const [darkMode, setDarkMode] = useState(false);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [emailNotifications, setEmailNotifications] = useState(false);
-  const [twoFactorAuth, setTwoFactorAuth] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // 新增状态：深色模式
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true); // 新增状态：通知
 
   useEffect(() => {
+    // 假设从 localStorage 加载深色模式设置
+    const savedMode = localStorage.getItem('theme');
+    if (savedMode === 'dark') {
+      setIsDarkMode(true);
+      document.documentElement.classList.add('dark');
+    } else {
+      setIsDarkMode(false);
+      document.documentElement.classList.remove('dark');
+    }
+
     const loadTranslations = async () => {
       try {
         const response = await fetch(`/locales/${currentLang}/common.json`);
@@ -32,7 +35,7 @@ export default function SettingsPage() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 务必与 src/types/index.ts 的 Translations 类型完全匹配
+        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -48,11 +51,13 @@ export default function SettingsPage() {
             rules: "规则"
           },
           home: {
-            welcome: "欢迎来到缅甸DJ平台",
-            subtitle: "发现最棒的越南鼓DJ音乐",
-            featured: "精选音乐",
-            trending: "热门趋势",
-            newReleases: "最新发布"
+            heroTitle: "欢迎来到缅甸DJ平台", // 修正：将 'welcome' 改为 'heroTitle'
+            heroSubtitle: "发现最棒的越南鼓DJ音乐", // 修正：将 'subtitle' 改为 'heroSubtitle'
+            featuredMusicTitle: "精选音乐",   // 修正：将 'featured' 改为 'featuredMusicTitle'
+            recentPlaysTitle: "热门趋势",     // 修正：将 'trending' 改为 'recentPlaysTitle'
+            topArtistsTitle: "热门艺术家",
+            newReleasesTitle: "最新发布",
+            viewAll: "查看全部"
           },
           auth: {
             loginTitle: "登录",
@@ -60,12 +65,11 @@ export default function SettingsPage() {
             password: "密码",
             confirmPassword: "确认密码",
             loginButton: "登录",
+            registerButton: "注册",
             forgotPassword: "忘记密码？",
             noAccount: "没有账号？",
             hasAccount: "已有账号？",
             registerNow: "立即注册",
-            registerTitle: "注册",
-            registerButton: "注册",
             loginNow: "立即登录",
             loginSuccess: "登录成功！",
             loginError: "登录失败。",
@@ -74,7 +78,8 @@ export default function SettingsPage() {
             confirmPasswordRequired: "请确认密码",
             passwordMismatch: "密码不匹配",
             registerSuccess: "注册成功！",
-            registerError: "注册失败。"
+            registerError: "注册失败。",
+            registerTitle: "注册"
           },
           player: {
             play: "播放",
@@ -93,7 +98,6 @@ export default function SettingsPage() {
             balance: "余额",
             recharge: "充值",
             withdraw: "提现",
-            settings: "设置",
             djApplication: "DJ认证申请",
             logout: "退出登录",
             phone: "手机号码",
@@ -101,7 +105,17 @@ export default function SettingsPage() {
             greeting: "你好，{username}！",
             djStatus: "DJ状态：",
             notDj: "未认证",
-            isDj: "已认证"
+            isDj: "已认证",
+            title: "个人资料设置",
+            email: "邮箱",
+            changePassword: "修改密码",
+            currentPasswordPlaceholder: "当前密码",
+            newPasswordPlaceholder: "新密码",
+            confirmPasswordPlaceholder: "确认新密码",
+            updateProfileButton: "更新资料",
+            settings: "设置",
+            darkMode: "深色模式",
+            notifications: "通知"
           },
           common: {
             search: "搜索",
@@ -115,8 +129,8 @@ export default function SettingsPage() {
             error: "错误",
             success: "成功",
             viewDetails: "查看详情",
-            on: "开启", // <--- 修复: 添加 on
-            off: "关闭" // <--- 修复: 添加 off
+            on: "开启",
+            off: "关闭"
           },
           rulesPage: {
             title: "平台规则与条款",
@@ -155,7 +169,7 @@ export default function SettingsPage() {
             importantReminderText2: "平台致力于为用户提供安全、合规的音乐分享环境，共同维护良好的社区氛围。",
             importantReminderText3: "如有疑问，请联系客服或查看帮助文档。"
           },
-          settingsPage: { // 修复: 添加 settingsPage
+          settingsPage: {
             title: "设置",
             language: "语言",
             theme: "主题",
@@ -174,8 +188,6 @@ export default function SettingsPage() {
             activityLog: "活动日志"
           }
         });
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -186,75 +198,57 @@ export default function SettingsPage() {
     setCurrentLang(lang);
   };
 
-  const goBack = () => {
-    router.back();
+  const toggleDarkMode = () => {
+    setIsDarkMode(prevMode => {
+      const newMode = !prevMode;
+      if (newMode) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+      }
+      return newMode;
+    });
   };
 
-  if (loading || !translations) {
+  const toggleNotifications = () => {
+    setNotificationsEnabled(prev => !prev);
+    // 这里可以添加实际的通知设置保存逻辑
+  };
+
+  if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {translations?.common?.loading || '加载中...'}
+        Loading...
       </div>
     );
   }
 
-  const toggleSwitch = (setState: React.Dispatch<React.SetStateAction<boolean>>, currentState: boolean) => {
-    setState(!currentState);
+  // 动画变体
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
   };
 
-  const SettingsSection: React.FC<{ title: string; children: React.ReactNode; icon: React.ElementType }> = ({ title, children, icon: Icon }) => (
-    <motion.div
-      className="glass-panel neon-border p-6 rounded-xl shadow-lg mb-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-    >
-      <div className="bg-gradient-to-r from-primary to-accent text-white p-4 rounded-t-lg -mx-6 -mt-6 mb-6 flex items-center">
-        <Icon className="mr-3 text-2xl" />
-        <h3 className="text-xl font-bold">{title}</h3>
-      </div>
-      <div className="space-y-4">
-        {children}
-      </div>
-    </motion.div>
-  );
-
-  const SettingItem: React.FC<{ label: string; value?: string | React.ReactNode; onClick?: () => void; icon?: React.ElementType; isLink?: boolean; isToggle?: boolean; toggleState?: boolean; onToggle?: () => void }> = ({
-    label, value, onClick, icon: Icon, isLink = false, isToggle = false, toggleState, onToggle
-  }) => (
-    <motion.div
-      className={`flex justify-between items-center py-3 px-4 rounded-lg transition-colors duration-200
-                  ${isLink || isToggle ? 'cursor-pointer hover:bg-gray-800' : ''}`}
-      whileHover={isLink || isToggle ? { scale: 1.02 } : {}}
-      whileTap={isLink || isToggle ? { scale: 0.98 } : {}}
-      onClick={onClick || (isToggle ? onToggle : undefined)}
-    >
-      <div className="flex items-center">
-        {Icon && <Icon className="mr-4 text-primary text-xl" />}
-        <span className="text-lg font-medium">{label}</span>
-      </div>
-      {isToggle ? (
-        <div
-          className={`relative w-14 h-8 flex items-center rounded-full p-1 transition-colors duration-300
-                      ${toggleState ? 'bg-primary' : 'bg-gray-600'}`}
-          onClick={onToggle}
-        >
-          <div
-            className={`bg-white w-6 h-6 rounded-full shadow-md transform transition-transform duration-300
-                        ${toggleState ? 'translate-x-6' : 'translate-x-0'}`}
-          ></div>
-          <span className={`absolute left-2 text-xs font-bold ${toggleState ? 'text-transparent' : 'text-white'}`}>
-            {translations.common.off}
-          </span>
-          <span className={`absolute right-2 text-xs font-bold ${toggleState ? 'text-white' : 'text-transparent'}`}>
-            {translations.common.on}
-          </span>
-        </div>
-      ) : (
-        <span className="text-gray-300 text-lg">{value}</span>
-      )}
-    </motion.div>
-  );
+  const itemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut"
+      }
+    }
+  };
 
   return (
     <>
@@ -264,109 +258,127 @@ export default function SettingsPage() {
         translations={translations}
       />
 
-      <main className="min-h-screen flex items-start justify-center bg-gradient-to-br from-gray-900 to-black p-4 pt-24 md:pt-16">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="glass-panel neon-border p-8 rounded-xl shadow-2xl w-full max-w-3xl text-white"
+      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
+        <motion.section
+          className="text-center mb-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
         >
+          <h1 className="text-4xl font-bold text-primary mb-4">
+            {translations.settingsPage.title}
+          </h1>
+          <p className="text-gray-300 max-w-3xl mx-auto">
+            {translations.profile.title}
+          </p>
+        </motion.section>
+
+        <div className="max-w-2xl mx-auto space-y-8">
+          {/* 语言设置 */}
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex items-center mb-8"
+            className="bg-gray-800 p-6 rounded-lg shadow-xl flex items-center justify-between"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
           >
-            <button
-              className="neon-icon-btn p-2 mr-4"
-              onClick={goBack}
+            <div className="flex items-center">
+              <FaGlobe className="text-accent text-2xl mr-3" />
+              <h2 className="text-xl font-semibold text-white">{translations.settingsPage.language}</h2>
+            </div>
+            <select
+              className="p-2 rounded bg-gray-700 border border-gray-600 text-white cursor-pointer"
+              value={currentLang}
+              onChange={(e) => handleLanguageChange(e.target.value)}
             >
-              <FaArrowLeft size={20} />
-            </button>
-            <h2
-              className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
-            >
-              <FaCog className="inline-block mr-3" />
-              {translations.settingsPage.title}
-            </h2>
+              <option value="zh">简体中文</option>
+              <option value="my">Burmese</option>
+              {/* 根据需要添加更多语言选项 */}
+            </select>
           </motion.div>
 
-          <SettingsSection title={translations.settingsPage.language} icon={FaLanguage}>
-            <SettingItem
-              label={translations.settingsPage.language}
-              value={currentLang === 'zh' ? '中文' : 'English'}
-              onClick={() => handleLanguageChange(currentLang === 'zh' ? 'en' : 'zh')}
-              isLink
-            />
-          </SettingsSection>
-
-          <SettingsSection title={translations.settingsPage.theme} icon={FaPaintBrush}>
-            <SettingItem
-              label={translations.settingsPage.darkMode}
-              isToggle
-              toggleState={darkMode}
-              onToggle={() => toggleSwitch(setDarkMode, darkMode)}
-            />
-          </SettingsSection>
-
-          <SettingsSection title={translations.settingsPage.notifications} icon={FaBell}>
-            <SettingItem
-              label={translations.settingsPage.pushNotifications}
-              isToggle
-              toggleState={pushNotifications}
-              onToggle={() => toggleSwitch(setPushNotifications, pushNotifications)}
-            />
-            <SettingItem
-              label={translations.settingsPage.emailNotifications}
-              isToggle
-              toggleState={emailNotifications}
-              onToggle={() => toggleSwitch(setEmailNotifications, emailNotifications)}
-            />
-          </SettingsSection>
-
-          <SettingsSection title={translations.settingsPage.account} icon={FaUserCircle}>
-            <SettingItem
-              label={translations.settingsPage.updateProfile}
-              onClick={() => router.push('/profile/edit')} // 假设有编辑资料页面
-              isLink
-            />
-            <SettingItem
-              label={translations.settingsPage.changePassword}
-              onClick={() => router.push('/auth/change-password')} // 假设有修改密码页面
-              isLink
-            />
-            <SettingItem
-              label={translations.settingsPage.deleteAccount}
-              onClick={() => alert('此操作不可逆，请谨慎！')} // 实际应有确认弹窗
-              isLink
-            />
-          </SettingsSection>
-
-          <SettingsSection title={translations.settingsPage.security} icon={FaShieldAlt}>
-            <SettingItem
-              label={translations.settingsPage.twoFactorAuth}
-              isToggle
-              toggleState={twoFactorAuth}
-              onToggle={() => toggleSwitch(setTwoFactorAuth, twoFactorAuth)}
-            />
-            <SettingItem
-              label={translations.settingsPage.activityLog}
-              onClick={() => router.push('/security/activity-log')} // 假设有活动日志页面
-              isLink
-            />
-          </SettingsSection>
-
-          {/* 可以添加一个通用的保存按钮，如果设置项需要显式保存 */}
-          {/* <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full neon-button py-3 rounded-lg font-bold text-lg flex items-center justify-center mt-8 transition-all duration-300"
-            onClick={() => alert(translations.common.save + ' ' + translations.common.success)}
+          {/* 主题设置 */}
+          <motion.div
+            className="bg-gray-800 p-6 rounded-lg shadow-xl flex items-center justify-between"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
           >
-            <FaSave className="mr-2" />
-            {translations.common.save}
-          </motion.button> */}
-        </motion.div>
+            <div className="flex items-center">
+              {isDarkMode ? <FaMoon className="text-accent text-2xl mr-3" /> : <FaSun className="text-accent text-2xl mr-3" />}
+              <h2 className="text-xl font-semibold text-white">{translations.settingsPage.theme}</h2>
+            </div>
+            <button
+              onClick={toggleDarkMode}
+              className={`px-4 py-2 rounded font-semibold transition-colors duration-200 ${isDarkMode ? 'neon-button-small' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+            >
+              {isDarkMode ? translations.settingsPage.darkMode : translations.settingsPage.lightMode}
+            </button>
+          </motion.div>
+
+          {/* 通知设置 */}
+          <motion.div
+            className="bg-gray-800 p-6 rounded-lg shadow-xl flex items-center justify-between"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
+          >
+            <div className="flex items-center">
+              <FaBell className="text-accent text-2xl mr-3" />
+              <h2 className="text-xl font-semibold text-white">{translations.settingsPage.notifications}</h2>
+            </div>
+            <button
+              onClick={toggleNotifications}
+              className={`px-4 py-2 rounded font-semibold transition-colors duration-200 ${notificationsEnabled ? 'neon-button-small' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
+            >
+              {notificationsEnabled ? translations.common.on : translations.common.off}
+            </button>
+          </motion.div>
+
+          {/* 账户设置 */}
+          <motion.div
+            className="bg-gray-800 p-6 rounded-lg shadow-xl"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
+          >
+            <h2 className="text-xl font-semibold text-accent mb-4 flex items-center">
+              <FaUserEdit className="mr-2" />{translations.settingsPage.account}
+            </h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">{translations.profile.username}</label>
+                <input type="text" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="你的用户名" />
+              </div>
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">{translations.profile.email}</label>
+                <input type="email" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="你的邮箱" />
+              </div>
+              <button className="neon-button-small w-full py-2 rounded font-semibold">
+                {translations.settingsPage.updateProfile}
+              </button>
+            </div>
+          </motion.div>
+
+          {/* 安全设置 */}
+          <motion.div
+            className="bg-gray-800 p-6 rounded-lg shadow-xl"
+            initial="hidden"
+            animate="visible"
+            variants={sectionVariants}
+          >
+            <h2 className="text-xl font-semibold text-accent mb-4 flex items-center">
+              <FaShieldAlt className="mr-2" />{translations.settingsPage.security}
+            </h2>
+            <div className="space-y-4">
+              <button className="neon-button-small w-full py-2 rounded font-semibold">
+                <FaKey className="inline-block mr-2" />{translations.settingsPage.changePassword}
+              </button>
+              <button className="neon-button-small-red w-full py-2 rounded font-semibold">
+                <FaTrash className="inline-block mr-2" />{translations.settingsPage.deleteAccount}
+              </button>
+            </div>
+          </motion.div>
+        </div>
       </main>
     </>
   );
