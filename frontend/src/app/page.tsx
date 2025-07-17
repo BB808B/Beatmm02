@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'; // 确保 useRef 被导入
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import NavbarComponent from '@/components/Navbar';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -30,21 +30,24 @@ export default function Home() {
       imageUrl: '/images/hero-bg.jpg', // Placeholder image
       title: '发现新节奏',
       description: '探索缅甸和全球最新最热的DJ音乐。',
-      link: '#'
+      link: '#',
+      altText: 'Discover new rhythms'
     },
     {
       id: 'slide2',
       imageUrl: '/images/artist-profile.jpg', // Placeholder image
       title: '与顶级DJ互动',
       description: '关注你最爱的艺术家，获取独家内容。',
-      link: '#'
+      link: '#',
+      altText: 'Interact with top DJs'
     },
     {
       id: 'slide3',
       imageUrl: '/images/live-event.jpg', // Placeholder image
       title: '参与直播派对',
       description: '加入实时音乐盛宴，与DJ和乐迷一同狂欢。',
-      link: '#'
+      link: '#',
+      altText: 'Join live parties'
     },
   ];
 
