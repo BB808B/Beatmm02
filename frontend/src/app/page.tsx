@@ -1,15 +1,14 @@
 // src/app/page.tsx
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { FaPlay, FaPause, FaHeart, FaShareAlt, FaSearch } from 'react-icons/fa';
-import NavbarComponent from '@/components/Navbar';
-import MusicPlayer from '@/components/MusicPlayer';
-import MusicCard from '@/components/MusicCard';
-import Carousel from '@/components/Carousel';
+import NavbarComponent from '@/components/Navbar'; // 确保正确导入 NavbarComponent
+import MusicPlayer from '@/components/MusicPlayer'; // 确保正确导入 MusicPlayer
+import MusicCard from '@/components/MusicCard'; // 确保正确导入 MusicCard
+import Carousel from '@/components/Carousel'; // 重点：确保这一行是正确的，导入的是 Carousel
 import { Track, CarouselSlide, Translations } from '@/types'; // 确保导入 Track 和 Translations
 
 export default function Home() {
@@ -23,7 +22,7 @@ export default function Home() {
   const [isLooping, setIsLooping] = useState(false);
   const [shuffleMode, setShuffleMode] = useState(false);
 
-  // 模拟数据 - 根据新的 Track 接口进行调整
+  // 模拟数据 - 根据 Track 接口进行调整
   const dummyTracks: Track[] = [
     { id: '1', title: 'Tropical Thunder', artist: 'DJ Beatmaster', coverImage: '/images/album-art-1.jpg', audioSrc: '/audio/song1.mp3', duration: '3:45', isLiked: false, likes: 1200 },
     { id: '2', title: 'Sunset Chill', artist: 'DJ Groove', coverImage: '/images/album-art-2.jpg', audioSrc: '/audio/song2.mp3', duration: '4:10', isLiked: true, likes: 2500 },
@@ -384,57 +383,57 @@ export default function Home() {
         <section className="mb-12">
           <h2 className="text-3xl font-bold mb-6 text-accent text-center sm:text-left">
             {translations.home.recentPlaysTitle}
-          </h2>
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            {dummyTracks.slice(4, 8).map((track) => (
-              <MusicCard
-                key={track.id}
-                id={track.id}
-                title={track.title}
-                artist={track.artist}
-                coverImage={track.coverImage}
-                audioSrc={track.audioSrc}
-                isLiked={track.isLiked || false}
-                isPlaying={currentTrack?.id === track.id && isPlaying}
-                onPlayPause={handlePlayPause}
-                onLikeToggle={handleLikeToggle}
-                onShare={handleShare}
-              />
-            ))}
-          </motion.div>
-          <div className="text-center mt-8">
-            <button className="neon-button-small px-6 py-3 rounded-full font-semibold text-lg">
-              {translations.home.viewAll}
-            </button>
-          </div>
-        </section>
+            </h2>
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+            >
+              {dummyTracks.slice(4, 8).map((track) => (
+                <MusicCard
+                  key={track.id}
+                  id={track.id}
+                  title={track.title}
+                  artist={track.artist}
+                  coverImage={track.coverImage}
+                  audioSrc={track.audioSrc}
+                  isLiked={track.isLiked || false}
+                  isPlaying={currentTrack?.id === track.id && isPlaying}
+                  onPlayPause={handlePlayPause}
+                  onLikeToggle={handleLikeToggle}
+                  onShare={handleShare}
+                />
+              ))}
+            </motion.div>
+            <div className="text-center mt-8">
+              <button className="neon-button-small px-6 py-3 rounded-full font-semibold text-lg">
+                {translations.home.viewAll}
+              </button>
+            </div>
+          </section>
 
-        {currentTrack && (
-          <div className="fixed bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-md p-4 z-50 shadow-lg border-t border-gray-700">
-            <MusicPlayer
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayPause={handlePlayerPlayPause}
-              onNext={handlePlayerNext}
-              onPrevious={handlePlayerPrevious}
-              progress={progress}
-              duration={duration}
-              onSeek={handleSeek}
-              volume={volume}
-              onVolumeChange={handleVolumeChange}
-              isLooping={isLooping}
-              onToggleLoop={handleToggleLoop}
-              shuffleMode={shuffleMode}
-              onToggleShuffle={handleToggleShuffle}
-            />
-          </div>
-        )}
-      </main>
-    </>
-  );
-}
+          {currentTrack && (
+            <div className="fixed bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-md p-4 z-50 shadow-lg border-t border-gray-700">
+              <MusicPlayer
+                currentTrack={currentTrack}
+                isPlaying={isPlaying}
+                onPlayPause={handlePlayerPlayPause}
+                onNext={handlePlayerNext}
+                onPrevious={handlePlayerPrevious}
+                progress={progress}
+                duration={duration}
+                onSeek={handleSeek}
+                volume={volume}
+                onVolumeChange={handleVolumeChange}
+                isLooping={isLooping}
+                onToggleLoop={handleToggleLoop}
+                shuffleMode={shuffleMode}
+                onToggleShuffle={handleToggleShuffle}
+              />
+            </div>
+          )}
+        </main>
+      </>
+    );
+  }
