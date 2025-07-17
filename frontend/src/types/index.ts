@@ -3,10 +3,9 @@
 export interface NavbarProps {
   currentLang: string;
   onLanguageChange: (lang: string) => void;
-  translations: Translations; // 确保 Translations 是已定义的，或者从这里导入
+  translations: Translations;
 }
 
-// 确保 Translations 接口也在这里定义
 export interface Translations {
   title: string;
   nav: {
@@ -160,9 +159,8 @@ export interface Translations {
   };
 }
 
-export type Language = 'zh' | 'my'; // 确保 Language 类型也被导出
+export type Language = 'zh' | 'my';
 
-// Track 接口 (如果您的 MusicPlayer 和 MusicCard 依赖它)
 export interface Track {
   id: string;
   title: string;
@@ -172,4 +170,12 @@ export interface Track {
   duration?: string;
   isLiked?: boolean;
   likes?: number;
+}
+
+export interface CarouselSlide {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  link: string; // Optional: Link for the slide
 }
