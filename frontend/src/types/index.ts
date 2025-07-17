@@ -27,7 +27,7 @@ export interface NavTranslations {
   rules: string;
 }
 
-// 首页翻译接口 (已根据实际使用调整)
+// 首页翻译接口 (现在只包含 login/page.tsx 中实际使用的键)
 export interface HomeTranslations {
   heroTitle: string;
   heroSubtitle: string;
@@ -36,13 +36,6 @@ export interface HomeTranslations {
   topArtistsTitle: string;
   newReleasesTitle: string;
   viewAll: string;
-  // 以前的 'welcome', 'subtitle', 'featured', 'trending', 'newReleases' 已经映射到这里了
-  // 如果需要，也可以保留旧的键名，但为了保持与页面组件一致，这里使用新的
-  welcome: string; // 确保兼容 login/page.tsx 中的 fallback
-  subtitle: string; // 确保兼容 login/page.tsx 中的 fallback
-  featured: string; // 确保兼容 login/page.tsx 中的 fallback
-  trending: string; // 确保兼容 login/page.tsx 中的 fallback
-  newReleases: string; // 确保兼容 login/page.tsx 中的 fallback
 }
 
 
@@ -81,7 +74,7 @@ export interface PlayerTranslations {
   repeat: string;
 }
 
-// 个人资料页翻译接口 (已根据实际使用调整和补充)
+// 个人资料页翻译接口 (保持不变，因为上次已修复)
 export interface ProfileTranslations {
   myProfile: string;
   editProfile: string;
