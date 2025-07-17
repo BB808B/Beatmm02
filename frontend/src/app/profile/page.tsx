@@ -2,40 +2,27 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { FaPlay, FaPause, FaHeart, FaShareAlt, FaSearch } from 'react-icons/fa';
+import { FaUserEdit, FaMusic, FaWallet, FaSignOutAlt, FaCrown, FaPhone, FaEnvelope, FaLock, FaUser } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import MusicPlayer from '@/components/MusicPlayer';
-import MusicCard from '@/components/MusicCard';
-import Carousel from '@/components/Carousel';
-import { Track, CarouselSlide, Translations } from '@/types';
+import Carousel from '@/components/Carousel'; // Assuming you use Carousel here
+import { CarouselSlide, Translations } from '@/types'; // Import CarouselSlide and Translations from types
 
-export default function ProfilePage() { // 注意：这里将导出函数名改为 ProfilePage，以避免与 page.tsx 冲突
+export default function ProfilePage() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
-  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0); // 修复：这里缺少了 useState
-  const [volume, setVolume] = useState(0.5);
-  const [isLooping, setIsLooping] = useState(false);
-  const [shuffleMode, setShuffleMode] = useState(false);
+  const [username, setUsername] = useState('John Doe'); // Placeholder
+  const [email, setEmail] = useState('john.doe@example.com'); // Placeholder
+  const [phone, setPhone] = useState('09XXXXXXXXX'); // Placeholder
+  const [balance, setBalance] = useState(15000); // Placeholder balance
+  const [isDj, setIsDj] = useState(false); // Placeholder DJ status
+  const [editMode, setEditMode] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
-  // 模拟数据 - 根据 Track 接口进行调整
-  const dummyTracks: Track[] = [
-    { id: '1', title: 'Tropical Thunder', artist: 'DJ Beatmaster', coverImage: '/images/album-art-1.jpg', audioSrc: '/audio/song1.mp3', duration: '3:45', isLiked: false, likes: 1200 },
-    { id: '2', title: 'Sunset Chill', artist: 'DJ Groove', coverImage: '/images/album-art-2.jpg', audioSrc: '/audio/song2.mp3', duration: '4:10', isLiked: true, likes: 2500 },
-    { id: '3', title: 'Night Drive', artist: 'DJ Synthwave', coverImage: '/images/album-art-3.jpg', audioSrc: '/audio/song3.mp3', duration: '3:00', isLiked: false, likes: 800 },
-    { id: '4', title: 'Rave On', artist: 'DJ Party', coverImage: '/images/album-art-4.jpg', audioSrc: '/audio/song4.mp3', duration: '5:20', isLiked: false, likes: 1800 },
-    { id: '5', title: 'Urban Flow', artist: 'DJ City', coverImage: '/images/album-art-5.jpg', audioSrc: '/audio/song5.mp3', duration: '3:15', isLiked: true, likes: 950 },
-    { id: '6', title: 'Forest Trance', artist: 'Mystic Beats', coverImage: '/images/album-art-6.jpg', audioSrc: '/audio/song6.mp3', duration: '4:30', isLiked: false, likes: 1500 },
-    { id: '7', title: 'Desert Oasis', artist: 'Sand King', coverImage: '/images/album-art-7.jpg', audioSrc: '/audio/song7.mp3', duration: '3:55', isLiked: false, likes: 700 },
-    { id: '8', title: 'Cosmic Dust', artist: 'Star Gazer', coverImage: '/images/album-art-8.jpg', audioSrc: '/audio/song8.mp3', duration: '4:05', isLiked: true, likes: 2100 },
-  ];
-
-  // 模拟轮播图数据 (如果您不需要轮播图在 profile 页面，可以删除此数据和 Carousel 组件使用)
+  // Dummy data for carousel (adjust as needed)
   const dummySlides: CarouselSlide[] = [
     { id: '1', imageUrl: '/images/carousel-1.jpg', altText: 'Promotion 1', link: '#' },
     { id: '2', imageUrl: '/images/carousel-2.jpg', altText: 'Promotion 2', link: '#' },
@@ -53,7 +40,7 @@ export default function ProfilePage() { // 注意：这里将导出函数名改�
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
+        // Fallback translations - MUST match Translations type
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -68,7 +55,6 @@ export default function ProfilePage() { // 注意：这里将导出函数名改�
             logout: "退出",
             rules: "规则"
           },
-          // 确保 home 翻译部分与 types/index.ts 中的 HomeTranslations 类型完全一致
           home: {
             heroTitle: "欢迎来到缅甸DJ平台",
             heroSubtitle: "发现最棒的越南鼓DJ音乐",
@@ -209,89 +195,43 @@ export default function ProfilePage() { // 注意：这里将导出函数名改�
         });
       }
     };
-
     loadTranslations();
   }, [currentLang]);
-
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
   };
 
-  const handlePlayPause = (id: string) => {
-    const trackToPlay = dummyTracks.find(track => track.id === id);
-    if (trackToPlay) {
-      if (currentTrack?.id === id && isPlaying) {
-        setIsPlaying(false);
-        // Pause audio logic here
-      } else {
-        setCurrentTrack(trackToPlay);
-        setIsPlaying(true);
-        // Play audio logic here
-      }
+  const handleUpdateProfile = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    // Implement profile update logic here
+    console.log('Updating profile:', { username, email, phone });
+    setEditMode(false);
+    alert(translations?.common.success || 'Profile updated successfully!');
+  }, [username, email, phone, translations]);
+
+  const handleChangePassword = useCallback((e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmNewPassword) {
+      alert(translations?.auth.passwordMismatch || 'New passwords do not match.');
+      return;
     }
+    // Implement change password logic here (e.g., API call)
+    console.log('Changing password:', { currentPassword, newPassword });
+    alert(translations?.common.success || 'Password changed successfully!');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmNewPassword('');
+  }, [currentPassword, newPassword, confirmNewPassword, translations]);
+
+  const handleDjApplication = () => {
+    // Implement DJ application logic (e.g., navigate to application form or show modal)
+    alert(translations?.profile.djApplication || 'Navigating to DJ application form.');
   };
 
-  const handleLikeToggle = (id: string) => {
-    // Implement like/unlike logic
-    console.log(`Toggle like for track: ${id}`);
-  };
-
-  const handleShare = (id: string) => {
-    // Implement share logic
-    console.log(`Share track: ${id}`);
-  };
-
-  const handlePlayerPlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handlePlayerNext = () => {
-    if (currentTrack) {
-      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
-      let nextIndex = (currentIndex + 1) % dummyTracks.length;
-      if (shuffleMode) {
-        nextIndex = Math.floor(Math.random() * dummyTracks.length);
-      }
-      setCurrentTrack(dummyTracks[nextIndex]);
-      setIsPlaying(true);
-    } else if (dummyTracks.length > 0) {
-      setCurrentTrack(dummyTracks[0]);
-      setIsPlaying(true);
-    }
-  };
-
-  const handlePlayerPrevious = () => {
-    if (currentTrack) {
-      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
-      let prevIndex = (currentIndex - 1 + dummyTracks.length) % dummyTracks.length;
-      if (shuffleMode) {
-        prevIndex = Math.floor(Math.random() * dummyTracks.length);
-      }
-      setCurrentTrack(dummyTracks[prevIndex]);
-      setIsPlaying(true);
-    } else if (dummyTracks.length > 0) {
-      setCurrentTrack(dummyTracks[0]);
-      setIsPlaying(true);
-    }
-  };
-
-  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setProgress(Number(event.target.value));
-    // Implement actual audio seek logic
-  };
-
-  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setVolume(Number(event.target.value));
-    // Implement actual audio volume change logic
-  };
-
-  const handleToggleLoop = () => {
-    setIsLooping(!isLooping);
-  };
-
-  const handleToggleShuffle = () => {
-    setShuffleMode(!shuffleMode);
+  const handleLogout = () => {
+    // Implement logout logic
+    alert(translations?.profile.logout || 'Logged out successfully!');
   };
 
   if (!translations) {
@@ -302,7 +242,6 @@ export default function ProfilePage() { // 注意：这里将导出函数名改�
     );
   }
 
-  // 这是一个示例 Profile 页面结构，您可以根据需要调整
   return (
     <>
       <NavbarComponent
@@ -311,96 +250,251 @@ export default function ProfilePage() { // 注意：这里将导出函数名改�
         translations={translations}
       />
 
-      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
-        <section className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-primary mb-4">{translations.profile.myProfile}</h1>
-          <p className="text-gray-300">{translations.profile.greeting.replace('{username}', '你的用户名')}</p>
-        </section>
+      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-16 md:pt-20 pb-8">
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+          <motion.h1
+            className="text-4xl font-extrabold text-center text-primary mb-10 mt-4"
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            {translations.profile.myProfile}
+          </motion.h1>
 
-        {/* 假设这里是用户的个人信息或音乐列表，您可以根据实际需求填充 */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
-            <h2 className="text-2xl font-semibold text-accent mb-4">{translations.profile.editProfile}</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-gray-400 text-sm mb-1">{translations.profile.username}</label>
-                <input type="text" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="用户名" />
-              </div>
-              <div>
-                <label className="block text-gray-400 text-sm mb-1">{translations.profile.email}</label>
-                <input type="email" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="邮箱" />
-              </div>
-              <button className="neon-button-small w-full py-2 rounded font-semibold">
-                {translations.profile.updateProfileButton}
-              </button>
-            </div>
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
-            <h2 className="text-2xl font-semibold text-accent mb-4">{translations.profile.myWallet}</h2>
-            <p className="text-xl text-white mb-4">
-              {translations.profile.balance}: <span className="font-bold">12345 MMK</span>
-            </p>
-            <div className="flex space-x-4">
-              <button className="neon-button-small flex-1 py-2 rounded font-semibold">
-                {translations.profile.recharge}
-              </button>
-              <button className="neon-button-small flex-1 py-2 rounded font-semibold">
-                {translations.profile.withdraw}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-primary text-center sm:text-left">
-            {translations.profile.myMusic}
-          </h2>
-          {/* 这里可以展示用户的音乐卡片，例如 */}
-          <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+          {/* Carousel Section (Optional, remove if not needed) */}
+          <motion.section
+            className="mb-10"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ delay: 0.2, duration: 0.6 }}
           >
-            {dummyTracks.slice(0, 4).map((track) => (
-              <MusicCard
-                key={track.id}
-                id={track.id}
-                title={track.title}
-                artist={track.artist}
-                coverImage={track.coverImage}
-                audioSrc={track.audioSrc}
-                isLiked={track.isLiked || false}
-                isPlaying={currentTrack?.id === track.id && isPlaying}
-                onPlayPause={handlePlayPause}
-                onLikeToggle={handleLikeToggle}
-                onShare={handleShare}
-              />
-            ))}
-          </motion.div>
-        </section>
+            <Carousel slides={dummySlides} />
+          </motion.section>
 
-        {currentTrack && (
-          <div className="fixed bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-md p-4 z-50 shadow-lg border-t border-gray-700">
-            <MusicPlayer
-              currentTrack={currentTrack}
-              isPlaying={isPlaying}
-              onPlayPause={handlePlayerPlayPause}
-              onNext={handlePlayerNext}
-              onPrevious={handlePlayerPrevious}
-              progress={progress}
-              duration={duration}
-              onSeek={handleSeek}
-              volume={volume}
-              onVolumeChange={handleVolumeChange}
-              isLooping={isLooping}
-              onToggleLoop={handleToggleLoop}
-              shuffleMode={shuffleMode}
-              onToggleShuffle={handleToggleShuffle}
-            />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Profile Overview */}
+            <motion.div
+              className="md:col-span-1 bg-gray-800 rounded-lg shadow-xl p-6 flex flex-col items-center"
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              <div className="relative w-32 h-32 rounded-full bg-gray-700 flex items-center justify-center mb-4 border-4 border-primary">
+                <FaUser className="text-6xl text-gray-400" />
+                {/* <img src="/images/profile-placeholder.jpg" alt="Profile" className="w-full h-full rounded-full object-cover" /> */}
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">{username}</h2>
+              <p className="text-gray-400 text-sm mb-4">{translations.profile.greeting.replace('{username}', username)}</p>
+
+              <div className="w-full space-y-3 mb-6">
+                <div className="flex items-center justify-between text-lg">
+                  <span className="text-gray-300">{translations.profile.balance}:</span>
+                  <span className="font-semibold text-primary">{balance} MMK</span>
+                </div>
+                <div className="flex items-center justify-between text-lg">
+                  <span className="text-gray-300">{translations.profile.djStatus}:</span>
+                  <span className={`font-semibold ${isDj ? 'text-green-500' : 'text-yellow-500'}`}>
+                    {isDj ? translations.profile.isDj : translations.profile.notDj}
+                  </span>
+                </div>
+              </div>
+
+              <div className="w-full space-y-4">
+                <motion.button
+                  className="w-full flex items-center justify-center bg-primary-dark hover:bg-primary text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setEditMode(true)}
+                >
+                  <FaUserEdit className="mr-2" /> {translations.profile.editProfile}
+                </motion.button>
+                <motion.button
+                  className="w-full flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => alert(translations.profile.myMusic || 'My Music Page')}
+                >
+                  <FaMusic className="mr-2" /> {translations.profile.myMusic}
+                </motion.button>
+                <motion.button
+                  className="w-full flex items-center justify-center bg-gray-700 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => alert(translations.profile.myWallet || 'My Wallet Page')}
+                >
+                  <FaWallet className="mr-2" /> {translations.profile.myWallet}
+                </motion.button>
+                {!isDj && (
+                  <motion.button
+                    className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleDjApplication}
+                  >
+                    <FaCrown className="mr-2" /> {translations.profile.djApplication}
+                  </motion.button>
+                )}
+                <motion.button
+                  className="w-full flex items-center justify-center bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors duration-200"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleLogout}
+                >
+                  <FaSignOutAlt className="mr-2" /> {translations.profile.logout}
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* Profile Settings / Edit Mode */}
+            <motion.div
+              className="md:col-span-2 bg-gray-800 rounded-lg shadow-xl p-6"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+            >
+              <h2 className="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-4">
+                {editMode ? translations.profile.editProfile : translations.profile.settings}
+              </h2>
+
+              {editMode ? (
+                <>
+                  <form onSubmit={handleUpdateProfile} className="space-y-6">
+                    <div>
+                      <label htmlFor="username" className="block text-gray-300 text-sm font-bold mb-2">
+                        {translations.profile.username}
+                      </label>
+                      <input
+                        type="text"
+                        id="username"
+                        className="shadow-sm bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="phone" className="block text-gray-300 text-sm font-bold mb-2">
+                        {translations.profile.phone}
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        className="shadow-sm bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="block text-gray-300 text-sm font-bold mb-2">
+                        {translations.profile.email}
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        className="shadow-sm bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex justify-end space-x-3">
+                      <motion.button
+                        type="button"
+                        className="px-6 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white font-semibold transition-colors duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => setEditMode(false)}
+                      >
+                        {translations.common.cancel}
+                      </motion.button>
+                      <motion.button
+                        type="submit"
+                        className="px-6 py-2 rounded-lg bg-primary-dark hover:bg-primary text-white font-semibold transition-colors duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {translations.profile.updateProfileButton}
+                      </motion.button>
+                    </div>
+                  </form>
+
+                  <h3 className="text-xl font-bold text-white mt-8 mb-4 border-b border-gray-700 pb-3">
+                    {translations.profile.changePassword}
+                  </h3>
+                  <form onSubmit={handleChangePassword} className="space-y-6">
+                    <div>
+                      <label htmlFor="current-password" className="block text-gray-300 text-sm font-bold mb-2">
+                        {translations.profile.currentPasswordPlaceholder}
+                      </label>
+                      <input
+                        type="password"
+                        id="current-password"
+                        className="shadow-sm bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="new-password" className="block text-gray-300 text-sm font-bold mb-2">
+                        {translations.profile.newPasswordPlaceholder}
+                      </label>
+                      <input
+                        type="password"
+                        id="new-password"
+                        className="shadow-sm bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="confirm-new-password" className="block text-gray-300 text-sm font-bold mb-2">
+                        {translations.profile.confirmPasswordPlaceholder}
+                      </label>
+                      <input
+                        type="password"
+                        id="confirm-new-password"
+                        className="shadow-sm bg-gray-700 border border-gray-600 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5"
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="flex justify-end">
+                      <motion.button
+                        type="submit"
+                        className="px-6 py-2 rounded-lg bg-primary-dark hover:bg-primary text-white font-semibold transition-colors duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {translations.profile.changePassword}
+                      </motion.button>
+                    </div>
+                  </form>
+                </>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 text-lg">{translations.settingsPage.darkMode}</span>
+                    <label htmlFor="dark-mode-toggle" className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="dark-mode-toggle" className="sr-only peer" />
+                      <div className="w-11 h-6 bg-gray-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-primary-dark peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-300 text-lg">{translations.settingsPage.pushNotifications}</span>
+                    <label htmlFor="push-notifications-toggle" className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="push-notifications-toggle" className="sr-only peer" defaultChecked />
+                      <div className="w-11 h-6 bg-gray-700 rounded-full peer peer-focus:ring-2 peer-focus:ring-primary-dark peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                    </label>
+                  </div>
+                  {/* Add more settings options as needed */}
+                </div>
+              )}
+            </motion.div>
           </div>
-        )}
+        </div>
       </main>
     </>
   );
