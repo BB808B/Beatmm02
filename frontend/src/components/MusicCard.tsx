@@ -2,22 +2,22 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { FaPlay, FaPause, FaHeart, FaShareAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import { FaPlay, FaPause, FaHeart, FaShareAlt, FaEye } from 'react-icons/fa'; // 引入 FaEye for likes
 
 interface MusicCardProps {
   id: string;
   title: string;
   artist: string;
   coverImage: string;
-  audioSrc: string; // 确保有 audioSrc
-  duration?: string; // 可选的播放时长
+  audioSrc: string; // Add audioSrc here as it's needed for playing
+  duration?: string; // Optional duration
   isLiked: boolean;
-  likes?: number; // 新增点赞数
-  isPlaying: boolean;
-  onPlayPause: (id: string) => void;
-  onLikeToggle: (id: string) => void;
-  onShare: (id: string) => void;
+  likes?: number;
+  isPlaying: boolean; // Indicates if this specific track is currently playing
+  onPlayPause: (trackId: string) => void;
+  onLikeToggle: (trackId: string) => void;
+  onShare: (trackId: string) => void;
 }
 
 const MusicCard: React.FC<MusicCardProps> = ({
@@ -36,71 +36,57 @@ const MusicCard: React.FC<MusicCardProps> = ({
 }) => {
   return (
     <motion.div
-      className="bg-gray-800 rounded-lg shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer relative"
-      whileHover={{ y: -5 }}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+      className="bg-gray-800 rounded-lg shadow-lg overflow-hidden relative cursor-pointer group neon-border-hover"
+      whileHover={{ scale: 1.03 }}
+      transition={{ duration: 0.2 }}
     >
-      <div className="relative w-full h-48 sm:h-64">
+      <div className="relative">
         <Image
           src={coverImage}
           alt={title}
-          fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          style={{ objectFit: 'cover' }}
-          className="rounded-t-lg"
+          width={500}
+          height={500}
+          className="w-full h-auto object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-          <motion.button
-            className="text-white text-4xl p-3 rounded-full bg-primary-dark hover:bg-primary transition-colors duration-200"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onPlayPause(id)}
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click
+              onPlayPause(id);
+            }}
+            className="bg-primary text-white p-4 rounded-full text-2xl shadow-xl hover:bg-primary-dark transition-colors duration-200"
           >
             {isPlaying ? <FaPause /> : <FaPlay />}
-          </motion.button>
+          </button>
         </div>
       </div>
-
-      <div className="p-4 flex flex-col justify-between h-[calc(100%-12rem)] sm:h-[calc(100%-16rem)]"> {/* Adjust height based on image */}
-        <div>
-          <h3 className="text-xl font-bold text-white truncate mb-1">{title}</h3>
-          <p className="text-gray-400 text-sm truncate">{artist}</p>
-        </div>
-
-        <div className="flex items-center justify-between mt-3 text-sm text-gray-400">
-          {duration && (
-            <span className="flex items-center">
-              {duration}
-            </span>
-          )}
-          {likes !== undefined && (
-            <span className="flex items-center ml-auto">
-              <FaEye className="mr-1 text-primary-light" /> {likes}
-            </span>
-          )}
-        </div>
-
-        <div className="flex justify-around items-center mt-4">
-          <motion.button
-            className={`p-2 rounded-full transition-colors duration-200 ${isLiked ? 'text-red-500 hover:bg-gray-700' : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onLikeToggle(id)}
-            aria-label={isLiked ? "Unlike" : "Like"}
-          >
-            <FaHeart className="text-lg" />
-          </motion.button>
-          <motion.button
-            className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700 transition-colors duration-200"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => onShare(id)}
-            aria-label="Share"
-          >
-            <FaShareAlt className="text-lg" />
-          </motion.button>
+      <div className="p-4">
+        <h3 className="text-xl font-semibold text-white mb-1 truncate">{title}</h3>
+        <p className="text-gray-400 text-sm truncate">{artist}</p>
+        <div className="flex justify-between items-center mt-3">
+          <div className="flex items-center text-gray-400 text-sm">
+            <span className="mr-2">{duration}</span>
+          </div>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onLikeToggle(id);
+              }}
+              className={`flex items-center text-lg ${isLiked ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition-colors duration-200`}
+            >
+              <FaHeart className="mr-1" /> {likes}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onShare(id);
+              }}
+              className="text-gray-400 hover:text-primary transition-colors duration-200 text-lg"
+            >
+              <FaShareAlt />
+            </button>
+          </div>
         </div>
       </div>
     </motion.div>
