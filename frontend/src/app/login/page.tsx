@@ -31,7 +31,7 @@ export default function LoginPage() {
         console.error('Failed to load translations:', error);
         // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
         setTranslations({
-          title: "缅甸DJ平台",
+          title: "缅甸DJ平台", // 确保存在
           nav: {
             home: "首页",
             music: "音乐",
@@ -44,15 +44,15 @@ export default function LoginPage() {
             logout: "退出",
             rules: "规则"
           },
-          // 修复：home 属性的键名与 HomeTranslations 接口匹配
           home: {
-            heroTitle: "欢迎来到缅甸DJ平台", // 对应之前的 'welcome'
-            heroSubtitle: "发现最棒的越南鼓DJ音乐", // 对应之前的 'subtitle'
-            featuredMusicTitle: "精选音乐", // 对应之前的 'featured'
-            recentPlaysTitle: "热门趋势", // 对应之前的 'trending'
-            topArtistsTitle: "热门艺术家", // 新增，请根据实际情况调整翻译
-            newReleasesTitle: "最新发布", // 对应之前的 'newReleases'
-            viewAll: "查看全部" // 新增，请根据实际情况调整翻译
+            heroTitle: "欢迎来到缅甸DJ平台",
+            heroSubtitle: "发现最棒的越南鼓DJ音乐",
+            featuredMusicTitle: "精选音乐",
+            recentPlaysTitle: "热门趋势",
+            topArtistsTitle: "热门艺术家",
+            newReleasesTitle: "最新发布",
+            viewAll: "查看全部"
+            // 注意：这里不再包含 'welcome', 'subtitle' 等，因为 HomeTranslations 接口已更新
           },
           auth: {
             loginTitle: "登录",
@@ -85,6 +85,7 @@ export default function LoginPage() {
             shuffle: "随机播放",
             repeat: "重复播放"
           },
+          // 修复：profile 属性的键名与 ProfileTranslations 接口完全匹配
           profile: {
             myProfile: "我的资料",
             editProfile: "编辑资料",
@@ -93,7 +94,6 @@ export default function LoginPage() {
             balance: "余额",
             recharge: "充值",
             withdraw: "提现",
-            settings: "设置",
             djApplication: "DJ认证申请",
             logout: "退出登录",
             phone: "手机号码",
@@ -101,7 +101,17 @@ export default function LoginPage() {
             greeting: "你好，{username}！",
             djStatus: "DJ状态：",
             notDj: "未认证",
-            isDj: "已认证"
+            isDj: "已认证",
+            title: "个人资料设置", // 确保存在，并提供中文翻译
+            email: "邮箱", // 确保存在，并提供中文翻译
+            changePassword: "修改密码", // 确保存在，并提供中文翻译
+            currentPasswordPlaceholder: "当前密码", // 确保存在，并提供中文翻译
+            newPasswordPlaceholder: "新密码", // 确保存在，并提供中文翻译
+            confirmPasswordPlaceholder: "确认新密码", // 确保存在，并提供中文翻译
+            updateProfileButton: "更新资料", // 确保存在，并提供中文翻译
+            settings: "设置", // 确保存在，并提供中文翻译
+            darkMode: "深色模式", // 确保存在，并提供中文翻译
+            notifications: "通知" // 确保存在，并提供中文翻译
           },
           common: {
             search: "搜索",
