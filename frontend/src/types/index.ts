@@ -1,39 +1,128 @@
 // src/types/index.ts
 
-// ... (省略所有现有的接口定义，如 Translations, NavTranslations, etc.)
+// 重要的：Translations 接口，用于多语言文本
+export interface Translations {
+  login: {
+    welcome: string;
+    usernamePlaceholder: string;
+    passwordPlaceholder: string;
+    rememberMe: string;
+    forgotPassword: string;
+    signInButton: string;
+    signUpLink: string;
+    signUpText: string;
+  };
+  home: {
+    heroTitle: string;
+    heroSubtitle: string;
+    featuredMusicTitle: string;
+    recentPlaysTitle: string;
+    topArtistsTitle: string;
+    newReleasesTitle: string;
+    viewAll: string;
+  };
+  navbar: {
+    home: string;
+    music: string;
+    profile: string;
+    rules: string;
+    logout: string;
+    login: string; // 如果未登录用户导航栏也有登录选项
+    language: string;
+  };
+  profile: {
+    title: string;
+    username: string;
+    email: string;
+    changePassword: string;
+    currentPasswordPlaceholder: string;
+    newPasswordPlaceholder: string;
+    confirmPasswordPlaceholder: string;
+    updateProfileButton: string;
+    settings: string;
+    darkMode: string;
+    notifications: string;
+  };
+  rules: {
+    title: string;
+    generalRules: string;
+    musicUploadRules: string;
+    communityGuidelines: string;
+    copyrightPolicy: string;
+  };
+  // 根据你应用的实际需求，这里可以添加更多页面或组件的翻译字段
+}
 
-// >>> 新增 Track 接口 <<<
+// NavTranslations (如果你的 Navbar.tsx 明确需要这个单独的类型)
+export interface NavTranslations {
+  home: string;
+  music: string;
+  profile: string;
+  rules: string;
+  logout: string;
+  login: string;
+  language: string;
+}
+
+// HomeTranslations (如果你的 page.tsx 明确需要这个单独的类型)
+export interface HomeTranslations {
+  heroTitle: string;
+  heroSubtitle: string;
+  featuredMusicTitle: string;
+  recentPlaysTitle: string;
+  topArtistsTitle: string;
+  newReleasesTitle: string;
+  viewAll: string;
+}
+
+// Track 接口
 export interface Track {
   id: string;
   title: string;
   artist: string;
   coverImage: string;
   audioSrc: string;
-  isLiked?: boolean; // 可选的，根据您的 MusicCardProps 来看，这里可能需要
+  isLiked?: boolean;
 }
 
-// >>> 新增 CarouselSlide 接口 <<<
-// 由于日志中也提到了 CarouselSlide 丢失，这里也一并添加
+// CarouselSlide 接口
 export interface CarouselSlide {
   id: string;
   imageUrl: string;
   altText: string;
-  link: string; // 点击轮播图跳转的链接
+  link: string;
 }
 
-// 确保 MusicCardProps 也在这个文件里，并与 MusicCard.tsx 的使用一致
+// MusicCardProps 接口
 export interface MusicCardProps {
   id: string;
   title: string;
   artist: string;
-  coverImage: string; // URL to the album cover
-  audioSrc: string;   // URL to the audio file
+  coverImage: string;
+  audioSrc: string;
   isLiked: boolean;
   isPlaying: boolean;
   onPlayPause: (id: string) => void;
   onLikeToggle: (id: string) => void;
   onShare: (id: string) => void;
-  // 可以根据实际需求添加更多属性，例如 duration, views, etc.
 }
 
-// ... (其他接口)
+// MusicPlayerProps 接口 (如果 MusicPlayer.tsx 需要)
+export interface MusicPlayerProps {
+  currentTrack: Track | null;
+  isPlaying: boolean;
+  onPlayPause: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  progress: number;
+  duration: number;
+  onSeek: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  volume: number;
+  onVolumeChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isLooping: boolean;
+  onToggleLoop: () => void;
+  shuffleMode: boolean;
+  onToggleShuffle: () => void;
+}
+
+// 其他常用的类型，例如 User, APIResponse 等，如果需要可以添加
