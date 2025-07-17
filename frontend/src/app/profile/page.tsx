@@ -2,25 +2,45 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FaUser, FaEnvelope, FaPhone, FaCog, FaSignOutAlt, FaMusic, FaWallet, FaAward } from 'react-icons/fa';
+import { FaPlay, FaPause, FaHeart, FaShareAlt, FaSearch } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // 确保从正确的路径导入 Translations 类型
+import MusicPlayer from '@/components/MusicPlayer';
+import MusicCard from '@/components/MusicCard';
+import Carousel from '@/components/Carousel';
+import { Track, CarouselSlide, Translations } from '@/types';
 
-export default function ProfilePage() {
+export default function ProfilePage() { // 注意：这里将导出函数名改为 ProfilePage，以避免与 page.tsx 冲突
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
-  const router = useRouter();
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = 0);
+  const [volume, setVolume] = useState(0.5);
+  const [isLooping, setIsLooping] = useState(false);
+  const [shuffleMode, setShuffleMode] = useState(false);
 
-  // 模拟用户数据
-  const [user, setUser] = useState({
-    username: '用户DABAI',
-    phone: '09xxxxxxxxx',
-    isDJ: true,
-    balance: 150000, // 缅甸币
-  });
+  // 模拟数据 - 根据 Track 接口进行调整
+  const dummyTracks: Track[] = [
+    { id: '1', title: 'Tropical Thunder', artist: 'DJ Beatmaster', coverImage: '/images/album-art-1.jpg', audioSrc: '/audio/song1.mp3', duration: '3:45', isLiked: false, likes: 1200 },
+    { id: '2', title: 'Sunset Chill', artist: 'DJ Groove', coverImage: '/images/album-art-2.jpg', audioSrc: '/audio/song2.mp3', duration: '4:10', isLiked: true, likes: 2500 },
+    { id: '3', title: 'Night Drive', artist: 'DJ Synthwave', coverImage: '/images/album-art-3.jpg', audioSrc: '/audio/song3.mp3', duration: '3:00', isLiked: false, likes: 800 },
+    { id: '4', title: 'Rave On', artist: 'DJ Party', coverImage: '/images/album-art-4.jpg', audioSrc: '/audio/song4.mp3', duration: '5:20', isLiked: false, likes: 1800 },
+    { id: '5', title: 'Urban Flow', artist: 'DJ City', coverImage: '/images/album-art-5.jpg', audioSrc: '/audio/song5.mp3', duration: '3:15', isLiked: true, likes: 950 },
+    { id: '6', title: 'Forest Trance', artist: 'Mystic Beats', coverImage: '/images/album-art-6.jpg', audioSrc: '/audio/song6.mp3', duration: '4:30', isLiked: false, likes: 1500 },
+    { id: '7', title: 'Desert Oasis', artist: 'Sand King', coverImage: '/images/album-art-7.jpg', audioSrc: '/audio/song7.mp3', duration: '3:55', isLiked: false, likes: 700 },
+    { id: '8', title: 'Cosmic Dust', artist: 'Star Gazer', coverImage: '/images/album-art-8.jpg', audioSrc: '/audio/song8.mp3', duration: '4:05', isLiked: true, likes: 2100 },
+  ];
+
+  // 模拟轮播图数据 (如果您不需要轮播图在 profile 页面，可以删除此数据和 Carousel 组件使用)
+  const dummySlides: CarouselSlide[] = [
+    { id: '1', imageUrl: '/images/carousel-1.jpg', altText: 'Promotion 1', link: '#' },
+    { id: '2', imageUrl: '/images/carousel-2.jpg', altText: 'Promotion 2', link: '#' },
+    { id: '3', imageUrl: '/images/carousel-3.jpg', altText: 'Promotion 3', link: '#' },
+  ];
 
   useEffect(() => {
     const loadTranslations = async () => {
@@ -48,12 +68,15 @@ export default function ProfilePage() {
             logout: "退出",
             rules: "规则"
           },
+          // 确保 home 翻译部分与 types/index.ts 中的 HomeTranslations 类型完全一致
           home: {
-            welcome: "欢迎来到缅甸DJ平台",
-            subtitle: "发现最棒的越南鼓DJ音乐",
-            featured: "精选音乐",
-            trending: "热门趋势",
-            newReleases: "最新发布"
+            heroTitle: "欢迎来到缅甸DJ平台",
+            heroSubtitle: "发现最棒的越南鼓DJ音乐",
+            featuredMusicTitle: "精选音乐",
+            recentPlaysTitle: "热门趋势",
+            topArtistsTitle: "热门艺术家",
+            newReleasesTitle: "最新发布",
+            viewAll: "查看全部"
           },
           auth: {
             loginTitle: "登录",
@@ -74,7 +97,7 @@ export default function ProfilePage() {
             confirmPasswordRequired: "请确认密码",
             passwordMismatch: "密码不匹配",
             registerSuccess: "注册成功！",
-            registerError: "注册失败.",
+            registerError: "注册失败。",
             registerTitle: "注册"
           },
           player: {
@@ -94,7 +117,6 @@ export default function ProfilePage() {
             balance: "余额",
             recharge: "充值",
             withdraw: "提现",
-            settings: "设置",
             djApplication: "DJ认证申请",
             logout: "退出登录",
             phone: "手机号码",
@@ -102,7 +124,17 @@ export default function ProfilePage() {
             greeting: "你好，{username}！",
             djStatus: "DJ状态：",
             notDj: "未认证",
-            isDj: "已认证"
+            isDj: "已认证",
+            title: "个人资料设置",
+            email: "邮箱",
+            changePassword: "修改密码",
+            currentPasswordPlaceholder: "当前密码",
+            newPasswordPlaceholder: "新密码",
+            confirmPasswordPlaceholder: "确认新密码",
+            updateProfileButton: "更新资料",
+            settings: "设置",
+            darkMode: "深色模式",
+            notifications: "通知"
           },
           common: {
             search: "搜索",
@@ -181,31 +213,96 @@ export default function ProfilePage() {
     loadTranslations();
   }, [currentLang]);
 
+
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
   };
 
-  const handleLogout = () => {
-    // 实际应用中会清除用户session/token
-    console.log('User logged out');
-    router.push('/login');
+  const handlePlayPause = (id: string) => {
+    const trackToPlay = dummyTracks.find(track => track.id === id);
+    if (trackToPlay) {
+      if (currentTrack?.id === id && isPlaying) {
+        setIsPlaying(false);
+        // Pause audio logic here
+      } else {
+        setCurrentTrack(trackToPlay);
+        setIsPlaying(true);
+        // Play audio logic here
+      }
+    }
+  };
+
+  const handleLikeToggle = (id: string) => {
+    // Implement like/unlike logic
+    console.log(`Toggle like for track: ${id}`);
+  };
+
+  const handleShare = (id: string) => {
+    // Implement share logic
+    console.log(`Share track: ${id}`);
+  };
+
+  const handlePlayerPlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handlePlayerNext = () => {
+    if (currentTrack) {
+      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
+      let nextIndex = (currentIndex + 1) % dummyTracks.length;
+      if (shuffleMode) {
+        nextIndex = Math.floor(Math.random() * dummyTracks.length);
+      }
+      setCurrentTrack(dummyTracks[nextIndex]);
+      setIsPlaying(true);
+    } else if (dummyTracks.length > 0) {
+      setCurrentTrack(dummyTracks[0]);
+      setIsPlaying(true);
+    }
+  };
+
+  const handlePlayerPrevious = () => {
+    if (currentTrack) {
+      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
+      let prevIndex = (currentIndex - 1 + dummyTracks.length) % dummyTracks.length;
+      if (shuffleMode) {
+        prevIndex = Math.floor(Math.random() * dummyTracks.length);
+      }
+      setCurrentTrack(dummyTracks[prevIndex]);
+      setIsPlaying(true);
+    } else if (dummyTracks.length > 0) {
+      setCurrentTrack(dummyTracks[0]);
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setProgress(Number(event.target.value));
+    // Implement actual audio seek logic
+  };
+
+  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setVolume(Number(event.target.value));
+    // Implement actual audio volume change logic
+  };
+
+  const handleToggleLoop = () => {
+    setIsLooping(!isLooping);
+  };
+
+  const handleToggleShuffle = () => {
+    setShuffleMode(!shuffleMode);
   };
 
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        加载中... {/* 直接显示加载文本，避免在 translations 为 null 时访问其属性 */}
+        Loading...
       </div>
     );
   }
 
-  const menuItems = [
-    { name: translations.profile.myMusic, icon: FaMusic, path: '/profile/music' },
-    { name: translations.profile.myWallet, icon: FaWallet, path: '/profile/wallet' },
-    { name: translations.profile.djApplication, icon: FaAward, path: '/dj/apply' },
-    { name: translations.profile.settings, icon: FaCog, path: '/settings' },
-  ];
-
+  // 这是一个示例 Profile 页面结构，您可以根据需要调整
   return (
     <>
       <NavbarComponent
@@ -214,134 +311,96 @@ export default function ProfilePage() {
         translations={translations}
       />
 
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-20 p-4">
-        <motion.div
-          className="max-w-4xl mx-auto glass-panel neon-border p-8 rounded-xl shadow-2xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
-          <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
-            {/* User Avatar */}
-            <motion.div
-              className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary shadow-lg flex-shrink-0"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-            >
-              <img
-                src="/images/profile-placeholder.jpg" // 替换为用户的头像URL
-                alt="Profile Avatar"
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
+      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
+        <section className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-primary mb-4">{translations.profile.myProfile}</h1>
+          <p className="text-gray-300">{translations.profile.greeting.replace('{username}', '你的用户名')}</p>
+        </section>
 
-            {/* User Info */}
-            <div className="flex-grow text-center md:text-left">
-              <motion.h2
-                className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mb-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
-                {translations.profile.greeting.replace('{username}', user.username)}
-              </motion.h2>
-              <motion.p
-                className="text-lg text-gray-300 flex items-center justify-center md:justify-start mb-1"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.5 }}
-              >
-                <FaPhone className="mr-2 text-primary" /> {user.phone}
-              </motion.p>
-              <motion.p
-                className="text-lg text-gray-300 flex items-center justify-center md:justify-start mb-4"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-              >
-                <FaAward className="mr-2 text-accent" /> {translations.profile.djStatus}{' '}
-                <span className={`font-semibold ${user.isDJ ? 'text-green-400' : 'text-red-400'}`}>
-                  {user.isDJ ? translations.profile.isDj : translations.profile.notDj}
-                </span>
-              </motion.p>
-              <motion.button
-                onClick={() => router.push('/profile/edit')}
-                className="neon-button py-2 px-6 rounded-full text-lg font-semibold flex items-center justify-center md:justify-start mx-auto md:mx-0"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.5 }}
-              >
-                <FaUser className="mr-2" /> {translations.profile.editProfile}
-              </motion.button>
+        {/* 假设这里是用户的个人信息或音乐列表，您可以根据实际需求填充 */}
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+          <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
+            <h2 className="text-2xl font-semibold text-accent mb-4">{translations.profile.editProfile}</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">{translations.profile.username}</label>
+                <input type="text" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="用户名" />
+              </div>
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">{translations.profile.email}</label>
+                <input type="email" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="邮箱" />
+              </div>
+              <button className="neon-button-small w-full py-2 rounded font-semibold">
+                {translations.profile.updateProfileButton}
+              </button>
             </div>
           </div>
 
-          {/* Wallet Info */}
-          <motion.div
-            className="mt-10 bg-gray-800 bg-opacity-60 p-6 rounded-lg shadow-inner border border-gray-700"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-          >
-            <h3 className="text-2xl font-bold text-primary mb-4 flex items-center">
-              <FaWallet className="mr-3" /> {translations.profile.myWallet}
-            </h3>
-            <div className="flex flex-col sm:flex-row justify-between items-center text-xl">
-              <p className="text-gray-200 mb-4 sm:mb-0">
-                {translations.profile.balance}:{' '}
-                <span className="font-semibold text-green-400">{user.balance.toLocaleString()} MMK</span>
-              </p>
-              <div className="flex space-x-4">
-                <button
-                  onClick={() => alert(translations.profile.recharge)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition duration-300"
-                >
-                  {translations.profile.recharge}
-                </button>
-                <button
-                  onClick={() => alert(translations.profile.withdraw)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-lg transition duration-300"
-                >
-                  {translations.profile.withdraw}
-                </button>
-              </div>
+          <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
+            <h2 className="text-2xl font-semibold text-accent mb-4">{translations.profile.myWallet}</h2>
+            <p className="text-xl text-white mb-4">
+              {translations.profile.balance}: <span className="font-bold">12345 MMK</span>
+            </p>
+            <div className="flex space-x-4">
+              <button className="neon-button-small flex-1 py-2 rounded font-semibold">
+                {translations.profile.recharge}
+              </button>
+              <button className="neon-button-small flex-1 py-2 rounded font-semibold">
+                {translations.profile.withdraw}
+              </button>
             </div>
-          </motion.div>
+          </div>
+        </section>
 
-          {/* Navigation Menu */}
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold mb-6 text-primary text-center sm:text-left">
+            {translations.profile.myMusic}
+          </h2>
+          {/* 这里可以展示用户的音乐卡片，例如 */}
           <motion.div
-            className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6"
-            initial={{ opacity: 0, y: 20 }}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            {menuItems.map((item, index) => (
-              <motion.button
-                key={index}
-                className="glass-card flex items-center p-6 rounded-lg text-xl font-semibold hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 border border-gray-700 hover:border-primary"
-                onClick={() => router.push(item.path)}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.9 + index * 0.1, duration: 0.3 }}
-              >
-                <item.icon className="mr-4 text-primary text-3xl" />
-                {item.name}
-              </motion.button>
+            {dummyTracks.slice(0, 4).map((track) => (
+              <MusicCard
+                key={track.id}
+                id={track.id}
+                title={track.title}
+                artist={track.artist}
+                coverImage={track.coverImage}
+                audioSrc={track.audioSrc}
+                isLiked={track.isLiked || false}
+                isPlaying={currentTrack?.id === track.id && isPlaying}
+                onPlayPause={handlePlayPause}
+                onLikeToggle={handleLikeToggle}
+                onShare={handleShare}
+              />
             ))}
           </motion.div>
+        </section>
 
-          {/* Logout Button */}
-          <motion.button
-            onClick={handleLogout}
-            className="w-full mt-10 neon-button-red py-3 rounded-lg font-bold text-lg flex items-center justify-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.2, duration: 0.5 }}
-          >
-            <FaSignOutAlt className="mr-2" /> {translations.profile.logout}
-          </motion.button>
-        </motion.div>
+        {currentTrack && (
+          <div className="fixed bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-md p-4 z-50 shadow-lg border-t border-gray-700">
+            <MusicPlayer
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onPlayPause={handlePlayerPlayPause}
+              onNext={handlePlayerNext}
+              onPrevious={handlePlayerPrevious}
+              progress={progress}
+              duration={duration}
+              onSeek={handleSeek}
+              volume={volume}
+              onVolumeChange={handleVolumeChange}
+              isLooping={isLooping}
+              onToggleLoop={handleToggleLoop}
+              shuffleMode={shuffleMode}
+              onToggleShuffle={handleToggleShuffle}
+            />
+          </div>
+        )}
       </main>
     </>
   );
