@@ -175,7 +175,8 @@ export interface Track {
 export interface CarouselSlide {
   id: string;
   imageUrl: string;
-  title: string;
-  description: string;
-  link: string; // Optional: Link for the slide
+  title?: string; // Make optional as not all usages might have it
+  description?: string; // Make optional
+  link?: string; // Make optional
+  altText: string; // Crucial for profile page's carousel usage
 }
