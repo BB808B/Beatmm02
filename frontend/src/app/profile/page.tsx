@@ -1,28 +1,25 @@
 // src/app/profile/page.tsx
 
-'use client'; // 确保是客户端组件
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { FaUserCircle, FaMusic, FaWallet, FaCog, FaSignOutAlt, FaCrown } from 'react-icons/fa'; // 添加需要的图标
+import { FaUser, FaEnvelope, FaPhone, FaCog, FaSignOutAlt, FaMusic, FaWallet, FaAward } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // 确保 Translations 类型正确导入
+import { Translations } from '@/types'; // 确保从正确的路径导入 Translations 类型
 
 export default function ProfilePage() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  // 模拟用户数据，实际应从API获取
-  const [userData, setUserData] = useState({
-    nickname: '用户昵称',
-    phone: '1234567890',
-    balance: 15000,
-    isDj: false,
-    avatar_url: '/placeholder-avatar.png' // 示例头像
+  // 模拟用户数据
+  const [user, setUser] = useState({
+    username: '用户DABAI',
+    phone: '09xxxxxxxxx',
+    isDJ: true,
+    balance: 150000, // 缅甸币
   });
 
   useEffect(() => {
@@ -36,7 +33,7 @@ export default function ProfilePage() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 务必与 src/types/index.ts 的 Translations 类型完全匹配
+        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -64,12 +61,11 @@ export default function ProfilePage() {
             password: "密码",
             confirmPassword: "确认密码",
             loginButton: "登录",
+            registerButton: "注册",
             forgotPassword: "忘记密码？",
             noAccount: "没有账号？",
             hasAccount: "已有账号？",
             registerNow: "立即注册",
-            registerTitle: "注册",
-            registerButton: "注册",
             loginNow: "立即登录",
             loginSuccess: "登录成功！",
             loginError: "登录失败。",
@@ -78,7 +74,8 @@ export default function ProfilePage() {
             confirmPasswordRequired: "请确认密码",
             passwordMismatch: "密码不匹配",
             registerSuccess: "注册成功！",
-            registerError: "注册失败。"
+            registerError: "注册失败。",
+            registerTitle: "注册"
           },
           player: {
             play: "播放",
@@ -118,7 +115,9 @@ export default function ProfilePage() {
             loading: "加载中...",
             error: "错误",
             success: "成功",
-            viewDetails: "查看详情"
+            viewDetails: "查看详情",
+            on: "开启", // <--- 修复: 添加缺失的 on 属性
+            off: "关闭" // <--- 修复: 添加缺失的 off 属性
           },
           rulesPage: {
             title: "平台规则与条款",
@@ -156,10 +155,26 @@ export default function ProfilePage() {
             importantReminderText1: "使用本平台即表示您已阅读、理解并同意遵守以上所有规则与条款。",
             importantReminderText2: "平台致力于为用户提供安全、合规的音乐分享环境，共同维护良好的社区氛围。",
             importantReminderText3: "如有疑问，请联系客服或查看帮助文档。"
+          },
+          settingsPage: {
+            title: "设置",
+            language: "语言",
+            theme: "主题",
+            notifications: "通知",
+            privacy: "隐私",
+            account: "账户",
+            security: "安全",
+            darkMode: "深色模式",
+            lightMode: "浅色模式",
+            pushNotifications: "推送通知",
+            emailNotifications: "邮件通知",
+            updateProfile: "更新资料",
+            changePassword: "修改密码",
+            deleteAccount: "删除账户",
+            twoFactorAuth: "两步验证",
+            activityLog: "活动日志"
           }
         });
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -170,7 +185,13 @@ export default function ProfilePage() {
     setCurrentLang(lang);
   };
 
-  if (loading || !translations) {
+  const handleLogout = () => {
+    // 实际应用中会清除用户session/token
+    console.log('User logged out');
+    router.push('/login');
+  };
+
+  if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
         {translations?.common?.loading || '加载中...'}
@@ -178,11 +199,12 @@ export default function ProfilePage() {
     );
   }
 
-  // 假设的登出处理
-  const handleLogout = () => {
-    // 实际应用中会清除用户token，并重定向到登录页
-    router.push('/login');
-  };
+  const menuItems = [
+    { name: translations.profile.myMusic, icon: FaMusic, path: '/profile/music' },
+    { name: translations.profile.myWallet, icon: FaWallet, path: '/profile/wallet' },
+    { name: translations.profile.djApplication, icon: FaAward, path: '/dj/apply' },
+    { name: translations.profile.settings, icon: FaCog, path: '/settings' },
+  ];
 
   return (
     <>
@@ -192,154 +214,132 @@ export default function ProfilePage() {
         translations={translations}
       />
 
-      <main className="min-h-screen flex items-start justify-center bg-gradient-to-br from-gray-900 to-black p-4 pt-24 md:pt-16">
+      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-20 p-4">
         <motion.div
+          className="max-w-4xl mx-auto glass-panel neon-border p-8 rounded-xl shadow-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="glass-panel neon-border p-8 rounded-xl shadow-2xl w-full max-w-2xl text-white"
         >
-          <motion.h2
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-3xl font-extrabold text-center mb-8
-                        text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent"
-          >
-            <FaUserCircle className="inline-block mr-3" />
-            {translations.profile.myProfile}
-          </motion.h2>
-
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8">
+          <div className="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+            {/* User Avatar */}
             <motion.div
+              className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary shadow-lg flex-shrink-0"
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
-              className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-primary shadow-lg"
+              transition={{ delay: 0.2, duration: 0.5 }}
             >
-              <img src={userData.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-              {/* 可以添加编辑头像的按钮 */}
+              <img
+                src="/images/profile-placeholder.jpg" // 替换为用户的头像URL
+                alt="Profile Avatar"
+                className="w-full h-full object-cover"
+              />
             </motion.div>
-            <div className="text-center md:text-left flex-grow">
-              <h3 className="text-2xl font-bold mb-2">
-                {translations.profile?.greeting?.replace('{username}', userData.nickname)}
-              </h3>
-              <p className="text-gray-300 mb-1">{translations.profile.phone}: {userData.phone}</p>
-              <p className="text-gray-300 mb-4">
-                {translations.profile.djStatus}
-                <span className={`font-semibold ${userData.isDj ? 'text-accent' : 'text-gray-500'}`}>
-                  {userData.isDj ? translations.profile.isDj : translations.profile.notDj}
-                  {userData.isDj && <FaCrown className="inline-block ml-2 text-yellow-400" />}
-                </span>
-              </p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="neon-button-small px-4 py-2 rounded-lg font-bold text-sm"
-                onClick={() => router.push('/profile/edit')} // 假设有编辑资料页面
+
+            {/* User Info */}
+            <div className="flex-grow text-center md:text-left">
+              <motion.h2
+                className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mb-2"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
               >
-                {translations.profile.editProfile}
+                {translations.profile.greeting.replace('{username}', user.username)}
+              </motion.h2>
+              <motion.p
+                className="text-lg text-gray-300 flex items-center justify-center md:justify-start mb-1"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.5 }}
+              >
+                <FaPhone className="mr-2 text-primary" /> {user.phone}
+              </motion.p>
+              <motion.p
+                className="text-lg text-gray-300 flex items-center justify-center md:justify-start mb-4"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5, duration: 0.5 }}
+              >
+                <FaAward className="mr-2 text-accent" /> {translations.profile.djStatus}{' '}
+                <span className={`font-semibold ${user.isDJ ? 'text-green-400' : 'text-red-400'}`}>
+                  {user.isDJ ? translations.profile.isDj : translations.profile.notDj}
+                </span>
+              </motion.p>
+              <motion.button
+                onClick={() => router.push('/profile/edit')}
+                className="neon-button py-2 px-6 rounded-full text-lg font-semibold flex items-center justify-center md:justify-start mx-auto md:mx-0"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+              >
+                <FaUser className="mr-2" /> {translations.profile.editProfile}
               </motion.button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="glass-item p-6 rounded-lg text-center"
-            >
-              <FaWallet className="text-5xl text-primary mb-3 mx-auto" />
-              <h4 className="text-xl font-semibold mb-2">{translations.profile.myWallet}</h4>
-              <p className="text-2xl font-bold text-accent mb-4">{translations.profile.balance}: {userData.balance} MMK</p>
-              <div className="flex justify-center gap-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="neon-button-small px-4 py-2 rounded-lg font-bold text-sm"
-                  onClick={() => router.push('/wallet/recharge')} // 假设有充值页面
+          {/* Wallet Info */}
+          <motion.div
+            className="mt-10 bg-gray-800 bg-opacity-60 p-6 rounded-lg shadow-inner border border-gray-700"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+          >
+            <h3 className="text-2xl font-bold text-primary mb-4 flex items-center">
+              <FaWallet className="mr-3" /> {translations.profile.myWallet}
+            </h3>
+            <div className="flex flex-col sm:flex-row justify-between items-center text-xl">
+              <p className="text-gray-200 mb-4 sm:mb-0">
+                {translations.profile.balance}:{' '}
+                <span className="font-semibold text-green-400">{user.balance.toLocaleString()} MMK</span>
+              </p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={() => alert(translations.profile.recharge)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition duration-300"
                 >
                   {translations.profile.recharge}
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="neon-button-small px-4 py-2 rounded-lg font-bold text-sm"
-                  onClick={() => router.push('/wallet/withdraw')} // 假设有提现页面
+                </button>
+                <button
+                  onClick={() => alert(translations.profile.withdraw)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-5 rounded-lg transition duration-300"
                 >
                   {translations.profile.withdraw}
-                </motion.button>
+                </button>
               </div>
-            </motion.div>
+            </div>
+          </motion.div>
 
-            <motion.div
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="glass-item p-6 rounded-lg text-center"
-            >
-              <FaMusic className="text-5xl text-accent mb-3 mx-auto" />
-              <h4 className="text-xl font-semibold mb-2">{translations.profile.myMusic}</h4>
-              <p className="text-gray-300 mb-4">{/* 可以在这里显示音乐数量或简要描述 */}</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="neon-button-small px-4 py-2 rounded-lg font-bold text-sm"
-                onClick={() => router.push('/my-music')} // 假设有我的音乐页面
-              >
-                {translations.common.viewDetails}
-              </motion.button>
-            </motion.div>
-
-            <motion.div
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="glass-item p-6 rounded-lg text-center"
-            >
-              <FaCrown className="text-5xl text-yellow-500 mb-3 mx-auto" />
-              <h4 className="text-xl font-semibold mb-2">{translations.profile.djApplication}</h4>
-              <p className="text-gray-300 mb-4">{/* 可以在这里显示申请状态或提示 */}</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="neon-button-small px-4 py-2 rounded-lg font-bold text-sm"
-                onClick={() => router.push('/dj-apply')} // 假设有DJ申请页面
-              >
-                {translations.common.submit}
-              </motion.button>
-            </motion.div>
-
-            <motion.div
-              initial={{ x: 20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-              className="glass-item p-6 rounded-lg text-center"
-            >
-              <FaCog className="text-5xl text-blue-400 mb-3 mx-auto" />
-              <h4 className="text-xl font-semibold mb-2">{translations.profile.settings}</h4>
-              <p className="text-gray-300 mb-4">{/* 可以在这里显示设置选项或简要描述 */}</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="neon-button-small px-4 py-2 rounded-lg font-bold text-sm"
-                onClick={() => router.push('/settings')} // 假设有设置页面
-              >
-                {translations.common.viewDetails}
-              </motion.button>
-            </motion.div>
-          </div>
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full neon-button py-3 rounded-lg font-bold text-lg flex items-center justify-center mt-8
-                        transition-all duration-300"
-            onClick={handleLogout}
+          {/* Navigation Menu */}
+          <motion.div
+            className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <FaSignOutAlt className="mr-2" />
-            {translations.profile.logout}
+            {menuItems.map((item, index) => (
+              <motion.button
+                key={index}
+                className="glass-card flex items-center p-6 rounded-lg text-xl font-semibold hover:bg-gray-700 hover:bg-opacity-50 transition-all duration-300 border border-gray-700 hover:border-primary"
+                onClick={() => router.push(item.path)}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.9 + index * 0.1, duration: 0.3 }}
+              >
+                <item.icon className="mr-4 text-primary text-3xl" />
+                {item.name}
+              </motion.button>
+            ))}
+          </motion.div>
+
+          {/* Logout Button */}
+          <motion.button
+            onClick={handleLogout}
+            className="w-full mt-10 neon-button-red py-3 rounded-lg font-bold text-lg flex items-center justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+          >
+            <FaSignOutAlt className="mr-2" /> {translations.profile.logout}
           </motion.button>
         </motion.div>
       </main>
