@@ -2,19 +2,18 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useCallback, useRef } from 'react'; // 确保 useRef 被导入
 import { motion } from 'framer-motion';
-import { FaPlay, FaPause, FaHeart, FaShareAlt, FaSearch } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
 import MusicPlayer from '@/components/MusicPlayer';
 import MusicCard from '@/components/MusicCard';
 import Carousel from '@/components/Carousel';
-import { Track, CarouselSlide, Translations } from '@/types';
+import { Track, CarouselSlide, Translations } from '@/types'; // 确保导入所有需要的类型
 
 export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
+  const [tracks, setTracks] = useState<Track[]>([]);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -22,27 +21,35 @@ export default function Home() {
   const [volume, setVolume] = useState(0.5);
   const [isLooping, setIsLooping] = useState(false);
   const [shuffleMode, setShuffleMode] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // 模拟数据 - 根据 Track 接口进行调整
-  const dummyTracks: Track[] = [
-    { id: '1', title: 'Tropical Thunder', artist: 'DJ Beatmaster', coverImage: '/images/album-art-1.jpg', audioSrc: '/audio/song1.mp3', duration: '3:45', isLiked: false, likes: 1200 },
-    { id: '2', title: 'Sunset Chill', artist: 'DJ Groove', coverImage: '/images/album-art-2.jpg', audioSrc: '/audio/song2.mp3', duration: '4:10', isLiked: true, likes: 2500 },
-    { id: '3', title: 'Night Drive', artist: 'DJ Synthwave', coverImage: '/images/album-art-3.jpg', audioSrc: '/audio/song3.mp3', duration: '3:00', isLiked: false, likes: 800 },
-    { id: '4', title: 'Rave On', artist: 'DJ Party', coverImage: '/images/album-art-4.jpg', audioSrc: '/audio/song4.mp3', duration: '5:20', isLiked: false, likes: 1800 },
-    { id: '5', title: 'Urban Flow', artist: 'DJ City', coverImage: '/images/album-art-5.jpg', audioSrc: '/audio/song5.mp3', duration: '3:15', isLiked: true, likes: 950 },
-    { id: '6', title: 'Forest Trance', artist: 'Mystic Beats', coverImage: '/images/album-art-6.jpg', audioSrc: '/audio/song6.mp3', duration: '4:30', isLiked: false, likes: 1500 },
-    { id: '7', title: 'Desert Oasis', artist: 'Sand King', coverImage: '/images/album-art-7.jpg', audioSrc: '/audio/song7.mp3', duration: '3:55', isLiked: false, likes: 700 },
-    { id: '8', title: 'Cosmic Dust', artist: 'Star Gazer', coverImage: '/images/album-art-8.jpg', audioSrc: '/audio/song8.mp3', duration: '4:05', isLiked: true, likes: 2100 },
-  ];
-
-  // 模拟轮播图数据
-  const dummySlides: CarouselSlide[] = [
-    { id: '1', imageUrl: '/images/carousel-1.jpg', altText: 'Promotion 1', link: '#' },
-    { id: '2', imageUrl: '/images/carousel-2.jpg', altText: 'Promotion 2', link: '#' },
-    { id: '3', imageUrl: '/images/carousel-3.jpg', altText: 'Promotion 3', link: '#' },
+  // Example carousel slides (replace with dynamic data from your backend if needed)
+  const carouselSlides: CarouselSlide[] = [
+    {
+      id: 'slide1',
+      imageUrl: '/images/hero-bg.jpg', // Placeholder image
+      title: '发现新节奏',
+      description: '探索缅甸和全球最新最热的DJ音乐。',
+      link: '#'
+    },
+    {
+      id: 'slide2',
+      imageUrl: '/images/artist-profile.jpg', // Placeholder image
+      title: '与顶级DJ互动',
+      description: '关注你最爱的艺术家，获取独家内容。',
+      link: '#'
+    },
+    {
+      id: 'slide3',
+      imageUrl: '/images/live-event.jpg', // Placeholder image
+      title: '参与直播派对',
+      description: '加入实时音乐盛宴，与DJ和乐迷一同狂欢。',
+      link: '#'
+    },
   ];
 
   useEffect(() => {
+    // Load translations
     const loadTranslations = async () => {
       try {
         const response = await fetch(`/locales/${currentLang}/common.json`);
@@ -53,7 +60,7 @@ export default function Home() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
+        // Fallback translations if fetch fails - MUST match Translations type
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -68,7 +75,6 @@ export default function Home() {
             logout: "退出",
             rules: "规则"
           },
-          // 确保 home 翻译部分与 types/index.ts 中的 HomeTranslations 类型完全一致
           home: {
             heroTitle: "欢迎来到缅甸DJ平台",
             heroSubtitle: "发现最棒的越南鼓DJ音乐",
@@ -211,96 +217,264 @@ export default function Home() {
     };
 
     loadTranslations();
-  }, [currentLang]);
 
+    // Initialize audio element
+    audioRef.current = new Audio();
+    audioRef.current.volume = volume;
+    audioRef.current.loop = isLooping;
+
+    const currentAudio = audioRef.current;
+
+    const updateProgress = () => {
+      if (currentAudio && currentAudio.duration) {
+        setProgress(currentAudio.currentTime);
+        setDuration(currentAudio.duration);
+      }
+    };
+
+    const handleTrackEnd = () => {
+      // Logic for playing next track automatically or stopping if not looping
+      if (isLooping) {
+        currentAudio?.play();
+      } else {
+        handleNextTrack();
+      }
+    };
+
+    currentAudio.addEventListener('timeupdate', updateProgress);
+    currentAudio.addEventListener('ended', handleTrackEnd);
+
+    return () => {
+      currentAudio.removeEventListener('timeupdate', updateProgress);
+      currentAudio.removeEventListener('ended', handleTrackEnd);
+      currentAudio.pause();
+      currentAudio.src = '';
+    };
+  }, [currentLang, volume, isLooping, shuffleMode]); // Add shuffleMode to dependencies
+
+  // Load example tracks (replace with data from your backend if needed)
+  useEffect(() => {
+    const exampleTracks: Track[] = [
+      {
+        id: '1',
+        title: 'Myanmar EDM Vibes',
+        artist: 'DJ Aung',
+        coverImage: '/images/album-cover-1.jpg',
+        audioSrc: '/audio/sample-1.mp3', // Make sure these paths are correct
+        duration: '3:45',
+        isLiked: false,
+        likes: 123
+      },
+      {
+        id: '2',
+        title: 'Yangon Night Mix',
+        artist: 'Burmese Beat',
+        coverImage: '/images/album-cover-2.jpg',
+        audioSrc: '/audio/sample-2.mp3',
+        duration: '4:10',
+        isLiked: true,
+        likes: 245
+      },
+      {
+        id: '3',
+        title: 'Mandalay Fusion',
+        artist: 'MMRhythm',
+        coverImage: '/images/album-cover-3.jpg',
+        audioSrc: '/audio/sample-3.mp3',
+        duration: '3:00',
+        isLiked: false,
+        likes: 88
+      },
+      {
+        id: '4',
+        title: 'Inle Lake Trance',
+        artist: 'DJ Thant',
+        coverImage: '/images/album-cover-4.jpg',
+        audioSrc: '/audio/sample-4.mp3',
+        duration: '5:20',
+        isLiked: true,
+        likes: 310
+      },
+      {
+        id: '5',
+        title: 'Bagan Chillout',
+        artist: 'Myanmar Melodies',
+        coverImage: '/images/album-cover-5.jpg',
+        audioSrc: '/audio/sample-5.mp3',
+        duration: '2:55',
+        isLiked: false,
+        likes: 70
+      },
+      {
+        id: '6',
+        title: 'Golden Rock Groove',
+        artist: 'Rave Burma',
+        coverImage: '/images/album-cover-6.jpg',
+        audioSrc: '/audio/sample-6.mp3',
+        duration: '4:30',
+        isLiked: true,
+        likes: 199
+      },
+    ];
+    setTracks(exampleTracks);
+    if (exampleTracks.length > 0) {
+      setCurrentTrack(exampleTracks[0]);
+      if (audioRef.current) {
+        audioRef.current.src = exampleTracks[0].audioSrc;
+      }
+    }
+  }, []);
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
   };
 
-  const handlePlayPause = (id: string) => {
-    const trackToPlay = dummyTracks.find(track => track.id === id);
-    if (trackToPlay) {
-      if (currentTrack?.id === id && isPlaying) {
-        setIsPlaying(false);
-        // Pause audio logic here
+  const handlePlayPause = useCallback((trackId: string) => {
+    if (!audioRef.current) return;
+
+    if (currentTrack?.id === trackId) {
+      if (isPlaying) {
+        audioRef.current.pause();
       } else {
-        setCurrentTrack(trackToPlay);
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    } else {
+      const newTrack = tracks.find(track => track.id === trackId);
+      if (newTrack) {
+        setCurrentTrack(newTrack);
+        audioRef.current.src = newTrack.audioSrc;
+        audioRef.current.play();
         setIsPlaying(true);
-        // Play audio logic here
       }
     }
-  };
+  }, [currentTrack, isPlaying, tracks]);
 
-  const handleLikeToggle = (id: string) => {
-    // Implement like/unlike logic
-    console.log(`Toggle like for track: ${id}`);
-  };
-
-  const handleShare = (id: string) => {
-    // Implement share logic
-    console.log(`Share track: ${id}`);
-  };
-
-  const handlePlayerPlayPause = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const handlePlayerNext = () => {
-    if (currentTrack) {
-      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
-      let nextIndex = (currentIndex + 1) % dummyTracks.length;
-      if (shuffleMode) {
-        nextIndex = Math.floor(Math.random() * dummyTracks.length);
-      }
-      setCurrentTrack(dummyTracks[nextIndex]);
-      setIsPlaying(true);
-    } else if (dummyTracks.length > 0) {
-      setCurrentTrack(dummyTracks[0]);
-      setIsPlaying(true);
+  const handleSeek = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = parseFloat(event.target.value);
+      setProgress(parseFloat(event.target.value));
     }
-  };
+  }, []);
 
-  const handlePlayerPrevious = () => {
-    if (currentTrack) {
-      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
-      let prevIndex = (currentIndex - 1 + dummyTracks.length) % dummyTracks.length;
-      if (shuffleMode) {
-        prevIndex = Math.floor(Math.random() * dummyTracks.length);
-      }
-      setCurrentTrack(dummyTracks[prevIndex]);
-      setIsPlaying(true);
-    } else if (dummyTracks.length > 0) {
-      setCurrentTrack(dummyTracks[0]);
-      setIsPlaying(true);
+  const handleVolumeChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    if (audioRef.current) {
+      const newVolume = parseFloat(event.target.value);
+      audioRef.current.volume = newVolume;
+      setVolume(newVolume);
     }
-  };
+  }, []);
 
-  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setProgress(Number(event.target.value));
-    // Implement actual audio seek logic
-  };
+  const handleToggleLoop = useCallback(() => {
+    setIsLooping(prev => {
+      if (audioRef.current) {
+        audioRef.current.loop = !prev;
+      }
+      return !prev;
+    });
+  }, []);
 
-  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setVolume(Number(event.target.value));
-    // Implement actual audio volume change logic
-  };
+  const handleToggleShuffle = useCallback(() => {
+    setShuffleMode(prev => !prev);
+  }, []);
 
-  const handleToggleLoop = () => {
-    setIsLooping(!isLooping);
-  };
+  const handleNextTrack = useCallback(() => {
+    if (!currentTrack || tracks.length === 0) return;
 
-  const handleToggleShuffle = () => {
-    setShuffleMode(!shuffleMode);
-  };
+    let nextTrackIndex: number;
+    if (shuffleMode) {
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * tracks.length);
+      } while (tracks[randomIndex].id === currentTrack.id && tracks.length > 1); // Avoid playing same song twice if more than one song
+      nextTrackIndex = randomIndex;
+    } else {
+      const currentIndex = tracks.findIndex(track => track.id === currentTrack.id);
+      nextTrackIndex = (currentIndex + 1) % tracks.length;
+    }
 
-  if (!translations) {
+    const newTrack = tracks[nextTrackIndex];
+    setCurrentTrack(newTrack);
+    if (audioRef.current) {
+      audioRef.current.src = newTrack.audioSrc;
+      audioRef.current.play();
+    }
+    setIsPlaying(true);
+  }, [currentTrack, tracks, shuffleMode]);
+
+  const handlePreviousTrack = useCallback(() => {
+    if (!currentTrack || tracks.length === 0) return;
+
+    if (audioRef.current && audioRef.current.currentTime > 3) { // Restart song if already played for > 3s
+      audioRef.current.currentTime = 0;
+      return;
+    }
+
+    let previousTrackIndex: number;
+    if (shuffleMode) {
+      let randomIndex;
+      do {
+        randomIndex = Math.floor(Math.random() * tracks.length);
+      } while (tracks[randomIndex].id === currentTrack.id && tracks.length > 1);
+      previousTrackIndex = randomIndex;
+    } else {
+      const currentIndex = tracks.findIndex(track => track.id === currentTrack.id);
+      previousTrackIndex = (currentIndex - 1 + tracks.length) % tracks.length;
+    }
+
+    const newTrack = tracks[previousTrackIndex];
+    setCurrentTrack(newTrack);
+    if (audioRef.current) {
+      audioRef.current.src = newTrack.audioSrc;
+      audioRef.current.play();
+    }
+    setIsPlaying(true);
+  }, [currentTrack, tracks, shuffleMode]);
+
+  const handleLikeToggle = useCallback((id: string) => {
+    setTracks(prevTracks =>
+      prevTracks.map(track =>
+        track.id === id ? { ...track, isLiked: !track.isLiked, likes: track.isLiked ? (track.likes || 0) - 1 : (track.likes || 0) + 1 } : track
+      )
+    );
+  }, []);
+
+  const handleShare = useCallback((id: string) => {
+    alert(`Share functionality for track ${id}`);
+    // Implement actual share logic here
+  }, []);
+
+  if (!translations || !currentTrack) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
         Loading...
       </div>
     );
   }
+
+  const sectionVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.8,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    }
+  };
 
   return (
     <>
@@ -310,132 +484,176 @@ export default function Home() {
         translations={translations}
       />
 
-      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
-        <section className="relative h-64 sm:h-80 md:h-96 lg:h-[500px] flex items-center justify-center rounded-xl overflow-hidden shadow-lg mb-8">
-          <Carousel slides={dummySlides} />
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center p-4">
+      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-16 md:pt-20 pb-24"> {/* Added pb-24 for player */}
+        {/* Hero Section */}
+        <motion.section
+          className="relative h-96 bg-cover bg-center flex items-center justify-center text-center p-4"
+          style={{ backgroundImage: 'url(/images/hero-bg.jpg)' }} // Replace with a dynamic hero image
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+          <div className="relative z-10">
             <motion.h1
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2 leading-tight drop-shadow-lg"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              className="text-5xl font-extrabold text-white mb-4 drop-shadow-lg"
+              initial={{ y: -50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
             >
               {translations.home.heroTitle}
             </motion.h1>
             <motion.p
-              className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-6 drop-shadow-md max-w-2xl"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              className="text-xl text-gray-200 drop-shadow-md max-w-2xl mx-auto"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.7, duration: 0.8 }}
             >
               {translations.home.heroSubtitle}
             </motion.p>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="w-full max-w-md"
+            <motion.button
+              className="mt-8 px-8 py-3 rounded-full text-lg font-semibold neon-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder={translations.common.search}
-                  className="w-full py-3 pl-12 pr-4 rounded-full bg-gray-800 bg-opacity-70 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 text-lg"
-                  aria-label={translations.common.search}
-                />
-                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
-              </div>
-            </motion.div>
+              {translations.home.viewAll}
+            </motion.button>
           </div>
-        </section>
+        </motion.section>
 
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-primary text-center sm:text-left">
+        {/* Carousel Section */}
+        <motion.section
+          className="py-12 px-4 sm:px-6 lg:px-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <Carousel slides={carouselSlides} />
+        </motion.section>
+
+
+        {/* Featured Music Section */}
+        <motion.section
+          className="py-12 px-4 sm:px-6 lg:px-8"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <h2 className="text-3xl font-bold text-center text-primary mb-8">
             {translations.home.featuredMusicTitle}
           </h2>
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
           >
-            {dummyTracks.slice(0, 4).map((track) => (
-              <MusicCard
-                key={track.id}
-                id={track.id}
-                title={track.title}
-                artist={track.artist}
-                coverImage={track.coverImage}
-                audioSrc={track.audioSrc}
-                isLiked={track.isLiked || false}
-                isPlaying={currentTrack?.id === track.id && isPlaying}
-                onPlayPause={handlePlayPause}
-                onLikeToggle={handleLikeToggle}
-                onShare={handleShare}
-              />
-            ))}
-          </motion.div>
-          <div className="text-center mt-8">
-            <button className="neon-button-small px-6 py-3 rounded-full font-semibold text-lg">
-              {translations.home.viewAll}
-            </button>
-          </div>
-        </section>
-
-        <section className="mb-12">
-          <h2 className="text-3xl font-bold mb-6 text-accent text-center sm:text-left">
-            {translations.home.recentPlaysTitle}
-            </h2>
-            <motion.div
-              className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              {dummyTracks.slice(4, 8).map((track) => (
+            {tracks.slice(0, 4).map((track) => ( // Display first 4 featured tracks
+              <motion.div key={track.id} variants={itemVariants}>
                 <MusicCard
-                  key={track.id}
                   id={track.id}
                   title={track.title}
                   artist={track.artist}
                   coverImage={track.coverImage}
                   audioSrc={track.audioSrc}
+                  duration={track.duration}
                   isLiked={track.isLiked || false}
-                  isPlaying={currentTrack?.id === track.id && isPlaying}
+                  likes={track.likes}
+                  isPlaying={isPlaying && currentTrack?.id === track.id}
                   onPlayPause={handlePlayPause}
                   onLikeToggle={handleLikeToggle}
                   onShare={handleShare}
                 />
-              ))}
-            </motion.div>
-            <div className="text-center mt-8">
-              <button className="neon-button-small px-6 py-3 rounded-full font-semibold text-lg">
-                {translations.home.viewAll}
-              </button>
-            </div>
-          </section>
+              </motion.div>
+            ))}
+          </motion.div>
+          <div className="text-center mt-12">
+            <motion.button
+              className="px-8 py-3 rounded-full text-lg font-semibold neon-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {translations.home.viewAll}
+            </motion.button>
+          </div>
+        </motion.section>
 
+        {/* Trending Music Section */}
+        <motion.section
+          className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-900"
+          initial="hidden"
+          animate="visible"
+          variants={sectionVariants}
+        >
+          <h2 className="text-3xl font-bold text-center text-primary mb-8">
+            {translations.home.recentPlaysTitle}
+          </h2>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+          >
+            {tracks.slice(4, 8).map((track) => ( // Display next 4 trending tracks
+              <motion.div key={track.id} variants={itemVariants}>
+                <MusicCard
+                  id={track.id}
+                  title={track.title}
+                  artist={track.artist}
+                  coverImage={track.coverImage}
+                  audioSrc={track.audioSrc}
+                  duration={track.duration}
+                  isLiked={track.isLiked || false}
+                  likes={track.likes}
+                  isPlaying={isPlaying && currentTrack?.id === track.id}
+                  onPlayPause={handlePlayPause}
+                  onLikeToggle={handleLikeToggle}
+                  onShare={handleShare}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
+          <div className="text-center mt-12">
+            <motion.button
+              className="px-8 py-3 rounded-full text-lg font-semibold neon-button"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              {translations.home.viewAll}
+            </motion.button>
+          </div>
+        </motion.section>
+
+        {/* Music Player */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950 p-3 shadow-top-lg">
           {currentTrack && (
-            <div className="fixed bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-md p-4 z-50 shadow-lg border-t border-gray-700">
-              <MusicPlayer
-                currentTrack={currentTrack}
-                isPlaying={isPlaying}
-                onPlayPause={handlePlayerPlayPause}
-                onNext={handlePlayerNext}
-                onPrevious={handlePlayerPrevious}
-                progress={progress}
-                duration={duration}
-                onSeek={handleSeek}
-                volume={volume}
-                onVolumeChange={handleVolumeChange}
-                isLooping={isLooping}
-                onToggleLoop={handleToggleLoop}
-                shuffleMode={shuffleMode}
-                onToggleShuffle={handleToggleShuffle}
-              />
-            </div>
+            <MusicPlayer
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onPlayPause={() => handlePlayPause(currentTrack.id)} // Pass the current track's ID
+              onNext={handleNextTrack}
+              onPrevious={handlePreviousTrack}
+              progress={progress}
+              duration={duration}
+              onSeek={handleSeek}
+              volume={volume}
+              onVolumeChange={handleVolumeChange}
+              isLooping={isLooping}
+              onToggleLoop={handleToggleLoop}
+              shuffleMode={shuffleMode}
+              onToggleShuffle={handleToggleShuffle}
+            />
           )}
-        </main>
-      </>
-    );
-  }
+        </div>
+      </main>
+    </>
+  );
+}
