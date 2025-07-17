@@ -2,40 +2,45 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { FaPlay, FaPause, FaHeart, FaShareAlt, FaSearch } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
 import MusicPlayer from '@/components/MusicPlayer';
 import MusicCard from '@/components/MusicCard';
-import { Track, Translations, CarouselSlide } from '@/types'; // 确保从正确的路径导入 Translations 类型
-import { motion, AnimatePresence } from 'framer-motion';
-
-// 模拟数据
-const dummyTracks: Track[] = [
-  { id: '1', title: 'Tropical Thunder', artist: 'DJ Beatmaster', albumArt: '/images/album-art-1.jpg', audioSrc: '/audio/song1.mp3', duration: '3:45', isLiked: false, likes: 1200 },
-  { id: '2', title: 'Sunset Chill', artist: 'DJ Groove', albumArt: '/images/album-art-2.jpg', audioSrc: '/audio/song2.mp3', duration: '4:10', isLiked: true, likes: 2500 },
-  { id: '3', title: 'Night Drive', artist: 'DJ Synthwave', albumArt: '/images/album-art-3.jpg', audioSrc: '/audio/song3.mp3', duration: '3:00', isLiked: false, likes: 800 },
-  { id: '4', title: 'Rave On', artist: 'DJ Party', albumArt: '/images/album-art-4.jpg', audioSrc: '/audio/song4.mp3', duration: '5:20', isLiked: false, likes: 1800 },
-  { id: '5', title: 'City Lights', artist: 'DJ Urban', albumArt: '/images/album-art-5.jpg', audioSrc: '/audio/song5.mp3', duration: '3:55', isLiked: true, likes: 3200 },
-];
-
-const dummyCarouselSlides: CarouselSlide[] = [
-  { id: '1', imageUrl: '/images/carousel-1.jpg', title: '探索最新的DJ混音', description: '每周更新，尽享最热门的电子音乐！', link: '/music' },
-  { id: '2', imageUrl: '/images/carousel-2.jpg', title: '成为认证DJ', description: '上传你的作品，让更多人听到你的声音！', link: '/dj/apply' },
-  { id: '3', imageUrl: '/images/carousel-3.jpg', title: '加入直播派对', description: '与你最爱的DJ实时互动，感受现场气氛！', link: '/live' },
-];
+import Carousel from '@/components/Carousel';
+import { Track, CarouselSlide, Translations } from '@/types'; // 确保导入 Track 和 Translations
 
 export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
-  const [featuredTracks, setFeaturedTracks] = useState<Track[]>(dummyTracks);
-  const [trendingTracks, setTrendingTracks] = useState<Track[]>(dummyTracks.slice().sort((a, b) => b.likes - a.likes));
-  const [newReleaseTracks, setNewReleaseTracks] = useState<Track[]>(dummyTracks.slice().reverse());
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.5);
+  const [isLooping, setIsLooping] = useState(false);
+  const [shuffleMode, setShuffleMode] = useState(false);
 
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const router = useRouter();
+  // 模拟数据 - 根据新的 Track 接口进行调整
+  const dummyTracks: Track[] = [
+    { id: '1', title: 'Tropical Thunder', artist: 'DJ Beatmaster', coverImage: '/images/album-art-1.jpg', audioSrc: '/audio/song1.mp3', duration: '3:45', isLiked: false, likes: 1200 },
+    { id: '2', title: 'Sunset Chill', artist: 'DJ Groove', coverImage: '/images/album-art-2.jpg', audioSrc: '/audio/song2.mp3', duration: '4:10', isLiked: true, likes: 2500 },
+    { id: '3', title: 'Night Drive', artist: 'DJ Synthwave', coverImage: '/images/album-art-3.jpg', audioSrc: '/audio/song3.mp3', duration: '3:00', isLiked: false, likes: 800 },
+    { id: '4', title: 'Rave On', artist: 'DJ Party', coverImage: '/images/album-art-4.jpg', audioSrc: '/audio/song4.mp3', duration: '5:20', isLiked: false, likes: 1800 },
+    { id: '5', title: 'Urban Flow', artist: 'DJ City', coverImage: '/images/album-art-5.jpg', audioSrc: '/audio/song5.mp3', duration: '3:15', isLiked: true, likes: 950 },
+    { id: '6', title: 'Forest Trance', artist: 'Mystic Beats', coverImage: '/images/album-art-6.jpg', audioSrc: '/audio/song6.mp3', duration: '4:30', isLiked: false, likes: 1500 },
+    { id: '7', title: 'Desert Oasis', artist: 'Sand King', coverImage: '/images/album-art-7.jpg', audioSrc: '/audio/song7.mp3', duration: '3:55', isLiked: false, likes: 700 },
+    { id: '8', title: 'Cosmic Dust', artist: 'Star Gazer', coverImage: '/images/album-art-8.jpg', audioSrc: '/audio/song8.mp3', duration: '4:05', isLiked: true, likes: 2100 },
+  ];
+
+  // 模拟轮播图数据
+  const dummySlides: CarouselSlide[] = [
+    { id: '1', imageUrl: '/images/carousel-1.jpg', altText: 'Promotion 1', link: '#' },
+    { id: '2', imageUrl: '/images/carousel-2.jpg', altText: 'Promotion 2', link: '#' },
+    { id: '3', imageUrl: '/images/carousel-3.jpg', altText: 'Promotion 3', link: '#' },
+  ];
 
   useEffect(() => {
     const loadTranslations = async () => {
@@ -64,11 +69,13 @@ export default function Home() {
             rules: "规则"
           },
           home: {
-            welcome: "欢迎来到缅甸DJ平台",
-            subtitle: "发现最棒的越南鼓DJ音乐",
-            featured: "精选音乐",
-            trending: "热门趋势",
-            newReleases: "最新发布"
+            heroTitle: "欢迎来到缅甸DJ平台",
+            heroSubtitle: "发现最棒的越南鼓DJ音乐",
+            featuredMusicTitle: "精选音乐",
+            recentPlaysTitle: "热门趋势",
+            topArtistsTitle: "热门艺术家",
+            newReleasesTitle: "最新发布",
+            viewAll: "查看全部"
           },
           auth: {
             loginTitle: "登录",
@@ -76,12 +83,11 @@ export default function Home() {
             password: "密码",
             confirmPassword: "确认密码",
             loginButton: "登录",
+            registerButton: "注册",
             forgotPassword: "忘记密码？",
             noAccount: "没有账号？",
             hasAccount: "已有账号？",
             registerNow: "立即注册",
-            registerTitle: "注册",
-            registerButton: "注册",
             loginNow: "立即登录",
             loginSuccess: "登录成功！",
             loginError: "登录失败。",
@@ -90,7 +96,8 @@ export default function Home() {
             confirmPasswordRequired: "请确认密码",
             passwordMismatch: "密码不匹配",
             registerSuccess: "注册成功！",
-            registerError: "注册失败。"
+            registerError: "注册失败。",
+            registerTitle: "注册"
           },
           player: {
             play: "播放",
@@ -109,7 +116,6 @@ export default function Home() {
             balance: "余额",
             recharge: "充值",
             withdraw: "提现",
-            settings: "设置",
             djApplication: "DJ认证申请",
             logout: "退出登录",
             phone: "手机号码",
@@ -117,7 +123,17 @@ export default function Home() {
             greeting: "你好，{username}！",
             djStatus: "DJ状态：",
             notDj: "未认证",
-            isDj: "已认证"
+            isDj: "已认证",
+            title: "个人资料设置",
+            email: "邮箱",
+            changePassword: "修改密码",
+            currentPasswordPlaceholder: "当前密码",
+            newPasswordPlaceholder: "新密码",
+            confirmPasswordPlaceholder: "确认新密码",
+            updateProfileButton: "更新资料",
+            settings: "设置",
+            darkMode: "深色模式",
+            notifications: "通知"
           },
           common: {
             search: "搜索",
@@ -194,68 +210,96 @@ export default function Home() {
     };
 
     loadTranslations();
-
-    // 轮播图自动播放
-    const interval = setInterval(() => {
-      setCurrentSlideIndex((prevIndex) => (prevIndex + 1) % dummyCarouselSlides.length);
-    }, 5000); // 每5秒切换一次
-
-    return () => clearInterval(interval); // 清理定时器
   }, [currentLang]);
+
 
   const handleLanguageChange = (lang: string) => {
     setCurrentLang(lang);
   };
 
-  const handlePlayTrack = (track: Track) => {
-    setCurrentTrack(track);
+  const handlePlayPause = (id: string) => {
+    const trackToPlay = dummyTracks.find(track => track.id === id);
+    if (trackToPlay) {
+      if (currentTrack?.id === id && isPlaying) {
+        setIsPlaying(false);
+        // Pause audio logic here
+      } else {
+        setCurrentTrack(trackToPlay);
+        setIsPlaying(true);
+        // Play audio logic here
+      }
+    }
   };
 
-  const handleLikeToggle = (trackId: string) => {
-    setFeaturedTracks(prevTracks =>
-      prevTracks.map(track =>
-        track.id === trackId
-          ? {
-            ...track,
-            isLiked: !track.isLiked,
-            likes: track.isLiked ? track.likes - 1 : track.likes + 1
-          }
-          : track
-      )
-    );
-    setTrendingTracks(prevTracks =>
-      prevTracks.map(track =>
-        track.id === trackId
-          ? {
-            ...track,
-            isLiked: !track.isLiked,
-            likes: track.isLiked ? track.likes - 1 : track.likes + 1
-          }
-          : track
-      )
-    );
-    setNewReleaseTracks(prevTracks =>
-      prevTracks.map(track =>
-        track.id === trackId
-          ? {
-            ...track,
-            isLiked: !track.isLiked,
-            likes: track.isLiked ? track.likes - 1 : track.likes + 1
-          }
-          : track
-      )
-    );
+  const handleLikeToggle = (id: string) => {
+    // Implement like/unlike logic
+    console.log(`Toggle like for track: ${id}`);
+  };
+
+  const handleShare = (id: string) => {
+    // Implement share logic
+    console.log(`Share track: ${id}`);
+  };
+
+  const handlePlayerPlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handlePlayerNext = () => {
+    if (currentTrack) {
+      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
+      let nextIndex = (currentIndex + 1) % dummyTracks.length;
+      if (shuffleMode) {
+        nextIndex = Math.floor(Math.random() * dummyTracks.length);
+      }
+      setCurrentTrack(dummyTracks[nextIndex]);
+      setIsPlaying(true);
+    } else if (dummyTracks.length > 0) {
+      setCurrentTrack(dummyTracks[0]);
+      setIsPlaying(true);
+    }
+  };
+
+  const handlePlayerPrevious = () => {
+    if (currentTrack) {
+      const currentIndex = dummyTracks.findIndex(track => track.id === currentTrack.id);
+      let prevIndex = (currentIndex - 1 + dummyTracks.length) % dummyTracks.length;
+      if (shuffleMode) {
+        prevIndex = Math.floor(Math.random() * dummyTracks.length);
+      }
+      setCurrentTrack(dummyTracks[prevIndex]);
+      setIsPlaying(true);
+    } else if (dummyTracks.length > 0) {
+      setCurrentTrack(dummyTracks[0]);
+      setIsPlaying(true);
+    }
+  };
+
+  const handleSeek = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setProgress(Number(event.target.value));
+    // Implement actual audio seek logic
+  };
+
+  const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setVolume(Number(event.target.value));
+    // Implement actual audio volume change logic
+  };
+
+  const handleToggleLoop = () => {
+    setIsLooping(!isLooping);
+  };
+
+  const handleToggleShuffle = () => {
+    setShuffleMode(!shuffleMode);
   };
 
   if (!translations) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        {'加载中...'}
+        Loading...
       </div>
     );
   }
-
-  const currentSlide = dummyCarouselSlides[currentSlideIndex];
 
   return (
     <>
@@ -265,119 +309,132 @@ export default function Home() {
         translations={translations}
       />
 
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-20">
-        {/* Carousel Section */}
-        <section className="relative w-full h-[50vh] md:h-[60vh] overflow-hidden">
-          <AnimatePresence initial={false}>
-            <motion.div
-              key={currentSlide.id}
-              className="absolute inset-0 bg-cover bg-center flex items-end p-8"
-              style={{
-                backgroundImage: `url(${currentSlide.imageUrl})`, // <--- 这里就是修复过的地方！
-              }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
+      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
+        <section className="relative h-64 sm:h-80 md:h-96 lg:h-[500px] flex items-center justify-center rounded-xl overflow-hidden shadow-lg mb-8">
+          <Carousel slides={dummySlides} />
+          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center text-center p-4">
+            <motion.h1
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-2 leading-tight drop-shadow-lg"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              <div className="bg-black bg-opacity-50 p-6 rounded-lg max-w-lg">
-                <motion.h2
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                  className="text-3xl md:text-4xl font-bold mb-3 text-primary"
-                >
-                  {currentSlide.title}
-                </motion.h2>
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="text-lg text-gray-200 mb-4"
-                >
-                  {currentSlide.description}
-                </motion.p>
-                <motion.button
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                  onClick={() => router.push(currentSlide.link)}
-                  className="neon-button py-2 px-6 rounded-full text-lg font-semibold"
-                >
-                  {translations.common.viewDetails}
-                </motion.button>
+              {translations.home.heroTitle}
+            </motion.h1>
+            <motion.p
+              className="text-lg sm:text-xl md:text-2xl text-gray-200 mb-6 drop-shadow-md max-w-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+            >
+              {translations.home.heroSubtitle}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="w-full max-w-md"
+            >
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder={translations.common.search}
+                  className="w-full py-3 pl-12 pr-4 rounded-full bg-gray-800 bg-opacity-70 border border-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-300 text-lg"
+                  aria-label={translations.common.search}
+                />
+                <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
               </div>
             </motion.div>
-          </AnimatePresence>
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {dummyCarouselSlides.map((_, idx) => (
-              <button
-                key={idx}
-                className={`w-3 h-3 rounded-full transition-colors duration-300 ${idx === currentSlideIndex ? 'bg-primary' : 'bg-gray-400 opacity-50'
-                  }`}
-                onClick={() => setCurrentSlideIndex(idx)}
+          </div>
+        </section>
+
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold mb-6 text-primary text-center sm:text-left">
+            {translations.home.featuredMusicTitle}
+          </h2>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            {dummyTracks.slice(0, 4).map((track) => (
+              <MusicCard
+                key={track.id}
+                id={track.id}
+                title={track.title}
+                artist={track.artist}
+                coverImage={track.coverImage}
+                audioSrc={track.audioSrc}
+                isLiked={track.isLiked || false}
+                isPlaying={currentTrack?.id === track.id && isPlaying}
+                onPlayPause={handlePlayPause}
+                onLikeToggle={handleLikeToggle}
+                onShare={handleShare}
               />
             ))}
+          </motion.div>
+          <div className="text-center mt-8">
+            <button className="neon-button-small px-6 py-3 rounded-full font-semibold text-lg">
+              {translations.home.viewAll}
+            </button>
           </div>
         </section>
 
-
-        {/* Music Sections */}
-        <section className="px-4 py-8 max-w-7xl mx-auto">
-          {/* Featured Music */}
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+        <section className="mb-12">
+          <h2 className="text-3xl font-bold mb-6 text-accent text-center sm:text-left">
+            {translations.home.recentPlaysTitle}
+          </h2>
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl font-bold text-white mb-6 border-b-2 border-primary pb-2 flex items-center"
+            transition={{ duration: 0.8, ease: "easeOut" }}
           >
-            {translations.home.featured}
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <AnimatePresence>
-              {featuredTracks.map((track) => (
-                <MusicCard key={track.id} track={track} onPlay={handlePlayTrack} onLikeToggle={handleLikeToggle} />
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* Trending Music */}
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-3xl font-bold text-white mb-6 mt-10 border-b-2 border-accent pb-2 flex items-center"
-          >
-            {translations.home.trending}
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <AnimatePresence>
-              {trendingTracks.map((track) => (
-                <MusicCard key={track.id} track={track} onPlay={handlePlayTrack} onLikeToggle={handleLikeToggle} />
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {/* New Releases */}
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="text-3xl font-bold text-white mb-6 mt-10 border-b-2 border-secondary pb-2 flex items-center"
-          >
-            {translations.home.newReleases}
-          </motion.h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <AnimatePresence>
-              {newReleaseTracks.map((track) => (
-                <MusicCard key={track.id} track={track} onPlay={handlePlayTrack} onLikeToggle={handleLikeToggle} />
-              ))}
-            </AnimatePresence>
+            {dummyTracks.slice(4, 8).map((track) => (
+              <MusicCard
+                key={track.id}
+                id={track.id}
+                title={track.title}
+                artist={track.artist}
+                coverImage={track.coverImage}
+                audioSrc={track.audioSrc}
+                isLiked={track.isLiked || false}
+                isPlaying={currentTrack?.id === track.id && isPlaying}
+                onPlayPause={handlePlayPause}
+                onLikeToggle={handleLikeToggle}
+                onShare={handleShare}
+              />
+            ))}
+          </motion.div>
+          <div className="text-center mt-8">
+            <button className="neon-button-small px-6 py-3 rounded-full font-semibold text-lg">
+              {translations.home.viewAll}
+            </button>
           </div>
         </section>
+
+        {currentTrack && (
+          <div className="fixed bottom-0 left-0 w-full bg-gray-800 bg-opacity-90 backdrop-blur-md p-4 z-50 shadow-lg border-t border-gray-700">
+            <MusicPlayer
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              onPlayPause={handlePlayerPlayPause}
+              onNext={handlePlayerNext}
+              onPrevious={handlePlayerPrevious}
+              progress={progress}
+              duration={duration}
+              onSeek={handleSeek}
+              volume={volume}
+              onVolumeChange={handleVolumeChange}
+              isLooping={isLooping}
+              onToggleLoop={handleToggleLoop}
+              shuffleMode={shuffleMode}
+              onToggleShuffle={handleToggleShuffle}
+            />
+          </div>
+        )}
       </main>
-
-      {currentTrack && <MusicPlayer track={currentTrack} />}
     </>
   );
 }
