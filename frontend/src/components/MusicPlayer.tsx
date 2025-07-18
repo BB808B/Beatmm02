@@ -28,23 +28,20 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [showVolumeControl, setShowVolumeControl] = useState(false);
   const [loopMode, setLoopMode] = useState<'off' | 'track' | 'playlist'>('off');
   const [shuffleMode, setShuffleMode] = useState(false);
-  // Initial shuffle indices when component mounts or tracks change
   const [shuffledIndices, setShuffledIndices] = useState<number[]>(() => {
     if (tracks.length === 0) return [];
     const indices = Array.from({ length: tracks.length }, (_, i) => i);
-    // Fisher-Yates shuffle algorithm for initial random order
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
     return indices;
   });
-  const historyRef = useRef<number[]>([]); // Ref to store playback history
-  const [historyPointer, setHistoryPointer] = useState(-1); // Pointer for historyRef
+  const historyRef = useRef<number[]>([]);
+  const [historyPointer, setHistoryPointer] = useState(-1);
 
   const currentTrack = tracks[currentTrackIndex];
 
-  // Update shuffled indices if tracks array length changes
   useEffect(() => {
     if (tracks.length > 0) {
       const indices = Array.from({ length: tracks.length }, (_, i) => i);
@@ -56,28 +53,23 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, [tracks.length]);
 
-  // Update audio source when currentTrack changes
   useEffect(() => {
     if (audioRef.current && currentTrack) {
-      audioRef.current.src = currentTrack.audioUrl; // 使用 audioUrl
-      audioRef.current.load(); // Load the new track
+      audioRef.current.src = currentTrack.audioUrl;
+      audioRef.current.load();
 
-      // Add current track to history, limit history size
       const newHistory = [...historyRef.current.slice(-99), currentTrackIndex];
       historyRef.current = newHistory;
-      setHistoryPointer(newHistory.length - 1); // Update pointer to the end of history
+      setHistoryPointer(newHistory.length - 1);
 
       if (isPlaying) {
         audioRef.current.play().catch(e => console.error("Error playing audio:", e, currentTrack));
       } else {
-        // If not playing, but a new track is selected, ensure it's ready to play
-        // e.g., if a track is clicked from a playlist when player is paused
-        setIsPlaying(false); // Ensure UI reflects paused state initially for new track if not auto-playing
+        setIsPlaying(false);
       }
     }
-  }, [currentTrack, currentTrackIndex]); // isPlaying removed from dependencies to prevent re-triggering load when play/pause toggles
+  }, [currentTrack, currentTrackIndex]);
 
-  // Effect to handle play/pause state change from external (e.g., MusicCard)
   useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -86,9 +78,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         audioRef.current.pause();
       }
     }
-  }, [isPlaying]); // Only respond to changes in isPlaying state
+  }, [isPlaying]);
 
-  // Handle play/pause toggle
   const togglePlayPause = useCallback(() => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -100,16 +91,14 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, [isPlaying]);
 
-  // Handle time updates
   const onTimeUpdate = useCallback(() => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
     }
   }, []);
 
-  // Handle track ending
   const onEnded = useCallback(() => {
-    setIsPlaying(false); // Stop playing first
+    setIsPlaying(false);
     if (loopMode === 'track') {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -117,21 +106,19 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         setIsPlaying(true);
       }
     } else {
-      playNextTrack(); // This will handle 'off' and 'playlist' loop modes
+      playNextTrack();
     }
   }, [loopMode, playNextTrack]);
 
-  // Handle metadata loaded
   const onLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
-      if (isPlaying) { // Only attempt to play if it was already in playing state
+      if (isPlaying) {
         audioRef.current.play().catch(e => console.error("Error playing audio after metadata load:", e));
       }
     }
-  }, [isPlaying]); // isPlaying is a dependency here because we decide to play based on its value
+  }, [isPlaying]);
 
-  // Attach/detach event listeners
   useEffect(() => {
     const audio = audioRef.current;
     if (audio) {
@@ -146,7 +133,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, [onTimeUpdate, onEnded, onLoadedMetadata]);
 
-  // Seek functionality
   const onSeek = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     if (audioRef.current) {
       audioRef.current.currentTime = parseFloat(e.target.value);
@@ -154,7 +140,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, []);
 
-  // Volume control
   const onVolumeChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     if (audioRef.current) {
@@ -168,7 +153,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, [isMuted]);
 
-  // Toggle Mute
   const toggleMute = useCallback(() => {
     if (audioRef.current) {
       if (isMuted) {
@@ -183,7 +167,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, [isMuted, volume, previousVolume]);
 
-  // Play next track
   const playNextTrack = useCallback(() => {
     if (tracks.length === 0) return;
 
@@ -194,9 +177,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       if (currentShuffledIdx !== -1 && currentShuffledIdx < shuffledIndices.length - 1) {
         nextIndex = shuffledIndices[currentShuffledIdx + 1];
       } else {
-        // Reached end of shuffled list.
         if (loopMode === 'playlist') {
-          // If playlist loop, reshuffle and start from beginning of new shuffled list
           const newShuffled = Array.from({ length: tracks.length }, (_, i) => i);
           for (let i = newShuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -205,14 +186,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
           setShuffledIndices(newShuffled);
           nextIndex = newShuffled[0];
         } else {
-          // If no loop or track loop (which is handled by onEnded for single track), stop
           setIsPlaying(false);
           setCurrentTime(0);
-          setCurrentTrackIndex(0); // Reset to first track in order
+          setCurrentTrackIndex(0);
           return;
         }
       }
-    } else { // Not in shuffle mode
+    } else {
       nextIndex = (currentTrackIndex + 1) % tracks.length;
       if (nextIndex === 0 && loopMode === 'off') {
         setIsPlaying(false);
@@ -225,29 +205,27 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, shuffleMode, shuffledIndices, loopMode]);
 
 
-  // Play previous track
   const playPreviousTrack = useCallback(() => {
     if (tracks.length === 0) return;
 
-    if (currentTime > 3) { // If current track played for more than 3 seconds, restart it
+    if (currentTime > 3) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
       }
       setCurrentTime(0);
-      setIsPlaying(true); // Keep playing
-    } else if (historyPointer > 0) { // Go back in history if available
+      setIsPlaying(true);
+    } else if (historyPointer > 0) {
       const prevIndexInHistory = historyRef.current[historyPointer - 1];
       setCurrentTrackIndex(prevIndexInHistory);
-      setHistoryPointer(prevHistoryPointer => prevHistoryPointer - 1); // Move history pointer back
+      setHistoryPointer(prevHistoryPointer => prevHistoryPointer - 1);
       setIsPlaying(true);
-    } else { // Go to previous track in sequence if no history or at start of history
+    } else {
       const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
       setCurrentTrackIndex(prevIndex);
       setIsPlaying(true);
     }
   }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, currentTime, historyPointer]);
 
-  // Toggle loop mode
   const toggleLoopMode = useCallback(() => {
     setLoopMode((prevMode) => {
       if (prevMode === 'off') return 'track';
@@ -256,11 +234,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     });
   }, []);
 
-  // Toggle shuffle mode
   const toggleShuffleMode = useCallback(() => {
     setShuffleMode((prev) => !prev);
     if (!shuffleMode) {
-      // Generate initial shuffled indices when enabling shuffle
       const newShuffledIndices = Array.from({ length: tracks.length }, (_, i) => i);
       for (let i = newShuffledIndices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -278,9 +254,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     );
   }
 
-  // Fallback for coverImage if not present, and ensure correct property name
   const trackCoverImage = currentTrack.coverImage || '/images/default-album-art.png';
-  // Fallback for title and artist if not present, and ensure correct property names
   const trackArtist = currentTrack.artist || 'Unknown Artist';
   const trackTitle = currentTrack.title || 'Unknown Title';
 
@@ -292,8 +266,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       {/* Track Info */}
       <div className="flex items-center w-full sm:w-1/3 mb-2 sm:mb-0">
         <Image
-          src={trackCoverImage} // 使用处理过的 coverImage
-          alt={trackTitle} // 使用处理过的 title
+          src={trackCoverImage}
+          alt={trackTitle}
           width={64}
           height={64}
           className="rounded-lg object-cover mr-4 shadow-md"
@@ -372,8 +346,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             onChange={onSeek}
             className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer progress-bar"
             style={{
-              // Use a CSS variable for the primary color to dynamically set progress bar fill
-              background: `linear-gradient(to right, var(--primary-color, #a855f7) ${((currentTime / duration) * 100) || 0}%, #4B5563 ${((currentTime / duration) * 100) || 0}%)`
+              // 使用 var(--primary) 作为填充颜色
+              background: `linear-gradient(to right, var(--primary) ${((currentTime / duration) * 100) || 0}%, #4B5563 ${((currentTime / duration) * 100) || 0}%)`
             }}
           />
           <span className="text-xs text-gray-400">{formatTime(duration)}</span>
@@ -384,7 +358,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       <div className="flex items-center justify-end w-full sm:w-1/3 space-x-4 mt-2 sm:mt-0 relative">
         <a
           href={currentTrack.audioUrl}
-          download={`${currentTrack.title}.mp3`} // Ensure a proper filename for download
+          download={`${currentTrack.title}.mp3`}
           className="text-gray-300 hover:text-white transition-colors duration-200"
           aria-label={`Download ${currentTrack.title}`}
         >
@@ -419,11 +393,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                   step="0.01"
                   value={volume}
                   onChange={onVolumeChange}
-                  // Tailwind CSS classes for vertical slider styling
                   className="w-2 h-24 bg-gray-600 rounded-lg appearance-none cursor-pointer transform rotate-[-90deg] origin-center
-                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
-                             [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg"
-                  style={{ '--primary-color': 'var(--tw-colors-primary)' } as React.CSSProperties} // Pass primary color via CSS var
+                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
+                             [&::-moz-range-thumb]:bg-[var(--primary)] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg"
+                  // 移除 style={{ '--primary-color': 'var(--primary)' } as React.CSSProperties}
+                  // 直接在 className 中使用 bg-[var(--primary)]
                 />
               </motion.div>
             )}
