@@ -168,7 +168,7 @@ export interface Track {
   coverImage: string;
   audioUrl: string; // 统一为 audioUrl，与 MusicPlayer 内部使用匹配
   duration: number; // MusicPlayer 内部需要秒数，保持为 number 类型
-  isLiked?: boolean;
+  isLiked?: boolean; // **这里已经是可选的了，保持不变**
   likes?: number;
 }
 
@@ -196,12 +196,12 @@ export interface MusicCardProps {
   title: string;
   artist: string;
   coverImage: string;
-  audioUrl: string; // **此行是新增的，解决 Vercel 报错**
-  duration: string; // MusicCard 显示的 duration 仍然是格式化后的字符串
-  isLiked: boolean;
+  audioUrl: string;
+  duration: string;
+  isLiked?: boolean; // **修复点：将 isLiked 改为可选属性 (boolean | undefined)，添加 ? 符号**
   likes?: number;
-  isPlaying: boolean; // MusicCard 需要知道是否正在播放，以显示正确按钮
-  onPlayPause: (track: Track) => void; // 播放/暂停的事件处理器，告诉父组件要播放哪个完整的 Track
+  isPlaying: boolean;
+  onPlayPause: (track: Track) => void;
   onLikeToggle: (trackId: string) => void;
   onShare: (trackId: string) => void;
 }
