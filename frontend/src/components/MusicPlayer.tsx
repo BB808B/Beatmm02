@@ -97,6 +97,45 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     }
   }, []);
 
+  // **修复点：将 playNextTrack 的定义移动到 onEnded 之前**
+  const playNextTrack = useCallback(() => {
+    if (tracks.length === 0) return;
+
+    let nextIndex;
+
+    if (shuffleMode && shuffledIndices.length > 0) {
+      const currentShuffledIdx = shuffledIndices.indexOf(currentTrackIndex);
+      if (currentShuffledIdx !== -1 && currentShuffledIdx < shuffledIndices.length - 1) {
+        nextIndex = shuffledIndices[currentShuffledIdx + 1];
+      } else {
+        if (loopMode === 'playlist') {
+          const newShuffled = Array.from({ length: tracks.length }, (_, i) => i);
+          for (let i = newShuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newShuffled[i], newShuffled[j]] = [newShuffled[j], newShuffled[i]];
+          }
+          setShuffledIndices(newShuffled);
+          nextIndex = newShuffled[0];
+        } else {
+          setIsPlaying(false);
+          setCurrentTime(0);
+          setCurrentTrackIndex(0);
+          return;
+        }
+      }
+    } else {
+      nextIndex = (currentTrackIndex + 1) % tracks.length;
+      if (nextIndex === 0 && loopMode === 'off') {
+        setIsPlaying(false);
+        setCurrentTime(0);
+        return;
+      }
+    }
+    setCurrentTrackIndex(nextIndex);
+    setIsPlaying(true);
+  }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, shuffleMode, shuffledIndices, loopMode]);
+
+
   const onEnded = useCallback(() => {
     setIsPlaying(false);
     if (loopMode === 'track') {
@@ -108,7 +147,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     } else {
       playNextTrack();
     }
-  }, [loopMode, playNextTrack]);
+  }, [loopMode, playNextTrack]); // 现在 playNextTrack 已经提前定义了
 
   const onLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
@@ -166,44 +205,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       setIsMuted(!isMuted);
     }
   }, [isMuted, volume, previousVolume]);
-
-  const playNextTrack = useCallback(() => {
-    if (tracks.length === 0) return;
-
-    let nextIndex;
-
-    if (shuffleMode && shuffledIndices.length > 0) {
-      const currentShuffledIdx = shuffledIndices.indexOf(currentTrackIndex);
-      if (currentShuffledIdx !== -1 && currentShuffledIdx < shuffledIndices.length - 1) {
-        nextIndex = shuffledIndices[currentShuffledIdx + 1];
-      } else {
-        if (loopMode === 'playlist') {
-          const newShuffled = Array.from({ length: tracks.length }, (_, i) => i);
-          for (let i = newShuffled.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [newShuffled[i], newShuffled[j]] = [newShuffled[j], newShuffled[i]];
-          }
-          setShuffledIndices(newShuffled);
-          nextIndex = newShuffled[0];
-        } else {
-          setIsPlaying(false);
-          setCurrentTime(0);
-          setCurrentTrackIndex(0);
-          return;
-        }
-      }
-    } else {
-      nextIndex = (currentTrackIndex + 1) % tracks.length;
-      if (nextIndex === 0 && loopMode === 'off') {
-        setIsPlaying(false);
-        setCurrentTime(0);
-        return;
-      }
-    }
-    setCurrentTrackIndex(nextIndex);
-    setIsPlaying(true);
-  }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, shuffleMode, shuffledIndices, loopMode]);
-
 
   const playPreviousTrack = useCallback(() => {
     if (tracks.length === 0) return;
@@ -394,8 +395,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                   value={volume}
                   onChange={onVolumeChange}
                   className="w-2 h-24 bg-gray-600 rounded-lg appearance-none cursor-pointer transform rotate-[-90deg] origin-center
-                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
-                             [&::-moz-range-thumb]:bg-[var(--primary)] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg"
+                                     [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--primary)] [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
+                                     [&::-moz-range-thumb]:bg-[var(--primary)] [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg"
                   // 移除 style={{ '--primary-color': 'var(--primary)' } as React.CSSProperties}
                   // 直接在 className 中使用 bg-[var(--primary)]
                 />
