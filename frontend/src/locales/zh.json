@@ -1,0 +1,28 @@
+{
+  "common": {
+    "loading": "加载中...",
+    "subscribe": "立即订阅",
+    "freeTrial": "免费试用"
+  },
+  "navbar": {
+    "home": "首页",
+    "music": "音乐",
+    "radio": "电台",
+    "charts": "排行榜",
+    "rules": "规则"
+  },
+  "pricing": {
+    "title": "选择您的套餐",
+    "basic": "基础套餐",
+    "premium": "高级套餐",
+    "vip": "VIP套餐",
+    "month": "月",
+    "features": {
+      "unlimited": "无限音乐流",
+      "hq": "高品质音质",
+      "offline": "离线收听",
+      "exclusive": "独家内容",
+      "early": "抢先体验新歌"
+    }
+  }
+}
