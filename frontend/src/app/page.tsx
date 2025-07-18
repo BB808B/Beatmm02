@@ -8,7 +8,8 @@ import NavbarComponent from '@/components/Navbar';
 import MusicPlayer from '@/components/MusicPlayer';
 import MusicCard from '@/components/MusicCard';
 import Carousel from '@/components/Carousel';
-import { Track, CarouselSlide, Translations } from '@/types'; // 确保导入所有需要的类型
+import { Track, CarouselSlide, Translations } from '@/types';
+import { formatTime } from '@/utils/formatTime'; // 导入 formatTime 函数
 
 export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -184,7 +185,6 @@ export default function Home() {
             section3Item4Perm3: "提现收入",
             section3Item4Perm4: "进入排行榜",
             section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。",
-            // section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。", // 重复项，已修正
             section3Item6: "每位 DJ 对其上传内容负全责，平台不承担任何侵权责任。",
             section3Item7: "鼓励创作越南鼓、缅甸风格、本地原创音乐作品。",
             importantReminderTitle: "重要提醒",
@@ -225,8 +225,8 @@ export default function Home() {
         title: 'Myanmar EDM Vibes',
         artist: 'DJ Aung',
         coverImage: '/images/album-cover-1.jpg',
-        audioUrl: '/audio/sample-1.mp3', // 统一使用 audioUrl
-        duration: '3:45',
+        audioUrl: '/audio/sample-1.mp3',
+        duration: 225, // '3:45' 转换为秒 (3 * 60 + 45 = 225)
         isLiked: false,
         likes: 123
       },
@@ -235,8 +235,8 @@ export default function Home() {
         title: 'Yangon Night Mix',
         artist: 'Burmese Beat',
         coverImage: '/images/album-cover-2.jpg',
-        audioUrl: '/audio/sample-2.mp3', // 统一使用 audioUrl
-        duration: '4:10',
+        audioUrl: '/audio/sample-2.mp3',
+        duration: 250, // '4:10' 转换为秒 (4 * 60 + 10 = 250)
         isLiked: true,
         likes: 245
       },
@@ -245,8 +245,8 @@ export default function Home() {
         title: 'Mandalay Fusion',
         artist: 'MMRhythm',
         coverImage: '/images/album-cover-3.jpg',
-        audioUrl: '/audio/sample-3.mp3', // 统一使用 audioUrl
-        duration: '3:00',
+        audioUrl: '/audio/sample-3.mp3',
+        duration: 180, // '3:00' 转换为秒 (3 * 60 = 180)
         isLiked: false,
         likes: 88
       },
@@ -255,8 +255,8 @@ export default function Home() {
         title: 'Inle Lake Trance',
         artist: 'DJ Thant',
         coverImage: '/images/album-cover-4.jpg',
-        audioUrl: '/audio/sample-4.mp3', // 统一使用 audioUrl
-        duration: '5:20',
+        audioUrl: '/audio/sample-4.mp3',
+        duration: 320, // '5:20' 转换为秒 (5 * 60 + 20 = 320)
         isLiked: true,
         likes: 310
       },
@@ -265,8 +265,8 @@ export default function Home() {
         title: 'Bagan Chillout',
         artist: 'Myanmar Melodies',
         coverImage: '/images/album-cover-5.jpg',
-        audioUrl: '/audio/sample-5.mp3', // 统一使用 audioUrl
-        duration: '2:55',
+        audioUrl: '/audio/sample-5.mp3',
+        duration: 175, // '2:55' 转换为秒 (2 * 60 + 55 = 175)
         isLiked: false,
         likes: 70
       },
@@ -275,8 +275,8 @@ export default function Home() {
         title: 'Golden Rock Groove',
         artist: 'Rave Burma',
         coverImage: '/images/album-cover-6.jpg',
-        audioUrl: '/audio/sample-6.mp3', // 统一使用 audioUrl
-        duration: '4:30',
+        audioUrl: '/audio/sample-6.mp3',
+        duration: 270, // '4:30' 转换为秒 (4 * 60 + 30 = 270)
         isLiked: true,
         likes: 199
       },
@@ -426,6 +426,7 @@ export default function Home() {
                 <MusicCard
                   {...track} // 传递所有 track 属性
                   audioUrl={track.audioUrl} // 确保使用 audioUrl
+                  duration={typeof track.duration === 'number' ? formatTime(track.duration) : track.duration} // 格式化 duration 以显示
                   isPlaying={tracks[currentTrackIndex]?.id === track.id} // 根据当前播放索引判断是否正在播放
                   onPlayPause={handlePlayPauseFromCard} // 传递完整的 track 对象
                   onLikeToggle={handleLikeToggle}
@@ -470,6 +471,7 @@ export default function Home() {
                 <MusicCard
                   {...track} // 传递所有 track 属性
                   audioUrl={track.audioUrl} // 确保使用 audioUrl
+                  duration={typeof track.duration === 'number' ? formatTime(track.duration) : track.duration} // 格式化 duration 以显示
                   isPlaying={tracks[currentTrackIndex]?.id === track.id} // 根据当前播放索引判断是否正在播放
                   onPlayPause={handlePlayPauseFromCard} // 传递完整的 track 对象
                   onLikeToggle={handleLikeToggle}
