@@ -1,5 +1,3 @@
-// src/app/page.tsx
-
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -8,8 +6,9 @@ import NavbarComponent from '@/components/Navbar';
 import MusicPlayer from '@/components/MusicPlayer';
 import MusicCard from '@/components/MusicCard';
 import Carousel from '@/components/Carousel';
+import GenreCircles from '@/components/GenreCircles'; // 导入新增的 GenreCircles 组件
 import { Track, CarouselSlide, Translations } from '@/types';
-import { formatTime } from '@/utils/formatTime'; // 导入 formatTime 函数
+// 移除了 formatTime 的导入，因为 MusicCard 和 MusicPlayer 内部现在处理格式化
 
 export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -18,11 +17,11 @@ export default function Home() {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(false); // 新增状态以控制播放列表显示
 
-  // Example carousel slides (replace with dynamic data from your backend if needed)
+  // 示例轮播图幻灯片 (根据需要替换为来自后端动态数据)
   const carouselSlides: CarouselSlide[] = [
     {
       id: 'slide1',
-      imageUrl: '/images/hero-bg.jpg', // Placeholder image
+      imageUrl: '/images/hero-bg.jpg', // 占位符图片
       title: '发现新节奏',
       description: '探索缅甸和全球最新最热的DJ音乐。',
       link: '#',
@@ -30,7 +29,7 @@ export default function Home() {
     },
     {
       id: 'slide2',
-      imageUrl: '/images/artist-profile.jpg', // Placeholder image
+      imageUrl: '/images/artist-profile.jpg', // 占位符图片
       title: '与顶级DJ互动',
       description: '关注你最爱的艺术家，获取独家内容。',
       link: '#',
@@ -38,7 +37,7 @@ export default function Home() {
     },
     {
       id: 'slide3',
-      imageUrl: '/images/live-event.jpg', // Placeholder image
+      imageUrl: '/images/live-event.jpg', // 占位符图片
       title: '参与直播派对',
       description: '加入实时音乐盛宴，与DJ和乐迷一同狂欢。',
       link: '#',
@@ -46,8 +45,18 @@ export default function Home() {
     },
   ];
 
+  // 示例音乐类型数据 (根据需要替换为来自后端动态数据)
+  const exampleGenres = [
+    { id: 'g1', name: 'EDM', imageUrl: '/images/genre-edm.jpg', link: '/genres/edm' },
+    { id: 'g2', name: 'Hip Hop', imageUrl: '/images/genre-hiphop.jpg', link: '/genres/hiphop' },
+    { id: 'g3', name: 'Pop', imageUrl: '/images/genre-pop.jpg', link: '/genres/pop' },
+    { id: 'g4', name: 'Trance', imageUrl: '/images/genre-trance.jpg', link: '/genres/trance' },
+    { id: 'g5', name: 'House', imageUrl: '/images/genre-house.jpg', link: '/genres/house' },
+    { id: 'g6', name: 'Techno', imageUrl: '/images/genre-techno.jpg', link: '/genres/techno' },
+  ];
+
   useEffect(() => {
-    // Load translations
+    // 加载翻译文件
     const loadTranslations = async () => {
       try {
         const response = await fetch(`/locales/${currentLang}/common.json`);
@@ -58,7 +67,7 @@ export default function Home() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations if fetch fails - MUST match Translations type
+        // 如果加载失败，使用备用翻译 - 必须与 Translations 类型匹配
         setTranslations({
           title: "缅甸DJ平台",
           nav: {
@@ -71,14 +80,17 @@ export default function Home() {
             login: "登录",
             register: "注册",
             logout: "退出",
-            rules: "规则"
+            rules: "规则",
+            radio: "电台", // 新增
+            charts: "排行榜" // 新增
           },
           home: {
-            heroTitle: "欢迎来到缅甸DJ平台",
-            heroSubtitle: "发现最棒的越南鼓DJ音乐",
+            heroTitle: "音乐流淌，品味非凡", // 更新 Hero Title
+            heroSubtitle: "发现缅甸和全球最新最热的DJ音乐，体验沉浸式听觉盛宴。", // 更新 Hero Subtitle
             featuredMusicTitle: "精选音乐",
             recentPlaysTitle: "热门趋势",
             topArtistsTitle: "热门艺术家",
+            isDj: "已认证",
             newReleasesTitle: "最新发布",
             viewAll: "查看全部"
           },
@@ -217,7 +229,7 @@ export default function Home() {
     loadTranslations();
   }, [currentLang]);
 
-  // Load example tracks (replace with data from your backend if needed)
+  // 加载示例曲目 (根据需要替换为来自后端动态数据)
   useEffect(() => {
     const exampleTracks: Track[] = [
       {
@@ -226,7 +238,7 @@ export default function Home() {
         artist: 'DJ Aung',
         coverImage: '/images/album-cover-1.jpg',
         audioUrl: '/audio/sample-1.mp3',
-        duration: 225, // '3:45' 转换为秒 (3 * 60 + 45 = 225)
+        duration: 225, // 秒数
         isLiked: false,
         likes: 123
       },
@@ -236,7 +248,7 @@ export default function Home() {
         artist: 'Burmese Beat',
         coverImage: '/images/album-cover-2.jpg',
         audioUrl: '/audio/sample-2.mp3',
-        duration: 250, // '4:10' 转换为秒 (4 * 60 + 10 = 250)
+        duration: 250, // 秒数
         isLiked: true,
         likes: 245
       },
@@ -246,7 +258,7 @@ export default function Home() {
         artist: 'MMRhythm',
         coverImage: '/images/album-cover-3.jpg',
         audioUrl: '/audio/sample-3.mp3',
-        duration: 180, // '3:00' 转换为秒 (3 * 60 = 180)
+        duration: 180, // 秒数
         isLiked: false,
         likes: 88
       },
@@ -256,7 +268,7 @@ export default function Home() {
         artist: 'DJ Thant',
         coverImage: '/images/album-cover-4.jpg',
         audioUrl: '/audio/sample-4.mp3',
-        duration: 320, // '5:20' 转换为秒 (5 * 60 + 20 = 320)
+        duration: 320, // 秒数
         isLiked: true,
         likes: 310
       },
@@ -266,7 +278,7 @@ export default function Home() {
         artist: 'Myanmar Melodies',
         coverImage: '/images/album-cover-5.jpg',
         audioUrl: '/audio/sample-5.mp3',
-        duration: 175, // '2:55' 转换为秒 (2 * 60 + 55 = 175)
+        duration: 175, // 秒数
         isLiked: false,
         likes: 70
       },
@@ -276,7 +288,7 @@ export default function Home() {
         artist: 'Rave Burma',
         coverImage: '/images/album-cover-6.jpg',
         audioUrl: '/audio/sample-6.mp3',
-        duration: 270, // '4:30' 转换为秒 (4 * 60 + 30 = 270)
+        duration: 270, // 秒数
         isLiked: true,
         likes: 199
       },
@@ -290,14 +302,21 @@ export default function Home() {
     setCurrentLang(lang);
   };
 
-  // MusicCard 的 onPlayPause 处理器，现在接收完整的 Track 对象
-  const handlePlayPauseFromCard = useCallback((trackToPlay: Track) => {
-    const trackIndex = tracks.findIndex(track => track.id === trackToPlay.id);
+  // MusicCard 的 onPlay 处理器
+  const handlePlayFromCard = useCallback((trackId: string) => {
+    const trackIndex = tracks.findIndex(track => track.id === trackId);
     if (trackIndex !== -1) {
       setCurrentTrackIndex(trackIndex);
-      // MusicPlayer 内部会处理播放/暂停逻辑，这里只需要设置索引
+      // MusicPlayer 内部会处理播放逻辑
     }
   }, [tracks]);
+
+  // MusicCard 的 onPause 处理器
+  const handlePauseFromCard = useCallback((trackId: string) => {
+    // 暂停逻辑通常由 MusicPlayer 内部管理，这里可以留空或传递给 MusicPlayer
+    // 如果 MusicPlayer 暴露了暂停方法，可以在这里调用
+    // 例如：audioRef.current?.pause();
+  }, []);
 
   const handleLikeToggle = useCallback((id: string) => {
     setTracks(prevTracks =>
@@ -308,8 +327,9 @@ export default function Home() {
   }, []);
 
   const handleShare = useCallback((id: string) => {
-    alert(`Share functionality for track ${id}`);
-    // Implement actual share logic here
+    // 替换 alert 为更友好的 UI 提示
+    console.log(`Share functionality for track ${id}`);
+    // 实现实际的分享逻辑
   }, []);
 
   // 如果 translations 或 tracks 尚未加载，显示加载状态
@@ -353,44 +373,62 @@ export default function Home() {
         translations={translations}
       />
 
-      <main className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white pt-16 md:pt-20 pb-24"> {/* Added pb-24 for player */}
+      <main className="min-h-screen text-white pt-16 md:pt-20 pb-24"> {/* 移除了背景渐变，由 body 统一控制 */}
         {/* Hero Section */}
         <motion.section
-          className="relative h-96 bg-cover bg-center flex items-center justify-center text-center p-4"
-          style={{ backgroundImage: 'url(/images/hero-bg.jpg)' }} // Replace with a dynamic hero image
+          className="hero-section" // 使用 globals.css 中定义的 hero-section 样式
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-60"></div>
-          <div className="relative z-10">
+          <div className="hero-background"></div> {/* 使用 globals.css 中定义的 hero-background 样式 */}
+          <div className="hero-content"> {/* 使用 globals.css 中定义的 hero-content 样式 */}
             <motion.h1
-              className="text-5xl font-extrabold text-white mb-4 drop-shadow-lg"
+              className="hero-title" // 使用 globals.css 中定义的 hero-title 样式
               initial={{ y: -50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              {translations.home.heroTitle}
+              <span className="hero-title-gradient"> {/* 使用 globals.css 中定义的 hero-title-gradient 样式 */}
+                {translations.home.heroTitle}
+              </span>
             </motion.h1>
             <motion.p
-              className="text-xl text-gray-200 drop-shadow-md max-w-2xl mx-auto"
+              className="hero-subtitle" // 使用 globals.css 中定义的 hero-subtitle 样式
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
             >
               {translations.home.heroSubtitle}
             </motion.p>
-            <motion.button
-              className="mt-8 px-8 py-3 rounded-full text-lg font-semibold neon-button"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <motion.div
+              className="hero-buttons" // 使用 globals.css 中定义的 hero-buttons 样式
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9, duration: 0.8 }}
             >
-              {translations.home.viewAll}
-            </motion.button>
+              <button
+                className="btn-primary" // 使用 globals.css 中定义的 btn-primary 样式
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {translations.home.viewAll}
+              </button>
+              <button
+                className="btn-secondary" // 使用 globals.css 中定义的 btn-secondary 样式
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {translations.common.search}
+              </button>
+            </motion.div>
           </div>
         </motion.section>
 
-        {/* Carousel Section */}
+        {/* 音乐类型圆形展示区域 */}
+        <GenreCircles genres={exampleGenres} title="探索音乐类型" /> {/* 引入 GenreCircles 组件 */}
+
+        {/* Carousel Section (保持不变，但确保样式与新主题兼容) */}
         <motion.section
           className="py-12 px-4 sm:px-6 lg:px-8"
           initial="hidden"
@@ -400,15 +438,14 @@ export default function Home() {
           <Carousel slides={carouselSlides} />
         </motion.section>
 
-
         {/* Featured Music Section */}
         <motion.section
-          className="py-12 px-4 sm:px-6 lg:px-8"
+          className="py-12 px-4 sm:px-6 lg:px-8" // 移除了 bg-gray-900，由 body 统一控制
           initial="hidden"
           animate="visible"
           variants={sectionVariants}
         >
-          <h2 className="text-3xl font-bold text-center text-primary mb-8">
+          <h2 className="text-3xl font-bold text-center gradient-text mb-8"> {/* 使用 gradient-text 样式 */}
             {translations.home.featuredMusicTitle}
           </h2>
           <motion.div
@@ -425,35 +462,36 @@ export default function Home() {
               <motion.div key={track.id} variants={itemVariants}>
                 <MusicCard
                   {...track} // 传递所有 track 属性
-                  audioUrl={track.audioUrl} // 确保使用 audioUrl
-                  duration={typeof track.duration === 'number' ? formatTime(track.duration) : track.duration} // 格式化 duration 以显示
-                  isPlaying={tracks[currentTrackIndex]?.id === track.id} // 根据当前播放索引判断是否正在播放
-                  onPlayPause={handlePlayPauseFromCard} // 传递完整的 track 对象
-                  onLikeToggle={handleLikeToggle}
+                  // MusicCard 现在直接接收 number 类型的 duration
+                  // isPlaying 逻辑保持不变
+                  isPlaying={tracks[currentTrackIndex]?.id === track.id}
+                  onPlay={handlePlayFromCard} // 修改为 onPlay
+                  onPause={handlePauseFromCard} // 修改为 onPause
+                  onLike={handleLikeToggle} // 修改为 onLike
                   onShare={handleShare}
                 />
               </motion.div>
             ))}
           </motion.div>
           <div className="text-center mt-12">
-            <motion.button
-              className="px-8 py-3 rounded-full text-lg font-semibold neon-button"
+            <button
+              className="btn-primary" // 使用 globals.css 中定义的 btn-primary 样式
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               {translations.home.viewAll}
-            </motion.button>
+            </button>
           </div>
         </motion.section>
 
         {/* Trending Music Section */}
         <motion.section
-          className="py-12 px-4 sm:px-6 lg:px-8 bg-gray-900"
+          className="py-12 px-4 sm:px-6 lg:px-8" // 移除了 bg-gray-900，由 body 统一控制
           initial="hidden"
           animate="visible"
           variants={sectionVariants}
         >
-          <h2 className="text-3xl font-bold text-center text-primary mb-8">
+          <h2 className="text-3xl font-bold text-center gradient-text mb-8"> {/* 使用 gradient-text 样式 */}
             {translations.home.recentPlaysTitle}
           </h2>
           <motion.div
@@ -470,29 +508,30 @@ export default function Home() {
               <motion.div key={track.id} variants={itemVariants}>
                 <MusicCard
                   {...track} // 传递所有 track 属性
-                  audioUrl={track.audioUrl} // 确保使用 audioUrl
-                  duration={typeof track.duration === 'number' ? formatTime(track.duration) : track.duration} // 格式化 duration 以显示
-                  isPlaying={tracks[currentTrackIndex]?.id === track.id} // 根据当前播放索引判断是否正在播放
-                  onPlayPause={handlePlayPauseFromCard} // 传递完整的 track 对象
-                  onLikeToggle={handleLikeToggle}
+                  // MusicCard 现在直接接收 number 类型的 duration
+                  // isPlaying 逻辑保持不变
+                  isPlaying={tracks[currentTrackIndex]?.id === track.id}
+                  onPlay={handlePlayFromCard} // 修改为 onPlay
+                  onPause={handlePauseFromCard} // 修改为 onPause
+                  onLike={handleLikeToggle} // 修改为 onLike
                   onShare={handleShare}
                 />
               </motion.div>
             ))}
           </motion.div>
           <div className="text-center mt-12">
-            <motion.button
-              className="px-8 py-3 rounded-full text-lg font-semibold neon-button"
+            <button
+              className="btn-primary" // 使用 globals.css 中定义的 btn-primary 样式
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               {translations.home.viewAll}
-            </motion.button>
+            </button>
           </div>
         </motion.section>
 
         {/* Music Player */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-gray-950 p-3 shadow-top-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-50"> {/* 移除了背景颜色和阴影，由 player-container 统一控制 */}
           {tracks.length > 0 && ( // 只有当有曲目时才渲染播放器
             <MusicPlayer
               tracks={tracks}
