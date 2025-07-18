@@ -1,31 +1,29 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, User, Music, Home, Trophy, Radio, FileText, Menu, X } from 'lucide-react'; // 导入 Lucide React 图标
+import { Search, User, Music, Home, Trophy, Radio, FileText, Menu, X } from 'lucide-react';
 import { NavbarProps, Language } from '@/types';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import MusicVisualizer from './MusicVisualizer'; // 导入 MusicVisualizer 组件
+import MusicVisualizer from './MusicVisualizer';
 
 const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange, translations }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false); // 控制桌面端语言下拉菜单
-  const menuRef = useRef<HTMLDivElement>(null); // 用于检测点击外部关闭菜单和下拉菜单
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // 检测移动端尺寸
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
 
-    handleResize(); // 设置初始值
+    handleResize();
     window.addEventListener('resize', handleResize);
 
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // 点击外部关闭菜单和语言下拉菜单
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -43,7 +41,7 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMenuOpen, showLanguageDropdown]); // 依赖 showLanguageDropdown
+  }, [isMenuOpen, showLanguageDropdown]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -51,13 +49,12 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
 
   const handleLanguageClick = (lang: Language) => {
     onLanguageChange(lang);
-    setShowLanguageDropdown(false); // 语言选择后关闭下拉菜单
+    setShowLanguageDropdown(false);
     if (isMobile) {
-      setIsMenuOpen(false); // 移动端语言选择后关闭侧边菜单
+      setIsMenuOpen(false);
     }
   };
 
-  // 获取当前语言的显示文本（如 '中', 'မြန်', 'EN'）
   const getCurrentLanguageDisplay = () => {
     switch (currentLang) {
       case 'zh': return '中';
@@ -67,13 +64,12 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
     }
   };
 
-  // 导航菜单项定义，使用 Lucide React 图标
   const menuItems = [
     {
       icon: Home,
       label: translations.nav.home,
       href: '/',
-      active: true // 假设主页默认激活
+      active: true
     },
     {
       icon: Music,
@@ -81,13 +77,13 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
       href: '/music'
     },
     {
-      icon: Radio, // 新增 Radio 图标
-      label: translations.nav.radio, // 对应 translations.nav.radio
+      icon: Radio,
+      label: translations.nav.radio,
       href: '/radio'
     },
     {
-      icon: Trophy, // 新增 Trophy 图标
-      label: translations.nav.charts, // 对应 translations.nav.charts
+      icon: Trophy,
+      label: translations.nav.charts,
       href: '/charts'
     },
     {
@@ -98,52 +94,46 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
   ];
 
   return (
-    <nav className="navbar-container"> {/* 使用 globals.css 中定义的样式 */}
+    <nav className="navbar-container">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
             <div className="relative">
               <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-cyan-500 rounded-lg flex items-center justify-center">
                 <Music className="text-white" size={20} />
               </div>
-              {/* Logo 旁的音乐可视化器 */}
               <div className="absolute -top-1 -right-1">
                 <MusicVisualizer isPlaying={true} size="xs" />
               </div>
             </div>
-            <span className="navbar-brand">BeatMM Pro</span> {/* 使用 globals.css 中定义的样式 */}
+            <span className="navbar-brand">BeatMM Pro</span>
           </Link>
 
-          {/* Desktop Menu */}
           {!isMobile && (
-            <div className="navbar-menu"> {/* 使用 globals.css 中定义的样式 */}
+            <div className="navbar-menu">
               {menuItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`navbar-link ${item.active ? 'active' : ''}`} {/* 使用 globals.css 中定义的样式 */}
+                  className={`navbar-link ${item.active ? 'active' : ''}`}
                 >
-                  <item.icon size={18} /> {/* Lucide React 图标 */}
+                  <item.icon size={18} />
                   {item.label}
                 </Link>
               ))}
             </div>
           )}
 
-          {/* Right Side - Search, Language, User Profile */}
           <div className="flex items-center gap-4">
-            {/* Search Button (Desktop & Mobile) */}
             <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
               <Search size={20} className="text-gray-300" />
             </button>
 
-            {/* Language Switcher (Desktop) */}
             {!isMobile && (
-              <div className="relative" ref={menuRef}> {/* 使用 menuRef 确保点击外部关闭 */}
+              <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setShowLanguageDropdown(!showLanguageDropdown)}
-                  className="language-button" {/* 使用 globals.css 中定义的样式 */}
+                  className="language-button"
                 >
                   {getCurrentLanguageDisplay()}
                 </button>
@@ -151,7 +141,7 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
                 <AnimatePresence>
                   {showLanguageDropdown && (
                     <motion.div
-                      className="language-dropdown" {/* 使用 globals.css 中定义的样式 */}
+                      className="language-dropdown"
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
@@ -159,19 +149,19 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
                     >
                       <button
                         onClick={() => handleLanguageClick('zh')}
-                        className={`language-option ${currentLang === 'zh' ? 'active' : ''}`} {/* 使用 globals.css 中定义的样式 */}
+                        className={`language-option ${currentLang === 'zh' ? 'active' : ''}`}
                       >
                         中文
                       </button>
                       <button
                         onClick={() => handleLanguageClick('en')}
-                        className={`language-option ${currentLang === 'en' ? 'active' : ''}`} {/* 新增英文选项 */}
+                        className={`language-option ${currentLang === 'en' ? 'active' : ''}`}
                       >
                         English
                       </button>
                       <button
                         onClick={() => handleLanguageClick('my')}
-                        className={`language-option ${currentLang === 'my' ? 'active' : ''}`} {/* 使用 globals.css 中定义的样式 */}
+                        className={`language-option ${currentLang === 'my' ? 'active' : ''}`}
                       >
                         မြန်မာ
                       </button>
@@ -181,28 +171,25 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
               </div>
             )}
 
-            {/* User Profile Button */}
             <Link href="/profile" className="p-2 rounded-lg hover:bg-white/10 transition-colors">
               <User size={20} className="text-gray-300" />
             </Link>
 
-            {/* Mobile Menu Button (Hamburger/Close icon) */}
             {isMobile && (
               <button
                 onClick={toggleMenu}
                 className="p-2 rounded-lg hover:bg-white/10 transition-colors"
               >
-                {isMenuOpen ? <X size={20} /> : <Menu size={20} />} {/* 根据菜单状态切换图标 */}
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
             )}
           </div>
         </div>
 
-        {/* Mobile Menu Overlay */}
         <AnimatePresence>
           {isMobile && isMenuOpen && (
             <motion.div
-              className="md:hidden fixed top-0 right-0 w-64 h-full shadow-2xl p-6 z-50 overflow-y-auto navbar-container" // 移动端菜单也使用 navbar-container 样式
+              className="md:hidden fixed top-0 right-0 w-64 h-full shadow-2xl p-6 z-50 overflow-y-auto navbar-container"
               initial={{ opacity: 0, x: '100%' }}
               animate={{ opacity: 1, x: '0%' }}
               exit={{ opacity: 0, x: '100%' }}
@@ -213,7 +200,6 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
                   <X size={24} className="text-white" />
                 </button>
               </div>
-              {/* Mobile Search Bar (Inside menu) */}
               <div className="relative mb-6">
                 <input
                   type="text"
@@ -247,7 +233,6 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
                 </li>
               </ul>
 
-              {/* Language Selector Mobile (Inside menu) */}
               <div className="mt-8 pt-4 border-t border-gray-700">
                 <h3 className="text-lg font-bold text-white mb-3">语言 / Language</h3>
                 <div className="flex space-x-4">
