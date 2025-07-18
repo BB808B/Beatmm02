@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaPlay, FaHeart, FaRegHeart, FaSearch, FaVolumeUp, FaEllipsisH } from 'react-icons/fa';
+import { FaPlay, FaHeart, FaRegHeart, FaSearch, FaVolumeUp, FaEllipsisH, FaUser } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
 import FooterComponent from '@/components/Footer';
 import MusicPlayer from '@/components/MusicPlayer';
@@ -12,10 +12,10 @@ import { Translations } from '@/types';
 export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
-  const [currentTrack, setCurrentTrack] = useState(null);
+  const [currentTrack, setCurrentTrack] = useState<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<number>>(new Set());
-  const [volume, setVolume] = useState(80);
+  const [volume, setVolume] = useState(80); // 只保留一个音量状态
 
   // 模拟音乐数据
   const musicData = [
