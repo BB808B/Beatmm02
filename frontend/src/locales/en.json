@@ -1,0 +1,28 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "subscribe": "Subscribe Now",
+    "freeTrial": "Free Trial"
+  },
+  "navbar": {
+    "home": "Home",
+    "music": "Music",
+    "radio": "Radio",
+    "charts": "Charts",
+    "rules": "Rules"
+  },
+  "pricing": {
+    "title": "Choose Your Plan",
+    "basic": "Basic",
+    "premium": "Premium",
+    "vip": "VIP",
+    "month": "/month",
+    "features": {
+      "unlimited": "Unlimited streaming",
+      "hq": "High quality audio",
+      "offline": "Offline listening",
+      "exclusive": "Exclusive content",
+      "early": "Early access to new releases"
+    }
+  }
+}
