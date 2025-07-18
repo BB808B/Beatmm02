@@ -1,5 +1,3 @@
-// src/components/Navbar.tsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -64,14 +62,14 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
     { name: translations.nav.home, icon: FaHome, href: '/' },
     { name: translations.nav.music, icon: FaMusic, href: '/music' },
     { name: translations.nav.dj, icon: FaBroadcastTower, href: '/dj' },
-    { name: translations.nav.live, icon: FaTrophy, href: '/live' }, // Changed icon to FaTrophy for Live (assuming leaderboard/competition aspect)
-    { name: translations.nav.ranking, icon: FaTrophy, href: '/ranking' }, // FaTrophy for Ranking
+    { name: translations.nav.live, icon: FaTrophy, href: '/live' },
+    { name: translations.nav.ranking, icon: FaTrophy, href: '/ranking' },
     { name: translations.nav.profile, icon: FaUser, href: '/profile' },
-    { name: translations.nav.rules, icon: FaFileContract, href: '/rules' }, // Added Rules page
+    { name: translations.nav.rules, icon: FaFileContract, href: '/rules' },
   ];
 
   return (
-    <nav className="fixed w-full z-50 bg-gradient-to-r from-gray-900 to-black shadow-lg py-3 px-4 md:px-8">
+    <nav className="fixed w-full z-50 py-3 px-4 md:px-8 **navbar-glass**"> {/* 添加 navbar-glass 类  */}
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
@@ -84,9 +82,9 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
           <input
             type="text"
             placeholder={translations.common.search}
-            className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-dark border border-gray-700"
+            className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent border border-surface" // 调整焦点环和边框颜色
           />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary" /> {/* 调整图标颜色 */}
         </div>
 
         {/* Desktop Nav Items & User Actions */}
@@ -94,8 +92,10 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
           <ul className="flex space-x-6">
             {navItems.map((item) => (
               <li key={item.name}>
-                <Link href={item.href} className="text-gray-300 hover:text-primary-light flex items-center transition-colors duration-200 group">
-                  <item.icon className="mr-2 text-xl group-hover:text-primary" />
+                <Link href={item.href} className="text-text-secondary hover:text-primary flex items-center transition-colors duration-200 group relative
+                before:absolute before:bottom-0 before:left-0 before:w-0 before:h-0.5 before:bg-gradient-to-r from-primary to-secondary before:transition-all before:duration-300 before:ease-in-out
+                hover:before:w-full hover:before:right-0 hover:before:left-auto"> {/* 调整文字颜色，添加霓虹边框悬停效果  */}
+                  <item.icon className="mr-2 text-xl group-hover:text-primary" /> {/* 调整图标颜色 */}
                   <span className="text-lg font-medium">{item.name}</span>
                 </Link>
               </li>
@@ -103,36 +103,36 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
           </ul>
           {/* Language Selector Desktop */}
           <div className="relative group">
-            <button className="text-gray-300 hover:text-primary-light flex items-center transition-colors duration-200">
+            <button className="text-text-secondary hover:text-primary flex items-center transition-colors duration-200"> {/* 调整文字颜色 */}
               <span className="text-lg font-medium uppercase">{currentLang}</span>
               <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
               </svg>
             </button>
-            <div className="absolute right-0 mt-2 w-24 bg-gray-800 rounded-md shadow-lg py-1 hidden group-hover:block transition-all duration-200 ease-out transform origin-top-right">
+            <div className="absolute right-0 mt-2 w-24 bg-surface rounded-md shadow-lg py-1 hidden group-hover:block transition-all duration-200 ease-out transform origin-top-right border border-primary-dark"> {/* 调整背景、边框颜色  */}
               <button
                 onClick={() => handleLanguageClick('zh')}
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-primary-light w-full text-left"
+                className="block px-4 py-2 text-sm text-text-secondary hover:bg-primary-dark hover:text-white w-full text-left" // 调整文字颜色和悬停背景 
               >
                 中文
               </button>
               <button
                 onClick={() => handleLanguageClick('my')}
-                className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-primary-light w-full text-left"
+                className="block px-4 py-2 text-sm text-text-secondary hover:bg-primary-dark hover:text-white w-full text-left" // 调整文字颜色和悬停背景 
               >
                 Myanmar
               </button>
             </div>
           </div>
           {/* Login/Register (Placeholder) */}
-          <Link href="/login" className="px-5 py-2 rounded-full text-lg font-semibold neon-button">
+          <Link href="/login" className="px-5 py-2 rounded-full text-lg font-semibold neon-button"> {/* 确保 neon-button 类已定义在 globals.css 中  */}
             {translations.nav.login}
           </Link>
         </div>
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-4">
-          <button className="text-gray-300 text-2xl" onClick={toggleMenu}>
+          <button className="text-text text-2xl" onClick={toggleMenu}> {/* 调整按钮颜色 */}
             ☰
           </button>
         </div>
@@ -147,10 +147,10 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
             animate="visible"
             exit="exit"
             variants={menuVariants}
-            className="fixed top-0 right-0 w-64 h-full bg-gradient-to-b from-gray-900 to-black shadow-2xl p-6 md:hidden z-50 overflow-y-auto"
+            className="fixed top-0 right-0 w-64 h-full bg-surface shadow-2xl p-6 md:hidden z-50 overflow-y-auto **navbar-glass**" // 调整背景，添加 navbar-glass 类 
           >
             <div className="flex justify-end mb-6">
-              <button onClick={toggleMenu} className="text-gray-300 text-3xl">
+              <button onClick={toggleMenu} className="text-text text-3xl"> {/* 调整按钮颜色 */}
                 <FaTimes />
               </button>
             </div>
@@ -159,35 +159,35 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
               <input
                 type="text"
                 placeholder={translations.common.search}
-                className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-dark border border-gray-700"
+                className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent border border-surface" // 调整焦点环和边框颜色
               />
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-secondary" /> {/* 调整图标颜色 */}
             </div>
 
             <ul className="space-y-4">
               {navItems.map((item) => (
                 <li key={item.name}>
-                  <Link href={item.href} onClick={toggleMenu} className="text-gray-300 hover:text-primary-light flex items-center py-2 text-xl font-medium transition-colors duration-200">
+                  <Link href={item.href} onClick={toggleMenu} className="text-text-secondary hover:text-primary flex items-center py-2 text-xl font-medium transition-colors duration-200"> {/* 调整文字颜色 */}
                     <item.icon className="mr-3 text-2xl" />
                     {item.name}
                   </Link>
                 </li>
               ))}
-              <li className="pt-4 border-t border-gray-700 mt-4">
-                <Link href="/login" onClick={toggleMenu} className="block px-4 py-2 rounded-full text-xl font-semibold neon-button text-center">
+              <li className="pt-4 border-t border-surface mt-4"> {/* 调整边框颜色 */}
+                <Link href="/login" onClick={toggleMenu} className="block px-4 py-2 rounded-full text-xl font-semibold neon-button text-center"> {/* 确保 neon-button 类已定义  */}
                   {translations.nav.login}
                 </Link>
               </li>
             </ul>
 
             {/* Language Selector Mobile */}
-            <div className="mt-8 pt-4 border-t border-gray-700">
-              <h3 className="text-lg font-bold text-white mb-3">语言 / Language</h3>
+            <div className="mt-8 pt-4 border-t border-surface"> {/* 调整边框颜色 */}
+              <h3 className="text-lg font-bold text-text mb-3">语言 / Language</h3> {/* 调整文字颜色 */}
               <div className="flex space-x-4">
                 <button
                   onClick={() => handleLanguageClick('zh')}
                   className={`px-4 py-2 rounded-lg text-lg font-medium transition-colors duration-200 ${
-                    currentLang === 'zh' ? 'bg-primary text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    currentLang === 'zh' ? 'bg-primary text-white' : 'bg-surface text-text-secondary hover:bg-primary-dark' // 调整背景和悬停效果 
                   }`}
                 >
                   中文
@@ -195,7 +195,7 @@ const NavbarComponent: React.FC<NavbarProps> = ({ currentLang, onLanguageChange,
                 <button
                   onClick={() => handleLanguageClick('my')}
                   className={`px-4 py-2 rounded-lg text-lg font-medium transition-colors duration-200 ${
-                    currentLang === 'my' ? 'bg-primary text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    currentLang === 'my' ? 'bg-primary text-white' : 'bg-surface text-text-secondary hover:bg-primary-dark' // 调整背景和悬停效果 
                   }`}
                 >
                   Myanmar
