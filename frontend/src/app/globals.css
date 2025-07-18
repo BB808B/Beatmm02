@@ -6,32 +6,44 @@
 /* === 霓虹主题变量 === */
 :root {
   /* 主色调 */
-  --primary: #6a11cb;
-  --secondary: #2575fc;
-  --accent: #ff2d75;
-  --success: #00ff9d;
-  
-  /* 背景与文本 */
-  --glass-bg: rgba(30, 30, 46, 0.6);
-  --text-light: rgba(255, 255, 255, 0.9);
-  
+  --primary: #8b5cf6; /* 紫色 (来自报告) */
+  --accent: #ec4899; /* 粉色 (来自报告) */
+  --success: #00ff9d; /* 成功色 */
+
+  /* 新增主题变量，用于 Tailwind 映射和统一颜色 */
+  --background: #0f0c29; /* 深色背景，与 body 渐变起始色匹配 */
+  --surface: #1a1a2e; /* 用于卡片、输入框等元素的深色背景 */
+  --text: rgba(255, 255, 255, 0.9); /* 主文本颜色 */
+  --text-secondary: rgba(255, 255, 255, 0.6); /* 次要文本颜色 */
+  --primary-dark: #6c43b9; /* primary 的深色变体，用于悬停等 */
+
+  /* 玻璃拟态背景 */
+  --glass-bg: rgba(30, 30, 46, 0.6); /* 半透明深色背景 */
+
   /* 霓虹效果 */
-  --neon-glow: 0 0 10px rgba(106, 17, 203, 0.7), 
-               0 0 20px rgba(37, 117, 252, 0.5);
-  --neon-text-glow: 0 0 5px rgba(106, 17, 203, 0.5),
-                    0 0 10px rgba(37, 117, 252, 0.3),
-                    0 0 15px rgba(255, 45, 117, 0.2);
+  --neon-glow: 0 0 10px var(--primary),
+                0 0 20px var(--accent); /* 更新为使用 primary 和 accent */
+  --neon-text-glow: 0 0 5px var(--primary),
+                    0 0 10px rgba(var(--accent-rgb), 0.3), /* 可以根据需要定义 rgb 变量 */
+                    0 0 15px rgba(var(--accent-rgb), 0.2);
 }
+
+/* 辅助变量，用于 rgba() 函数，如果 Tailwind config.js 不支持直接使用 var() 在 rgba() 内 */
+/* 注意：Tailwind 通常可以直接使用 var()，这里只是为了演示，如果遇到问题可以考虑这种方法 */
+/* --primary-rgb: 139, 92, 246; */
+/* --accent-rgb: 236, 72, 153; */
+/* --success-rgb: 0, 255, 157; */
+
 
 /* === 基础样式 === */
 body {
-  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-  color: var(--text-light);
+  background: linear-gradient(135deg, var(--background), #302b63, #24243e); /* 使用 --background */
+  color: var(--text); /* 使用 --text */
   min-height: 100vh;
   overflow-x: hidden;
   margin: 0;
   padding: 0;
-  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif; /* 确保字体已加载或可用 */
   line-height: 1.6;
 }
 
@@ -40,8 +52,8 @@ body {
   text-shadow: var(--neon-text-glow);
 }
 
-/* === 霓虹按钮 === */
-.neon-btn {
+/* === 霓虹按钮 (原 neon-btn) === */
+.neon-button { /* 类名修改为 neon-button */
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -52,18 +64,36 @@ body {
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 0 10px rgba(106, 17, 203, 0.3);
+  box-shadow: 0 0 10px var(--primary); /* 使用 var(--primary) */
   font-family: 'Rajdhani', sans-serif;
   font-weight: 500;
+  /* 霓虹边框效果 */
+  &::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--primary), var(--accent), var(--primary)); /* 渐变边框 */
+    border-radius: 14px; /* 比按钮圆角大2px */
+    z-index: -1;
+    filter: blur(5px); /* 边框模糊 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 }
 
-.neon-btn:hover {
+.neon-button:hover {
   background: rgba(255, 255, 255, 0.15);
   transform: translateY(-3px);
-  box-shadow: 0 0 20px rgba(37, 117, 252, 0.5);
+  box-shadow: 0 0 20px var(--accent); /* 使用 var(--accent) */
+  &::before {
+    opacity: 1; /* 悬停时显示霓虹边框 */
+  }
 }
 
-.neon-btn:active {
+.neon-button:active {
   transform: translateY(1px);
 }
 
@@ -79,19 +109,19 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: white;
   transition: all 0.3s ease;
-  box-shadow: 0 0 8px rgba(106, 17, 203, 0.3);
+  box-shadow: 0 0 8px var(--primary); /* 使用 var(--primary) */
 }
 
 .neon-icon-btn:hover {
   background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 15px rgba(37, 117, 252, 0.5);
+  box-shadow: 0 0 15px var(--accent); /* 使用 var(--accent) */
   transform: translateY(-2px);
 }
 
 /* === 霓虹Logo效果 === */
 .neon-logo {
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  box-shadow: 0 0 15px var(--primary), 0 0 25px var(--accent);
+  background: linear-gradient(135deg, var(--primary), var(--accent)); /* 使用 var() */
+  box-shadow: 0 0 15px var(--primary), 0 0 25px var(--accent); /* 使用 var() */
   color: white;
 }
 
@@ -106,9 +136,9 @@ body {
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0.5); }
-  70% { box-shadow: 0 0 0 10px rgba(0, 255, 157, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(0, 255, 157, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0.5); } /* 可以考虑定义 --success-rgb */
+  70% { box-shadow: 0 0 0 10px rgba(var(--success-rgb), 0); }
+  100% { box-shadow: 0 0 0 0 rgba(var(--success-rgb), 0); }
 }
 
 /* === 玻璃拟态面板 === */
@@ -141,7 +171,7 @@ body {
   left: -2px;
   right: -2px;
   bottom: -2px;
-  background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
+  background: linear-gradient(45deg, var(--primary), var(--accent)); /* 移除 secondary，使用 primary 和 accent */
   border-radius: 22px; /* 比面板圆角大2px */
   z-index: -1;
   animation: borderAnimation 3s linear infinite;
@@ -156,13 +186,13 @@ body {
 .section-title {
   font-size: 1.8rem;
   margin-bottom: 20px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background: linear-gradient(90deg, var(--primary), var(--accent)); /* 使用 var() */
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   display: inline-block;
   font-weight: 700;
-  text-shadow: 0 0 5px rgba(106, 17, 203, 0.5);
+  text-shadow: 0 0 5px var(--primary); /* 使用 var(--primary) */
   font-family: 'Orbitron', sans-serif;
 }
 
@@ -181,20 +211,20 @@ body {
     padding: 15px;
     margin-bottom: 15px;
   }
-  
+
   .section-title {
     font-size: 1.5rem;
   }
-  
-  .neon-btn {
+
+  .neon-button { /* 类名修改为 neon-button */
     padding: 10px 15px;
     font-size: 0.9rem;
   }
-  
+
   .holographic-container {
     padding: 10px;
   }
-  
+
   .neon-icon-btn {
     width: 2rem;
     height: 2rem;
@@ -223,7 +253,7 @@ body {
 .info-value {
   font-size: 1.2rem;
   font-weight: 600;
-  color: var(--accent);
+  color: var(--accent); /* 使用 var(--accent) */
 }
 
 /* === 网格布局 === */
@@ -252,7 +282,7 @@ body {
 
 /* 移动端菜单 */
 .mobile-menu-glass {
-  background: rgba(20, 20, 35, 0.9);
+  background: var(--surface); /* 使用 --surface */
   backdrop-filter: blur(20px);
 }
 
@@ -271,8 +301,8 @@ body {
 }
 
 .neon-progress-bar {
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  box-shadow: 0 0 10px rgba(106, 17, 203, 0.5);
+  background: linear-gradient(90deg, var(--primary), var(--accent)); /* 使用 var() */
+  box-shadow: 0 0 10px var(--primary); /* 使用 var(--primary) */
 }
 
 /* 音量滑块 */
@@ -291,8 +321,8 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
+  background: var(--accent); /* 使用 var(--accent) */
+  box-shadow: 0 0 10px var(--accent); /* 使用 var(--accent) */
   cursor: pointer;
 }
 
@@ -300,8 +330,8 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
+  background: var(--accent); /* 使用 var(--accent) */
+  box-shadow: 0 0 10px var(--accent); /* 使用 var(--accent) */
   cursor: pointer;
 }
 
@@ -317,7 +347,7 @@ body {
 
 .music-card-glass:hover {
   transform: translateY(-8px);
-  box-shadow: 0 8px 30px rgba(106, 17, 203, 0.6);
+  box-shadow: 0 8px 30px var(--primary); /* 使用 var(--primary) */
 }
 
 /* === 轮播图 === */
@@ -350,22 +380,22 @@ body {
 
 /* === 表单元素 === */
 .neon-input {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface); /* 使用 --surface */
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 8px;
   padding: 12px 16px;
-  color: white;
+  color: var(--text); /* 使用 --text */
   transition: all 0.3s ease;
 }
 
 .neon-input:focus {
   outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 10px rgba(255, 45, 117, 0.5);
+  border-color: var(--accent); /* 使用 var(--accent) */
+  box-shadow: 0 0 10px var(--accent); /* 使用 var(--accent) */
 }
 
 .neon-input::placeholder {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary); /* 使用 --text-secondary */
 }
 
 /* === 工具类 === */
@@ -391,10 +421,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--primary), var(--accent));
+  background: linear-gradient(to bottom, var(--primary), var(--accent)); /* 使用 var() */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, var(--accent), var(--primary));
+  background: linear-gradient(to bottom, var(--accent), var(--primary)); /* 使用 var() */
 }
