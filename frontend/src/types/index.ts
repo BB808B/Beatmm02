@@ -131,7 +131,7 @@ export interface Translations {
     section3Item4Perm2: string;
     section3Item4Perm3: string;
     section3Item4Perm4: string;
-    section3Item5: string;
+    section3Item5: string; // 已经只保留一个了
     section3Item6: string;
     section3Item7: string;
     importantReminderTitle: string;
@@ -166,8 +166,8 @@ export interface Track {
   title: string;
   artist: string;
   coverImage: string;
-  audioSrc: string;
-  duration?: string;
+  audioUrl: string; // 将 audioSrc 统一为 audioUrl，与 MusicPlayer 内部使用匹配
+  duration: number; // 将 duration 改为 number 类型，MusicPlayer 内部需要秒数
   isLiked?: boolean;
   likes?: number;
 }
@@ -175,8 +175,33 @@ export interface Track {
 export interface CarouselSlide {
   id: string;
   imageUrl: string;
-  title?: string; // Make optional as not all usages might have it
-  description?: string; // Make optional
-  link?: string; // Make optional
-  altText: string; // Crucial for profile page's carousel usage
+  title?: string;
+  description?: string;
+  link?: string;
+  altText: string;
+}
+
+// MusicPlayer 组件的 props 接口
+// 它现在内部管理播放状态，只需要接收曲目列表和当前播放索引
+export interface MusicPlayerProps {
+  tracks: Track[];
+  onShowPlaylist: () => void; // 用于展示播放列表的函数
+  currentTrackIndex: number; // 当前播放曲目的索引
+  setCurrentTrackIndex: (index: number) => void; // 用于更新当前播放曲目索引的函数
+}
+
+// MusicCard 组件的 props 接口
+export interface MusicCardProps {
+  id: string;
+  title: string;
+  artist: string;
+  coverImage: string;
+  audioSrc: string; // MusicCard 仍然接收 audioSrc，因为它不直接处理播放，只显示信息
+  duration: string; // MusicCard 显示的 duration 仍然是字符串
+  isLiked: boolean;
+  likes?: number;
+  isPlaying: boolean; // MusicCard 需要知道是否正在播放，以显示正确按钮
+  onPlayPause: (trackId: string) => void; // 播放/暂停的事件处理器，告诉父组件要播放哪个歌曲
+  onLikeToggle: (trackId: string) => void;
+  onShare: (trackId: string) => void;
 }
