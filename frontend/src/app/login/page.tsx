@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FaUser, FaLock, FaSignInAlt } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // 确保从正确的路径导入 Translations 类型
+import { Translations } from '@/types';
 
 export default function LoginPage() {
   const [currentLang, setCurrentLang] = useState('zh');
@@ -29,9 +29,9 @@ export default function LoginPage() {
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
+        // 修复：添加缺失的 radio 和 charts 属性
         setTranslations({
-          title: "缅甸DJ平台", // 确保存在
+          title: "缅甸DJ平台",
           nav: {
             home: "首页",
             music: "音乐",
@@ -42,7 +42,9 @@ export default function LoginPage() {
             login: "登录",
             register: "注册",
             logout: "退出",
-            rules: "规则"
+            rules: "规则",
+            radio: "电台",       // 新增
+            charts: "排行榜"     // 新增
           },
           home: {
             heroTitle: "欢迎来到缅甸DJ平台",
@@ -52,7 +54,6 @@ export default function LoginPage() {
             topArtistsTitle: "热门艺术家",
             newReleasesTitle: "最新发布",
             viewAll: "查看全部"
-            // 注意：这里不再包含 'welcome', 'subtitle' 等，因为 HomeTranslations 接口已更新
           },
           auth: {
             loginTitle: "登录",
@@ -85,7 +86,6 @@ export default function LoginPage() {
             shuffle: "随机播放",
             repeat: "重复播放"
           },
-          // 修复：profile 属性的键名与 ProfileTranslations 接口完全匹配
           profile: {
             myProfile: "我的资料",
             editProfile: "编辑资料",
@@ -102,31 +102,16 @@ export default function LoginPage() {
             djStatus: "DJ状态：",
             notDj: "未认证",
             isDj: "已认证",
-            title: "个人资料设置", // 确保存在，并提供中文翻译
-            email: "邮箱", // 确保存在，并提供中文翻译
-            changePassword: "修改密码", // 确保存在，并提供中文翻译
-            currentPasswordPlaceholder: "当前密码", // 确保存在，并提供中文翻译
-            newPasswordPlaceholder: "新密码", // 确保存在，并提供中文翻译
-            confirmPasswordPlaceholder: "确认新密码", // 确保存在，并提供中文翻译
-            updateProfileButton: "更新资料", // 确保存在，并提供中文翻译
-            settings: "设置", // 确保存在，并提供中文翻译
-            darkMode: "深色模式", // 确保存在，并提供中文翻译
-            notifications: "通知" // 确保存在，并提供中文翻译
-          },
-          common: {
-            search: "搜索",
-            submit: "提交",
-            cancel: "取消",
-            confirm: "确认",
-            save: "保存",
-            edit: "编辑",
-            delete: "删除",
-            loading: "加载中...",
-            error: "错误",
-            success: "成功",
-            viewDetails: "查看详情",
-            on: "开启",
-            off: "关闭"
+            title: "个人资料设置",
+            email: "邮箱",
+            changePassword: "修改密码",
+            currentPasswordPlaceholder: "当前密码",
+            newPasswordPlaceholder: "新密码",
+            confirmPasswordPlaceholder: "确认新密码",
+            updateProfileButton: "更新资料",
+            settings: "设置",
+            darkMode: "深色模式",
+            notifications: "通知"
           },
           rulesPage: {
             title: "平台规则与条款",
@@ -182,6 +167,21 @@ export default function LoginPage() {
             deleteAccount: "删除账户",
             twoFactorAuth: "两步验证",
             activityLog: "活动日志"
+          },
+          common: {
+            search: "搜索",
+            submit: "提交",
+            cancel: "取消",
+            confirm: "确认",
+            save: "保存",
+            edit: "编辑",
+            delete: "删除",
+            loading: "加载中...",
+            error: "错误",
+            success: "成功",
+            viewDetails: "查看详情",
+            on: "开启",
+            off: "关闭"
           }
         });
       }
@@ -336,7 +336,7 @@ export default function LoginPage() {
             <p className="text-gray-300 mb-2">
               {translations.auth.forgotPassword}{' '}
               <a href="#" className="text-primary hover:underline transition-colors duration-200">
-                {translations.auth.confirmPassword} {/* 这里可能应该是一个链接文本，而不是confirmPassword */}
+                {translations.auth.confirmPassword}
               </a>
             </p>
             <p className="text-gray-300">
