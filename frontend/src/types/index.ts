@@ -166,8 +166,8 @@ export interface Track {
   title: string;
   artist: string;
   coverImage: string;
-  audioUrl: string; // 将 audioSrc 统一为 audioUrl，与 MusicPlayer 内部使用匹配
-  duration: number; // 将 duration 改为 number 类型，MusicPlayer 内部需要秒数
+  audioUrl: string; // 统一为 audioUrl，与 MusicPlayer 内部使用匹配
+  duration: number; // MusicPlayer 内部需要秒数，保持为 number 类型
   isLiked?: boolean;
   likes?: number;
 }
@@ -196,12 +196,12 @@ export interface MusicCardProps {
   title: string;
   artist: string;
   coverImage: string;
-  audioSrc: string; // MusicCard 仍然接收 audioSrc，因为它不直接处理播放，只显示信息
-  duration: string; // MusicCard 显示的 duration 仍然是字符串
+  // audioSrc: string; // MusicCard 不再需要 audioSrc，因为它不直接处理播放，只显示信息
+  duration: string; // MusicCard 显示的 duration 仍然是格式化后的字符串
   isLiked: boolean;
   likes?: number;
   isPlaying: boolean; // MusicCard 需要知道是否正在播放，以显示正确按钮
-  onPlayPause: (trackId: string) => void; // 播放/暂停的事件处理器，告诉父组件要播放哪个歌曲
+  onPlayPause: (track: Track) => void; // 播放/暂停的事件处理器，告诉父组件要播放哪个完整的 Track
   onLikeToggle: (trackId: string) => void;
   onShare: (trackId: string) => void;
 }
