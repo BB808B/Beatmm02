@@ -5,19 +5,12 @@
 import React, { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import { FaPlay, FaPause, FaStepBackward, FaStepForward, FaVolumeUp, FaVolumeMute, FaDownload } from 'react-icons/fa';
 import { RiPlayListFill } from 'react-icons/ri';
-import { MdOutlineLoop, MdOutlineShuffle } from 'react-icons/md'; // Import loop and shuffle icons
+import { MdOutlineLoop, MdOutlineShuffle } from 'react-icons/md';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import { formatTime } from '@/utils/formatTime';
-import { Track } from '@/types';
-
-interface MusicPlayerProps {
-  tracks: Track[];
-  onShowPlaylist: () => void;
-  currentTrackIndex: number;
-  setCurrentTrackIndex: (index: number) => void;
-}
+import { Track, MusicPlayerProps } from '@/types'; // 导入 MusicPlayerProps
 
 const MusicPlayer: React.FC<MusicPlayerProps> = ({
   tracks,
@@ -29,40 +22,73 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.7); // Default volume 70%
+  const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
-  const [previousVolume, setPreviousVolume] = useState(0.7); // Store volume before muting
+  const [previousVolume, setPreviousVolume] = useState(0.7);
   const [showVolumeControl, setShowVolumeControl] = useState(false);
-  const [loopMode, setLoopMode] = useState<'off' | 'track' | 'playlist'>('off'); // 'off', 'track', 'playlist'
+  const [loopMode, setLoopMode] = useState<'off' | 'track' | 'playlist'>('off');
   const [shuffleMode, setShuffleMode] = useState(false);
-  const [shuffledIndices, setShuffledIndices] = useState<number[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
+  // Initial shuffle indices when component mounts or tracks change
+  const [shuffledIndices, setShuffledIndices] = useState<number[]>(() => {
+    if (tracks.length === 0) return [];
+    const indices = Array.from({ length: tracks.length }, (_, i) => i);
+    // Fisher-Yates shuffle algorithm for initial random order
+    for (let i = indices.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+    return indices;
+  });
   const historyRef = useRef<number[]>([]); // Ref to store playback history
+  const [historyPointer, setHistoryPointer] = useState(-1); // Pointer for historyRef
 
   const currentTrack = tracks[currentTrackIndex];
 
-  // Initialize shuffled indices
+  // Update shuffled indices if tracks array length changes
   useEffect(() => {
     if (tracks.length > 0) {
-      setShuffledIndices(Array.from({ length: tracks.length }, (_, i) => i));
+      const indices = Array.from({ length: tracks.length }, (_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      setShuffledIndices(indices);
     }
   }, [tracks.length]);
 
   // Update audio source when currentTrack changes
   useEffect(() => {
     if (audioRef.current && currentTrack) {
-      audioRef.current.src = currentTrack.audioUrl;
+      audioRef.current.src = currentTrack.audioUrl; // 使用 audioUrl
       audioRef.current.load(); // Load the new track
+
+      // Add current track to history, limit history size
+      const newHistory = [...historyRef.current.slice(-99), currentTrackIndex];
+      historyRef.current = newHistory;
+      setHistoryPointer(newHistory.length - 1); // Update pointer to the end of history
+
       if (isPlaying) {
         audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      } else {
+        // If not playing, but a new track is selected, ensure it's ready to play
+        // e.g., if a track is clicked from a playlist when player is paused
+        setIsPlaying(false); // Ensure UI reflects paused state initially for new track if not auto-playing
       }
-      // Add current track to history
-      historyRef.current = [...historyRef.current.slice(-99), currentTrackIndex]; // Keep history limited
-      setHistoryIndex(historyRef.current.length - 1);
     }
-  }, [currentTrack, currentTrackIndex, isPlaying]);
+  }, [currentTrack, currentTrackIndex]); // isPlaying removed from dependencies to prevent re-triggering load when play/pause toggles
 
-  // Handle play/pause
+  // Effect to handle play/pause state change from external (e.g., MusicCard)
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying]); // Only respond to changes in isPlaying state
+
+  // Handle play/pause toggle
   const togglePlayPause = useCallback(() => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -78,13 +104,12 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const onTimeUpdate = useCallback(() => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
-      setDuration(audioRef.current.duration || 0);
     }
   }, []);
 
   // Handle track ending
   const onEnded = useCallback(() => {
-    setIsPlaying(false);
+    setIsPlaying(false); // Stop playing first
     if (loopMode === 'track') {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -92,7 +117,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         setIsPlaying(true);
       }
     } else {
-      playNextTrack();
+      playNextTrack(); // This will handle 'off' and 'playlist' loop modes
     }
   }, [loopMode, playNextTrack]);
 
@@ -100,11 +125,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const onLoadedMetadata = useCallback(() => {
     if (audioRef.current) {
       setDuration(audioRef.current.duration);
-      if (isPlaying) {
-        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      if (isPlaying) { // Only attempt to play if it was already in playing state
+        audioRef.current.play().catch(e => console.error("Error playing audio after metadata load:", e));
       }
     }
-  }, [isPlaying]);
+  }, [isPlaying]); // isPlaying is a dependency here because we decide to play based on its value
 
   // Attach/detach event listeners
   useEffect(() => {
@@ -150,7 +175,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
         audioRef.current.volume = previousVolume > 0 ? previousVolume : 0.7;
         setVolume(previousVolume > 0 ? previousVolume : 0.7);
       } else {
-        setPreviousVolume(volume); // Save current volume
+        setPreviousVolume(volume);
         audioRef.current.volume = 0;
         setVolume(0);
       }
@@ -162,55 +187,66 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const playNextTrack = useCallback(() => {
     if (tracks.length === 0) return;
 
-    let nextIndex = currentTrackIndex;
+    let nextIndex;
 
     if (shuffleMode && shuffledIndices.length > 0) {
-      const currentShuffledIndex = shuffledIndices.indexOf(currentTrackIndex);
-      if (currentShuffledIndex !== -1 && currentShuffledIndex < shuffledIndices.length - 1) {
-        nextIndex = shuffledIndices[currentShuffledIndex + 1];
+      const currentShuffledIdx = shuffledIndices.indexOf(currentTrackIndex);
+      if (currentShuffledIdx !== -1 && currentShuffledIdx < shuffledIndices.length - 1) {
+        nextIndex = shuffledIndices[currentShuffledIdx + 1];
       } else {
-        // Reshuffle or loop playlist
-        const newShuffledIndices = [...shuffledIndices];
-        for (let i = newShuffledIndices.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [newShuffledIndices[i], newShuffledIndices[j]] = [newShuffledIndices[j], newShuffledIndices[i]];
+        // Reached end of shuffled list, reshuffle or loop playlist
+        if (loopMode === 'playlist' || loopMode === 'off') { // If playlist loop or no loop, reshuffle
+          const newShuffled = Array.from({ length: tracks.length }, (_, i) => i);
+          for (let i = newShuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newShuffled[i], newShuffled[j]] = [newShuffled[j], newShuffled[i]];
+          }
+          setShuffledIndices(newShuffled);
+          nextIndex = newShuffled[0];
+          if (loopMode === 'off' && currentTrackIndex === newShuffled[newShuffled.length - 1]) {
+            setIsPlaying(false); // Stop if at end of shuffled list and not looping
+            setCurrentTime(0);
+            return;
+          }
+        } else { // Loop mode 'track' handled by onEnded, 'off' handled above
+            setIsPlaying(false);
+            setCurrentTime(0);
+            return;
         }
-        setShuffledIndices(newShuffledIndices);
-        nextIndex = newShuffledIndices[0]; // Start from the beginning of the new shuffled list
       }
     } else {
       nextIndex = (currentTrackIndex + 1) % tracks.length;
       if (nextIndex === 0 && loopMode === 'off') {
-        setIsPlaying(false); // Stop playing if at end of playlist and not looping
-        setCurrentTime(0); // Reset time for the next track
+        setIsPlaying(false);
+        setCurrentTime(0);
         return;
       }
     }
-
     setCurrentTrackIndex(nextIndex);
     setIsPlaying(true);
   }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, shuffleMode, shuffledIndices, loopMode]);
+
 
   // Play previous track
   const playPreviousTrack = useCallback(() => {
     if (tracks.length === 0) return;
 
-    if (currentTime > 3) { // If current track played for more than 3 seconds, restart it
+    if (currentTime > 3) {
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
       }
       setCurrentTime(0);
-    } else if (historyIndex > 0) { // Go back in history
-      const prevIndex = historyRef.current[historyIndex - 1];
-      setCurrentTrackIndex(prevIndex);
-      setHistoryIndex(prevIndex - 1); // Decrement history index
+    } else if (historyPointer > 0) { // Go back in history
+      const prevIndexInHistory = historyRef.current[historyPointer - 1];
+      setCurrentTrackIndex(prevIndexInHistory);
+      setHistoryPointer(historyPointer - 1); // Move history pointer back
       setIsPlaying(true);
-    } else { // Go to previous track in sequence
+    } else { // Go to previous track in sequence if no history or at start of history
       const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
       setCurrentTrackIndex(prevIndex);
       setIsPlaying(true);
     }
-  }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, currentTime, historyIndex]);
+  }, [currentTrackIndex, tracks.length, setCurrentTrackIndex, currentTime, historyPointer]);
 
   // Toggle loop mode
   const toggleLoopMode = useCallback(() => {
@@ -243,6 +279,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     );
   }
 
+  // Fallback for thumbnailUrl if not present
+  const trackCoverImage = currentTrack.coverImage || '/images/default-album-art.png';
+  // Fallback for album and artist if not present
+  const trackArtist = currentTrack.artist || 'Unknown Artist';
+  const trackTitle = currentTrack.title || 'Unknown Title';
+
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex flex-col sm:flex-row items-center justify-between shadow-2xl z-50 rounded-t-xl">
       <audio ref={audioRef} />
@@ -250,18 +293,18 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       {/* Track Info */}
       <div className="flex items-center w-full sm:w-1/3 mb-2 sm:mb-0">
         <Image
-          src={currentTrack.thumbnailUrl || '/images/default-album-art.png'}
-          alt={currentTrack.title}
+          src={trackCoverImage} // 使用处理过的 coverImage
+          alt={trackTitle} // 使用处理过的 title
           width={64}
           height={64}
           className="rounded-lg object-cover mr-4 shadow-md"
         />
         <div className="flex-1 min-w-0">
           <Link href={`/tracks/${currentTrack.id}`} className="text-lg font-bold truncate hover:text-primary transition-colors">
-            {currentTrack.title}
+            {trackTitle}
           </Link>
           <p className="text-sm text-gray-400 truncate">
-            {currentTrack.artist || 'Unknown Artist'} - {currentTrack.album || 'Unknown Album'}
+            {trackArtist}
           </p>
         </div>
       </div>
@@ -329,6 +372,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             value={currentTime}
             onChange={onSeek}
             className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer progress-bar"
+            style={{
+              background: `linear-gradient(to right, var(--primary-color) ${((currentTime / duration) * 100) || 0}%, #4B5563 ${((currentTime / duration) * 100) || 0}%)`
+            }}
           />
           <span className="text-xs text-gray-400">{formatTime(duration)}</span>
         </div>
@@ -338,7 +384,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       <div className="flex items-center justify-end w-full sm:w-1/3 space-x-4 mt-2 sm:mt-0 relative">
         <a
           href={currentTrack.audioUrl}
-          download={currentTrack.title}
+          download={`${currentTrack.title}.mp3`} // Ensure a proper filename
           className="text-gray-300 hover:text-white transition-colors duration-200"
           aria-label={`Download ${currentTrack.title}`}
         >
@@ -365,6 +411,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                 transition={{ duration: 0.2 }}
                 className="absolute bottom-full mb-2 -translate-x-1/2 left-1/2 p-2 bg-gray-700 rounded-lg shadow-xl flex items-center justify-center"
               >
+                {/* Vertical volume slider */}
                 <input
                   type="range"
                   min="0"
@@ -372,9 +419,10 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                   step="0.01"
                   value={volume}
                   onChange={onVolumeChange}
-                  // Removed 'orient="vertical"'
-                  className="w-2 h-24 bg-gray-700 rounded-lg appearance-none cursor-pointer volume-vertical [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg rotate-[-90deg] origin-center"
-                  style={{ width: '24px', height: '100px' }} // Manually set dimensions for vertical display
+                  className="w-24 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer transform rotate-[-90deg] origin-center
+                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
+                             [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg"
+                  style={{ '--primary-color': 'var(--tw-colors-primary)' } as React.CSSProperties} // Pass primary color via CSS var
                 />
               </motion.div>
             )}
