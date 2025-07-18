@@ -196,7 +196,7 @@ export interface MusicCardProps {
   title: string;
   artist: string;
   coverImage: string;
-  // audioSrc: string; // MusicCard 不再需要 audioSrc，因为它不直接处理播放，只显示信息
+  audioUrl: string; // **此行是新增的，解决 Vercel 报错**
   duration: string; // MusicCard 显示的 duration 仍然是格式化后的字符串
   isLiked: boolean;
   likes?: number;
