@@ -14,9 +14,6 @@ export default function Home() {
   const [currentLang, setCurrentLang] = useState('zh');
   const [translations, setTranslations] = useState<Translations | null>(null);
   const [tracks, setTracks] = useState<Track[]>([]);
-  // currentTrack 和相关播放状态（isPlaying, progress, duration, volume, isLooping, shuffleMode）
-  // 以及它们的 handle 函数都已移到 MusicPlayer 内部管理。
-  // page.tsx 现在只需要管理播放哪一首歌的索引
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [showPlaylist, setShowPlaylist] = useState(false); // 新增状态以控制播放列表显示
 
@@ -187,7 +184,7 @@ export default function Home() {
             section3Item4Perm3: "提现收入",
             section3Item4Perm4: "进入排行榜",
             section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。",
-            section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。", // 重复项，已修正
+            // section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。", // 重复项，已修正
             section3Item6: "每位 DJ 对其上传内容负全责，平台不承担任何侵权责任。",
             section3Item7: "鼓励创作越南鼓、缅甸风格、本地原创音乐作品。",
             importantReminderTitle: "重要提醒",
@@ -218,7 +215,6 @@ export default function Home() {
     };
 
     loadTranslations();
-    // 移除 audioRef 的初始化和事件监听，这些现在都在 MusicPlayer 组件内部管理了
   }, [currentLang]);
 
   // Load example tracks (replace with data from your backend if needed)
@@ -229,9 +225,8 @@ export default function Home() {
         title: 'Myanmar EDM Vibes',
         artist: 'DJ Aung',
         coverImage: '/images/album-cover-1.jpg',
-        audioSrc: '/audio/sample-1.mp3', // Make sure these paths are correct
-        audioUrl: '/audio/sample-1.mp3', // 确保有 audioUrl 属性，与 MusicPlayer 类型匹配
-        duration: '3:45', // 这里的 duration 是字符串，但 MusicPlayer 期望数字，稍后调整
+        audioUrl: '/audio/sample-1.mp3', // 统一使用 audioUrl
+        duration: '3:45',
         isLiked: false,
         likes: 123
       },
@@ -240,8 +235,7 @@ export default function Home() {
         title: 'Yangon Night Mix',
         artist: 'Burmese Beat',
         coverImage: '/images/album-cover-2.jpg',
-        audioSrc: '/audio/sample-2.mp3',
-        audioUrl: '/audio/sample-2.mp3',
+        audioUrl: '/audio/sample-2.mp3', // 统一使用 audioUrl
         duration: '4:10',
         isLiked: true,
         likes: 245
@@ -251,8 +245,7 @@ export default function Home() {
         title: 'Mandalay Fusion',
         artist: 'MMRhythm',
         coverImage: '/images/album-cover-3.jpg',
-        audioSrc: '/audio/sample-3.mp3',
-        audioUrl: '/audio/sample-3.mp3',
+        audioUrl: '/audio/sample-3.mp3', // 统一使用 audioUrl
         duration: '3:00',
         isLiked: false,
         likes: 88
@@ -262,8 +255,7 @@ export default function Home() {
         title: 'Inle Lake Trance',
         artist: 'DJ Thant',
         coverImage: '/images/album-cover-4.jpg',
-        audioSrc: '/audio/sample-4.mp3',
-        audioUrl: '/audio/sample-4.mp3',
+        audioUrl: '/audio/sample-4.mp3', // 统一使用 audioUrl
         duration: '5:20',
         isLiked: true,
         likes: 310
@@ -273,8 +265,7 @@ export default function Home() {
         title: 'Bagan Chillout',
         artist: 'Myanmar Melodies',
         coverImage: '/images/album-cover-5.jpg',
-        audioSrc: '/audio/sample-5.mp3',
-        audioUrl: '/audio/sample-5.mp3',
+        audioUrl: '/audio/sample-5.mp3', // 统一使用 audioUrl
         duration: '2:55',
         isLiked: false,
         likes: 70
@@ -284,8 +275,7 @@ export default function Home() {
         title: 'Golden Rock Groove',
         artist: 'Rave Burma',
         coverImage: '/images/album-cover-6.jpg',
-        audioSrc: '/audio/sample-6.mp3',
-        audioUrl: '/audio/sample-6.mp3',
+        audioUrl: '/audio/sample-6.mp3', // 统一使用 audioUrl
         duration: '4:30',
         isLiked: true,
         likes: 199
@@ -300,9 +290,9 @@ export default function Home() {
     setCurrentLang(lang);
   };
 
-  // MusicCard 的 onPlayPause 处理器，现在需要更新 currentTrackIndex
-  const handlePlayPauseFromCard = useCallback((trackId: string) => {
-    const trackIndex = tracks.findIndex(track => track.id === trackId);
+  // MusicCard 的 onPlayPause 处理器，现在接收完整的 Track 对象
+  const handlePlayPauseFromCard = useCallback((trackToPlay: Track) => {
+    const trackIndex = tracks.findIndex(track => track.id === trackToPlay.id);
     if (trackIndex !== -1) {
       setCurrentTrackIndex(trackIndex);
       // MusicPlayer 内部会处理播放/暂停逻辑，这里只需要设置索引
@@ -434,17 +424,10 @@ export default function Home() {
             {tracks.slice(0, 4).map((track) => ( // Display first 4 featured tracks
               <motion.div key={track.id} variants={itemVariants}>
                 <MusicCard
-                  id={track.id}
-                  title={track.title}
-                  artist={track.artist}
-                  coverImage={track.coverImage}
-                  audioSrc={track.audioSrc}
-                  duration={track.duration}
-                  isLiked={track.isLiked || false}
-                  likes={track.likes}
-                  // 移除 isPlaying prop，因为 MusicPlayer 内部管理播放状态
-                  // onPlayPause 更改为只设置 currentTrackIndex
-                  onPlayPause={handlePlayPauseFromCard}
+                  {...track} // 传递所有 track 属性
+                  audioUrl={track.audioUrl} // 确保使用 audioUrl
+                  isPlaying={tracks[currentTrackIndex]?.id === track.id} // 根据当前播放索引判断是否正在播放
+                  onPlayPause={handlePlayPauseFromCard} // 传递完整的 track 对象
                   onLikeToggle={handleLikeToggle}
                   onShare={handleShare}
                 />
@@ -485,17 +468,10 @@ export default function Home() {
             {tracks.slice(4, 8).map((track) => ( // Display next 4 trending tracks
               <motion.div key={track.id} variants={itemVariants}>
                 <MusicCard
-                  id={track.id}
-                  title={track.title}
-                  artist={track.artist}
-                  coverImage={track.coverImage}
-                  audioSrc={track.audioSrc}
-                  duration={track.duration}
-                  isLiked={track.isLiked || false}
-                  likes={track.likes}
-                  // 移除 isPlaying prop，因为 MusicPlayer 内部管理播放状态
-                  // onPlayPause 更改为只设置 currentTrackIndex
-                  onPlayPause={handlePlayPauseFromCard}
+                  {...track} // 传递所有 track 属性
+                  audioUrl={track.audioUrl} // 确保使用 audioUrl
+                  isPlaying={tracks[currentTrackIndex]?.id === track.id} // 根据当前播放索引判断是否正在播放
+                  onPlayPause={handlePlayPauseFromCard} // 传递完整的 track 对象
                   onLikeToggle={handleLikeToggle}
                   onShare={handleShare}
                 />
