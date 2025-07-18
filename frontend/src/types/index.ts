@@ -1,5 +1,3 @@
-// src/types/index.ts
-
 export interface NavbarProps {
   currentLang: string;
   onLanguageChange: (lang: string) => void;
@@ -19,6 +17,9 @@ export interface Translations {
     register: string;
     logout: string;
     rules: string;
+    // 新增 radio 和 charts，以匹配 Navbar.tsx 中的菜单项
+    radio: string;
+    charts: string;
   };
   home: {
     heroTitle: string;
@@ -131,7 +132,7 @@ export interface Translations {
     section3Item4Perm2: string;
     section3Item4Perm3: string;
     section3Item4Perm4: string;
-    section3Item5: string; // 已经只保留一个了
+    section3Item5: string;
     section3Item6: string;
     section3Item7: string;
     importantReminderTitle: string;
@@ -159,7 +160,8 @@ export interface Translations {
   };
 }
 
-export type Language = 'zh' | 'my';
+// 核心修改点：Language 类型新增 'en'
+export type Language = 'zh' | 'my' | 'en';
 
 export interface Track {
   id: string;
@@ -168,7 +170,7 @@ export interface Track {
   coverImage: string;
   audioUrl: string; // 统一为 audioUrl，与 MusicPlayer 内部使用匹配
   duration: number; // MusicPlayer 内部需要秒数，保持为 number 类型
-  isLiked?: boolean; // **这里已经是可选的了，保持不变**
+  isLiked?: boolean;
   likes?: number;
 }
 
@@ -182,7 +184,6 @@ export interface CarouselSlide {
 }
 
 // MusicPlayer 组件的 props 接口
-// 它现在内部管理播放状态，只需要接收曲目列表和当前播放索引
 export interface MusicPlayerProps {
   tracks: Track[];
   onShowPlaylist: () => void; // 用于展示播放列表的函数
@@ -191,17 +192,25 @@ export interface MusicPlayerProps {
 }
 
 // MusicCard 组件的 props 接口
+// 根据新的 MusicCard.tsx 定义，调整了 onPlayPause 为 onPlay 和 onPause
 export interface MusicCardProps {
   id: string;
   title: string;
   artist: string;
   coverImage: string;
   audioUrl: string;
-  duration: string;
-  isLiked?: boolean; // **修复点：将 isLiked 改为可选属性 (boolean | undefined)，添加 ? 符号**
+  duration: number; // MusicCard 现在也接收 number 类型的 duration，并在内部格式化
+  isLiked?: boolean;
   likes?: number;
+  isPlaying?: boolean; // isPlaying 变为可选，因为 MusicCard 内部有自己的 isHovered 状态
+  onPlay?: (trackId: string) => void; // 修改为 onPlay
+  onPause?: (trackId: string) => void; // 修改为 onPause
+  onLike?: (trackId: string) => void; // 修改为 onLike
+  onShare?: (trackId: string) => void; // 修改为 onShare
+}
+
+// 新增 MusicVisualizerProps
+export interface MusicVisualizerProps {
   isPlaying: boolean;
-  onPlayPause: (track: Track) => void;
-  onLikeToggle: (trackId: string) => void;
-  onShare: (trackId: string) => void;
+  size?: 'xs' | 'sm' | 'md' | 'lg';
 }
