@@ -5,6 +5,7 @@ export interface TranslationType {
     loading: string;
     subscribe: string;
     freeTrial: string;
+    popular: string;
   };
   navbar: {
     home: string;
@@ -12,6 +13,10 @@ export interface TranslationType {
     radio: string;
     charts: string;
     rules: string;
+  };
+  hero: {
+    title: string;
+    subtitle: string;
   };
   pricing: {
     title: string;
@@ -26,6 +31,7 @@ export interface TranslationType {
       exclusive: string;
       early: string;
     };
+    mostPopular: string;
   };
 }
 
