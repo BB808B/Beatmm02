@@ -4,18 +4,12 @@ import React from 'react';
 import Image from 'next/image';
 import { FaPlay, FaPause, FaHeart, FaShareAlt } from 'react-icons/fa';
 import { motion } from 'framer-motion';
+import { Track } from '@/types'; // 导入 Track 类型
 
-interface MusicCardProps {
-  id: string;
-  title: string;
-  artist: string;
-  coverImage: string;
-  audioSrc: string; // Add audioSrc here as it's needed for playing
-  duration?: string; // Optional duration
-  isLiked: boolean;
-  likes?: number;
+// 扩展 Track 类型，并添加 MusicCard 独有的 props
+interface MusicCardProps extends Track {
   isPlaying: boolean; // Indicates if this specific track is currently playing
-  onPlayPause: (trackId: string) => void;
+  onPlayPause: (track: Track) => void; // 传递整个 Track 对象以便 MusicPlayer 处理
   onLikeToggle: (trackId: string) => void;
   onShare: (trackId: string) => void;
 }
@@ -25,7 +19,7 @@ const MusicCard: React.FC<MusicCardProps> = ({
   title,
   artist,
   coverImage,
-  audioSrc,
+  audioUrl, // 将 audioSrc 重命名为 audioUrl，与 Track 类型保持一致
   duration,
   isLiked,
   likes,
@@ -34,6 +28,12 @@ const MusicCard: React.FC<MusicCardProps> = ({
   onLikeToggle,
   onShare,
 }) => {
+  // Fallback for coverImage if not present, and ensure correct property name
+  const cardCoverImage = coverImage || '/images/default-album-art.png';
+  // Fallback for title and artist if not present, and ensure correct property names
+  const cardArtist = artist || 'Unknown Artist';
+  const cardTitle = title || 'Unknown Title';
+
   return (
     <motion.div
       className="bg-gray-800 rounded-lg shadow-lg overflow-hidden relative cursor-pointer group neon-border-hover"
@@ -42,8 +42,8 @@ const MusicCard: React.FC<MusicCardProps> = ({
     >
       <div className="relative">
         <Image
-          src={coverImage}
-          alt={title}
+          src={cardCoverImage} // 使用处理过的 coverImage
+          alt={cardTitle} // 使用处理过的 title
           width={500}
           height={500}
           className="w-full h-auto object-cover rounded-t-lg transition-transform duration-300 group-hover:scale-105"
@@ -52,7 +52,8 @@ const MusicCard: React.FC<MusicCardProps> = ({
           <button
             onClick={(e) => {
               e.stopPropagation(); // Prevent card click
-              onPlayPause(id);
+              // 传递整个 Track 对象
+              onPlayPause({ id, title, artist, coverImage, audioUrl, duration, isLiked, likes });
             }}
             className="bg-primary text-white p-4 rounded-full text-2xl shadow-xl hover:bg-primary-dark transition-colors duration-200"
           >
@@ -61,8 +62,8 @@ const MusicCard: React.FC<MusicCardProps> = ({
         </div>
       </div>
       <div className="p-4">
-        <h3 className="text-xl font-semibold text-white mb-1 truncate">{title}</h3>
-        <p className="text-gray-400 text-sm truncate">{artist}</p>
+        <h3 className="text-xl font-semibold text-white mb-1 truncate">{cardTitle}</h3>
+        <p className="text-gray-400 text-sm truncate">{cardArtist}</p>
         <div className="flex justify-between items-center mt-3">
           <div className="flex items-center text-gray-400 text-sm">
             <span className="mr-2">{duration}</span>
