@@ -68,7 +68,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       setHistoryPointer(newHistory.length - 1); // Update pointer to the end of history
 
       if (isPlaying) {
-        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+        audioRef.current.play().catch(e => console.error("Error playing audio:", e, currentTrack));
       } else {
         // If not playing, but a new track is selected, ensure it's ready to play
         // e.g., if a track is clicked from a playlist when player is paused
@@ -194,8 +194,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       if (currentShuffledIdx !== -1 && currentShuffledIdx < shuffledIndices.length - 1) {
         nextIndex = shuffledIndices[currentShuffledIdx + 1];
       } else {
-        // Reached end of shuffled list, reshuffle or loop playlist
-        if (loopMode === 'playlist' || loopMode === 'off') { // If playlist loop or no loop, reshuffle
+        // Reached end of shuffled list.
+        if (loopMode === 'playlist') {
+          // If playlist loop, reshuffle and start from beginning of new shuffled list
           const newShuffled = Array.from({ length: tracks.length }, (_, i) => i);
           for (let i = newShuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -203,18 +204,15 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
           }
           setShuffledIndices(newShuffled);
           nextIndex = newShuffled[0];
-          if (loopMode === 'off' && currentTrackIndex === newShuffled[newShuffled.length - 1]) {
-            setIsPlaying(false); // Stop if at end of shuffled list and not looping
-            setCurrentTime(0);
-            return;
-          }
-        } else { // Loop mode 'track' handled by onEnded, 'off' handled above
-            setIsPlaying(false);
-            setCurrentTime(0);
-            return;
+        } else {
+          // If no loop or track loop (which is handled by onEnded for single track), stop
+          setIsPlaying(false);
+          setCurrentTime(0);
+          setCurrentTrackIndex(0); // Reset to first track in order
+          return;
         }
       }
-    } else {
+    } else { // Not in shuffle mode
       nextIndex = (currentTrackIndex + 1) % tracks.length;
       if (nextIndex === 0 && loopMode === 'off') {
         setIsPlaying(false);
@@ -231,15 +229,16 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const playPreviousTrack = useCallback(() => {
     if (tracks.length === 0) return;
 
-    if (currentTime > 3) {
+    if (currentTime > 3) { // If current track played for more than 3 seconds, restart it
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
       }
       setCurrentTime(0);
-    } else if (historyPointer > 0) { // Go back in history
+      setIsPlaying(true); // Keep playing
+    } else if (historyPointer > 0) { // Go back in history if available
       const prevIndexInHistory = historyRef.current[historyPointer - 1];
       setCurrentTrackIndex(prevIndexInHistory);
-      setHistoryPointer(historyPointer - 1); // Move history pointer back
+      setHistoryPointer(prevHistoryPointer => prevHistoryPointer - 1); // Move history pointer back
       setIsPlaying(true);
     } else { // Go to previous track in sequence if no history or at start of history
       const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
@@ -279,9 +278,9 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     );
   }
 
-  // Fallback for thumbnailUrl if not present
+  // Fallback for coverImage if not present, and ensure correct property name
   const trackCoverImage = currentTrack.coverImage || '/images/default-album-art.png';
-  // Fallback for album and artist if not present
+  // Fallback for title and artist if not present, and ensure correct property names
   const trackArtist = currentTrack.artist || 'Unknown Artist';
   const trackTitle = currentTrack.title || 'Unknown Title';
 
@@ -373,7 +372,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             onChange={onSeek}
             className="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer progress-bar"
             style={{
-              background: `linear-gradient(to right, var(--primary-color) ${((currentTime / duration) * 100) || 0}%, #4B5563 ${((currentTime / duration) * 100) || 0}%)`
+              // Use a CSS variable for the primary color to dynamically set progress bar fill
+              background: `linear-gradient(to right, var(--primary-color, #a855f7) ${((currentTime / duration) * 100) || 0}%, #4B5563 ${((currentTime / duration) * 100) || 0}%)`
             }}
           />
           <span className="text-xs text-gray-400">{formatTime(duration)}</span>
@@ -384,7 +384,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       <div className="flex items-center justify-end w-full sm:w-1/3 space-x-4 mt-2 sm:mt-0 relative">
         <a
           href={currentTrack.audioUrl}
-          download={`${currentTrack.title}.mp3`} // Ensure a proper filename
+          download={`${currentTrack.title}.mp3`} // Ensure a proper filename for download
           className="text-gray-300 hover:text-white transition-colors duration-200"
           aria-label={`Download ${currentTrack.title}`}
         >
@@ -419,7 +419,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
                   step="0.01"
                   value={volume}
                   onChange={onVolumeChange}
-                  className="w-24 h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer transform rotate-[-90deg] origin-center
+                  // Tailwind CSS classes for vertical slider styling
+                  className="w-2 h-24 bg-gray-600 rounded-lg appearance-none cursor-pointer transform rotate-[-90deg] origin-center
                              [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:shadow-lg
                              [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:shadow-lg"
                   style={{ '--primary-color': 'var(--tw-colors-primary)' } as React.CSSProperties} // Pass primary color via CSS var
