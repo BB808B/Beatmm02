@@ -22,13 +22,13 @@ export interface TranslationType {
     charts: string;
     rules: string;
     login: string;
-    // 支持扩展属性
     dj?: string;
     live?: string;
     ranking?: string;
     profile?: string;
     register?: string;
     logout?: string;
+    settings?: string; // Add settings property
   };
   hero: {
     title: string;
@@ -48,6 +48,55 @@ export interface TranslationType {
       early: string;
     };
     mostPopular: string;
+  };
+  // Add specific properties for other pages
+  login?: {
+    welcome: string;
+    phonePlaceholder: string;
+    passwordPlaceholder: string;
+    forgotPassword: string;
+    loginButton: string;
+    orLoginWith: string;
+    noAccount: string;
+    registerNow: string;
+    phoneOrPasswordError: string;
+    loginFailed: string;
+  };
+  profile?: {
+    musicLover: string;
+    collectedSongs: string;
+    playlists: string;
+    playTime: string;
+    myMusic: string;
+    favoriteSongs: string;
+    settings: string;
+    recommendedContent: string;
+    recentActivity: string;
+    played: string;
+    collected: string;
+    createdNewPlaylist: string;
+  };
+  rules?: {
+    title: string;
+    subtitle: string;
+    sections: {
+      title: string;
+      content: string[];
+    }[];
+    contactUs: string;
+    contactMessage: string;
+  };
+  settings?: { // New settings section
+    title: string;
+    subtitle: string;
+    appearance: string;
+    theme: string;
+    language: string;
+    accountManagement: string;
+    changePassword: string;
+    deleteAccount: string;
+    darkMode: string;
+    lightMode: string;
   };
   // 支持任意扩展属性
   [key: string]: any;
