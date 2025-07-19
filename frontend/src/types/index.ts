@@ -6,6 +6,7 @@ export interface TranslationType {
     subscribe: string;
     freeTrial: string;
     popular: string;
+    search: string;
   };
   navbar: {
     home: string;
@@ -13,6 +14,14 @@ export interface TranslationType {
     radio: string;
     charts: string;
     rules: string;
+  };
+  nav: {
+    home: string;
+    music: string;
+    radio: string;
+    charts: string;
+    rules: string;
+    login: string;
   };
   hero: {
     title: string;
@@ -35,18 +44,12 @@ export interface TranslationType {
   };
 }
 
+export type Translations = TranslationType;
+
 export interface NavbarProps {
   currentLang: Language;
   onLanguageChange: (lang: Language) => void;
-  translations: {
-    navbar: {
-      home: string;
-      music: string;
-      radio: string;
-      charts: string;
-      rules: string;
-    };
-  };
+  translations: TranslationType;
 }
 
 export interface MusicCardProps {
@@ -92,4 +95,11 @@ export interface MusicVisualizerProps {
 
 export interface PricingSectionProps {
   currentLang: Language;
+}
+
+export interface CarouselSlide {
+  id: string;
+  imageUrl: string;
+  altText: string;
+  link: string;
 }
