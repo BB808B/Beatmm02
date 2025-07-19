@@ -22,6 +22,13 @@ export interface TranslationType {
     charts: string;
     rules: string;
     login: string;
+    // 支持扩展属性
+    dj?: string;
+    live?: string;
+    ranking?: string;
+    profile?: string;
+    register?: string;
+    logout?: string;
   };
   hero: {
     title: string;
@@ -42,6 +49,8 @@ export interface TranslationType {
     };
     mostPopular: string;
   };
+  // 支持任意扩展属性
+  [key: string]: any;
 }
 
 export type Translations = TranslationType;
