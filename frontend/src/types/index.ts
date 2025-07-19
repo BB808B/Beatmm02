@@ -158,5 +158,6 @@ export interface CarouselSlide {
   imageUrl: string;
   altText: string;
   link: string;
-  title?: string; // 添加缺失的 title 属性，使其成为可选
+  title?: string;
+  description?: string; // 添加缺失的 description 属性，使其成为可选
 }
