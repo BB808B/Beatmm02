@@ -49,23 +49,27 @@ export default function Home() {
   const [translations, setTranslations] = useState<TranslationType | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [showPlayer, setShowPlayer] = useState(true);
+  const [showPlaylist, setShowPlaylist] = useState(false);
 
-  // 加载翻译
   useEffect(() => {
     const loadTranslations = async () => {
       try {
-        const langModule = await import(`@/locales/${currentLang}.json`);
-        setTranslations(langModule.default);
+        const response = await fetch(`/locales/${currentLang}.json`);
+        if (!response.ok) {
+          throw new Error('Failed to load translations');
+        }
+        const data = await response.json();
+        setTranslations(data);
       } catch (error) {
         console.error('加载翻译失败:', error);
-        // 提供默认翻译
+        // 提供完整的默认翻译
         setTranslations({
           common: { 
             loading: '加载中...',
             subscribe: '立即订阅',
             freeTrial: '免费试用',
-            popular: '最受欢迎'
+            popular: '最受欢迎',
+            search: '搜索'
           },
           navbar: {
             home: '首页',
@@ -73,6 +77,14 @@ export default function Home() {
             radio: '电台',
             charts: '排行榜',
             rules: '规则'
+          },
+          nav: {
+            home: '首页',
+            music: '音乐',
+            radio: '电台',
+            charts: '排行榜',
+            rules: '规则',
+            login: '登录'
           },
           hero: {
             title: 'BeatMM Pro',
@@ -100,145 +112,93 @@ export default function Home() {
     loadTranslations();
   }, [currentLang]);
 
-  // 处理播放/暂停
-  const handlePlay = (id: string) => {
-    const trackIndex = mockTracks.findIndex(track => track.id === id);
-    if (trackIndex !== -1) {
-      setCurrentTrackIndex(trackIndex);
+  const handlePlay = (trackId: string) => {
+    const index = mockTracks.findIndex(track => track.id === trackId);
+    if (index !== -1) {
+      setCurrentTrackIndex(index);
       setIsPlaying(true);
-      setShowPlayer(true);
     }
   };
 
-  const handlePause = (id: string) => {
+  const handlePause = () => {
     setIsPlaying(false);
   };
 
-  // 显示播放列表（示例函数）
-  const handleShowPlaylist = () => {
-    console.log('显示播放列表');
-  };
-
-  // 切换播放器显示
-  const togglePlayer = () => {
-    setShowPlayer(!showPlayer);
-  };
-
-  // 加载状态
   if (!translations) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        加载中...
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">加载中...</div>
       </div>
     );
   }
 
-  // 获取当前语言下的标题和副标题
-  const getHeroTitle = () => {
-    switch (currentLang) {
-      case 'zh': return 'BeatMM Pro';
-      case 'my': return 'BeatMM Pro';
-      case 'en': return 'BeatMM Pro';
-      default: return 'BeatMM Pro';
-    }
-  };
-
-  const getHeroSubtitle = () => {
-    switch (currentLang) {
-      case 'zh': return '缅甸领先的音乐流媒体平台，发现无尽音乐世界';
-      case 'my': return 'မြန်မာနိုင်ငံ၏ ထိပ်တန်း ဂီတဖြန့်ဖြူးရာဝန်ဆောင်မှု၊ ဂီတကမ္ဘာသစ်ကို ရှာဖွေပါ';
-      case 'en': return 'Myanmar\'s leading music streaming service. Discover a new world of music';
-      default: return 'Myanmar\'s leading music streaming service';
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen">
       <NavbarComponent 
         currentLang={currentLang} 
         onLanguageChange={setCurrentLang}
-        translations={{
-          navbar: translations.navbar
-        }} 
+        translations={translations}
       />
-
-      <main>
-        {/* 英雄区域 */}
-        <section className="hero-section relative overflow-hidden">
-          <div className="hero-background absolute inset-0"></div>
-          <div className="hero-content relative z-10 text-center py-32 px-4">
-            <h1 className="hero-title font-bold">
-              <span className="hero-title-gradient">{getHeroTitle()}</span>
-            </h1>
-            <p className="hero-subtitle max-w-2xl mx-auto">
-              {getHeroSubtitle()}
-            </p>
-            <div className="hero-buttons mt-8 flex justify-center gap-4">
-              <button className="btn-primary">
-                {translations.common.freeTrial}
-              </button>
-              <button className="btn-secondary">
-                {translations.common.subscribe}
-              </button>
-            </div>
+      
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-background"></div>
+        <div className="hero-content">
+          <h1 className="hero-title">
+            <span className="hero-title-gradient">{translations.hero.title}</span>
+          </h1>
+          <p className="hero-subtitle">
+            {translations.hero.subtitle}
+          </p>
+          <div className="hero-buttons">
+            <button className="btn-primary">
+              开始免费试用
+            </button>
+            <button className="btn-secondary">
+              了解更多
+            </button>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* 音乐类型展示 */}
-        <GenreCircles currentLang={currentLang} />
+      {/* Genre Circles */}
+      <GenreCircles currentLang={currentLang} />
 
-        {/* 热门音乐 */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12">
-              {currentLang === 'zh' 
-                ? '热门音乐' 
-                : currentLang === 'my' 
-                  ? 'လူကြိုက်အများဆုံးဂီတများ'
-                  : 'Popular Music'}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {mockTracks.map(track => (
-                <MusicCard
-                  key={track.id}
-                  id={track.id}
-                  title={track.title}
-                  artist={track.artist}
-                  coverImage={track.coverImage}
-                  audioUrl={track.audioUrl}
-                  duration={track.duration}
-                  isPlaying={isPlaying && currentTrackIndex === mockTracks.findIndex(t => t.id === track.id)}
-                  onPlay={handlePlay}
-                  onPause={handlePause}
-                />
-              ))}
-            </div>
+      {/* Music Cards */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold text-white text-center mb-12">
+            热门音乐
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {mockTracks.map((track) => (
+              <MusicCard
+                key={track.id}
+                id={track.id}
+                title={track.title}
+                artist={track.artist}
+                coverImage={track.coverImage}
+                audioUrl={track.audioUrl}
+                duration={track.duration}
+                isPlaying={isPlaying && currentTrackIndex === mockTracks.findIndex(t => t.id === track.id)}
+                onPlay={handlePlay}
+                onPause={handlePause}
+              />
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* 定价区域 */}
-        <PricingSection currentLang={currentLang} />
-      </main>
+      {/* Pricing Section */}
+      <PricingSection currentLang={currentLang} />
 
-      {/* 音乐播放器 - 只在有曲目时显示 */}
-      {mockTracks.length > 0 && showPlayer && (
-        <MusicPlayer
-          tracks={mockTracks}
-          onShowPlaylist={handleShowPlaylist}
-          currentTrackIndex={currentTrackIndex}
-          setCurrentTrackIndex={setCurrentTrackIndex}
-        />
-      )}
-
-      {/* 底部播放器切换按钮 */}
-      <div className="fixed bottom-4 right-4 z-50">
-        <button 
-          onClick={togglePlayer}
-          className="bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg"
-        >
-          {showPlayer ? '隐藏播放器' : '显示播放器'}
-        </button>
-      </div>
+      {/* Music Player */}
+      <MusicPlayer
+        tracks={mockTracks}
+        currentTrackIndex={currentTrackIndex}
+        setCurrentTrackIndex={setCurrentTrackIndex}
+        onShowPlaylist={() => setShowPlaylist(true)}
+      />
     </div>
   );
 }
