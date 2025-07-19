@@ -1,385 +1,240 @@
-// src/app/settings/page.tsx
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaMoon, FaSun, FaBell, FaShieldAlt, FaKey, FaTrash, FaUserEdit, FaEnvelope, FaLock, FaGlobe } from 'react-icons/fa'; // 导入更多图标
+import { FaPalette, FaLanguage, FaKey, FaTrash } from 'react-icons/fa';
 import NavbarComponent from '@/components/Navbar';
-import { Translations } from '@/types'; // 确保 Translations 类型被导入
+import { Language, TranslationType } from '@/types';
 
 export default function SettingsPage() {
-  const [currentLang, setCurrentLang] = useState('zh');
-  const [translations, setTranslations] = useState<Translations | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(false); // 新增状态：深色模式
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true); // 新增状态：通知
+  const [currentLang, setCurrentLang] = useState<Language>('zh');
+  const [translations, setTranslations] = useState<TranslationType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark'); // Assuming a default dark theme
 
   useEffect(() => {
-    // 假设从 localStorage 加载深色模式设置
-    const savedMode = localStorage.getItem('theme');
-    if (savedMode === 'dark') {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
+    // Load theme from localStorage if available
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      setTheme(savedTheme);
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
     } else {
-      setIsDarkMode(false);
-      document.documentElement.classList.remove('dark');
+      // Default to dark if no theme is saved
+      document.documentElement.classList.add('dark');
     }
 
     const loadTranslations = async () => {
       try {
-        const response = await fetch(`/locales/${currentLang}/common.json`);
+        const response = await fetch(`/locales/${currentLang}.json`);
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error('Failed to load translations');
         }
         const data = await response.json();
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // Fallback translations - 必须与 src/types/index.ts 的 Translations 类型完全匹配
+        // Fallback or default translations if loading fails
         setTranslations({
-          title: "缅甸DJ平台",
-          nav: {
-            home: "首页",
-            music: "音乐",
-            dj: "DJ",
-            live: "直播",
-            ranking: "排行榜",
-            profile: "个人中心",
-            login: "登录",
-            register: "注册",
-            logout: "退出",
-            rules: "规则"
-          },
-          home: {
-            heroTitle: "欢迎来到缅甸DJ平台", // 修正：将 'welcome' 改为 'heroTitle'
-            heroSubtitle: "发现最棒的越南鼓DJ音乐", // 修正：将 'subtitle' 改为 'heroSubtitle'
-            featuredMusicTitle: "精选音乐",   // 修正：将 'featured' 改为 'featuredMusicTitle'
-            recentPlaysTitle: "热门趋势",     // 修正：将 'trending' 改为 'recentPlaysTitle'
-            topArtistsTitle: "热门艺术家",
-            newReleasesTitle: "最新发布",
-            viewAll: "查看全部"
-          },
-          auth: {
-            loginTitle: "登录",
-            phone: "手机号码",
-            password: "密码",
-            confirmPassword: "确认密码",
-            loginButton: "登录",
-            registerButton: "注册",
-            forgotPassword: "忘记密码？",
-            noAccount: "没有账号？",
-            hasAccount: "已有账号？",
-            registerNow: "立即注册",
-            loginNow: "立即登录",
-            loginSuccess: "登录成功！",
-            loginError: "登录失败。",
-            phoneRequired: "手机号码不能为空",
-            passwordRequired: "密码不能为空",
-            confirmPasswordRequired: "请确认密码",
-            passwordMismatch: "密码不匹配",
-            registerSuccess: "注册成功！",
-            registerError: "注册失败。",
-            registerTitle: "注册"
-          },
-          player: {
-            play: "播放",
-            pause: "暂停",
-            next: "下一首",
-            previous: "上一首",
-            volume: "音量",
-            shuffle: "随机播放",
-            repeat: "重复播放"
-          },
-          profile: {
-            myProfile: "我的资料",
-            editProfile: "编辑资料",
-            myMusic: "我的音乐",
-            myWallet: "我的钱包",
-            balance: "余额",
-            recharge: "充值",
-            withdraw: "提现",
-            djApplication: "DJ认证申请",
-            logout: "退出登录",
-            phone: "手机号码",
-            username: "用户名",
-            greeting: "你好，{username}！",
-            djStatus: "DJ状态：",
-            notDj: "未认证",
-            isDj: "已认证",
-            title: "个人资料设置",
-            email: "邮箱",
-            changePassword: "修改密码",
-            currentPasswordPlaceholder: "当前密码",
-            newPasswordPlaceholder: "新密码",
-            confirmPasswordPlaceholder: "确认新密码",
-            updateProfileButton: "更新资料",
-            settings: "设置",
-            darkMode: "深色模式",
-            notifications: "通知"
-          },
           common: {
-            search: "搜索",
-            submit: "提交",
-            cancel: "取消",
-            confirm: "确认",
-            save: "保存",
-            edit: "编辑",
-            delete: "删除",
-            loading: "加载中...",
-            error: "错误",
-            success: "成功",
-            viewDetails: "查看详情",
-            on: "开启",
-            off: "关闭"
+            loading: '加载中...',
+            subscribe: '立即订阅',
+            freeTrial: '免费试用',
+            popular: '热门',
+            search: '搜索'
           },
-          rulesPage: {
-            title: "平台规则与条款",
-            subtitle: "为了维护平台秩序，保障用户权益，请仔细阅读以下规则与条款",
-            section1Title: "使用条款",
-            section1Item1: "BeatMM Pro 是面向缅甸用户的音乐分享与DJ社区平台，仅限合法、和平用途。",
-            section1Item2: "用户上传内容必须为本人原创或已获得授权。禁止盗用他人音乐、封面或介绍。",
-            section1Item3: "所有打赏行为为用户自愿，不支持打赏退款。平台提供技术服务并抽取服务费用。",
-            section1Item4: "用户在平台注册即表示同意遵守平台规则，如有违规行为，平台有权删除内容或封禁账号。",
-            section1Item5: "禁止上传或发布任何违法、色情、暴力、仇恨、政治相关内容。",
-            section1Item6: "本平台禁止用户私聊，仅允许与系统客服互动，以确保信息安全与合规。",
-            section1Item7: "提现前需提供真实收款信息。若提现账户与注册身份不一致，平台有权拒绝处理。",
-            section1Item8: "BeatMM Pro 保留最终解释权，并有权随时修改条款以适应本地法规或运营策略。",
-            section2Title: "打赏与提现规则",
-            section2Item1: "用户可通过 KPay、KBZ Banking 等方式进行账户充值，并用于打赏喜爱的 DJ。",
-            section2Item2: "打赏金额由用户自由选择，打赏一经确认，不可撤销、不可退款。",
-            section2Item3: "打赏收入将进入 DJ 的账户，平台将自动扣除 10% 技术服务费。",
-            section2Item4: "DJ 可在余额满 3,000 MMK 后申请提现。提现金额将通过 KPay/KBZ Banking 发放。",
-            section2Item5: "所有提现申请将在 24 小时内由管理员人工审核，需上传真实收款二维码。",
-            section2Item6: "提现账户必须与 DJ 账号绑定手机号一致，严禁使用他人账户或虚假资料。",
-            section2Item7: "若发现刷打赏、伪造截图、虚假交易等行为，将立即封禁账号，冻结余额。",
-            section3Title: "DJ认证规则",
-            section3Item1: "任何 BeatMM 用户均可在“申请成为DJ”页面提交申请，填写个人信息与上传音乐作品。",
-            section3Item2: "申请需提交：艺名、头像、至少一首原创音乐作品。",
-            section3Item3: "平台将于 1~2 个工作日内进行人工审核，主要审核内容包括：作品原创性、音质、是否违规。",
-            section3Item4Title: "DJ权限",
-            section3Item4Perm1: "上传音乐",
-            section3Item4Perm2: "查看数据",
-            section3Item4Perm3: "提现收入",
-            section3Item4Perm4: "进入排行榜",
-            section3Item5: "若 DJ 上传违反规定的内容，将撤销认证并永久封禁。",
-            section3Item6: "每位 DJ 对其上传内容负全责，平台不承担任何侵权责任。",
-            section3Item7: "鼓励创作越南鼓、缅甸风格、本地原创音乐作品。",
-            importantReminderTitle: "重要提醒",
-            importantReminderText1: "使用本平台即表示您已阅读、理解并同意遵守以上所有规则与条款。",
-            importantReminderText2: "平台致力于为用户提供安全、合规的音乐分享环境，共同维护良好的社区氛围。",
-            importantReminderText3: "如有疑问，请联系客服或查看帮助文档。"
+          navbar: {
+            home: '首页',
+            music: '音乐',
+            radio: '电台',
+            charts: '排行榜',
+            rules: '规则'
           },
-          settingsPage: {
-            title: "设置",
-            language: "语言",
-            theme: "主题",
-            notifications: "通知",
-            privacy: "隐私",
-            account: "账户",
-            security: "安全",
-            darkMode: "深色模式",
-            lightMode: "浅色模式",
-            pushNotifications: "推送通知",
-            emailNotifications: "邮件通知",
-            updateProfile: "更新资料",
-            changePassword: "修改密码",
-            deleteAccount: "删除账户",
-            twoFactorAuth: "两步验证",
-            activityLog: "活动日志"
+          nav: {
+            home: '首页',
+            music: '音乐',
+            radio: '电台',
+            charts: '排行榜',
+            rules: '规则',
+            login: '登录',
+            dj: 'DJ',
+            live: '直播',
+            ranking: '排名',
+            profile: '个人资料',
+            register: '注册',
+            logout: '登出',
+            settings: '设置'
+          },
+          hero: {
+            title: 'BeatMM Pro',
+            subtitle: '缅甸领先的音乐流媒体平台，发现无尽音乐世界'
+          },
+          pricing: {
+            title: '选择您的套餐',
+            basic: '基础套餐',
+            premium: '高级套餐',
+            vip: 'VIP套餐',
+            month: '月',
+            features: {
+              unlimited: '无限音乐流',
+              hq: '高品质音质',
+              offline: '离线收听',
+              exclusive: '独家内容',
+              early: '抢先体验新歌'
+            },
+            mostPopular: '最受欢迎'
+          },
+          settings: {
+            title: '设置',
+            subtitle: '个性化您的应用体验和管理您的账户。',
+            appearance: '外观',
+            theme: '主题',
+            language: '语言',
+            accountManagement: '账户管理',
+            changePassword: '更改密码',
+            deleteAccount: '删除账户',
+            darkMode: '深色模式',
+            lightMode: '浅色模式'
           }
         });
+      } finally {
+        setLoading(false);
       }
     };
 
     loadTranslations();
   }, [currentLang]);
 
-  const handleLanguageChange = (lang: string) => {
-    setCurrentLang(lang);
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    document.documentElement.classList.toggle('light', newTheme === 'light'); // Ensure light class is also toggled
   };
 
-  const toggleDarkMode = () => {
-    setIsDarkMode(prevMode => {
-      const newMode = !prevMode;
-      if (newMode) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
-      }
-      return newMode;
-    });
-  };
-
-  const toggleNotifications = () => {
-    setNotificationsEnabled(prev => !prev);
-    // 这里可以添加实际的通知设置保存逻辑
-  };
-
-  if (!translations) {
+  if (loading || !translations) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
-        Loading...
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white">加载中...</div>
       </div>
     );
   }
 
-  // 动画变体
-  const sectionVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut"
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.4,
-        ease: "easeOut"
-      }
-    }
-  };
+  const settingsContent = translations.settings;
 
   return (
-    <>
-      <NavbarComponent
-        currentLang={currentLang}
-        onLanguageChange={handleLanguageChange}
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900 text-white' : 'bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 text-gray-800'}`}>
+      <NavbarComponent 
+        currentLang={currentLang} 
+        onLanguageChange={setCurrentLang}
         translations={translations}
       />
-
-      <main className="bg-gradient-to-br from-gray-900 to-black min-h-screen text-white p-4 sm:p-6 lg:p-8">
-        <motion.section
-          className="text-center mb-8"
-          initial="hidden"
-          animate="visible"
-          variants={sectionVariants}
+      
+      <div className="container mx-auto px-4 py-8 pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className={`${theme === 'dark' ? 'bg-white/10 border-white/20' : 'bg-white/50 border-gray-300'} backdrop-blur-lg rounded-2xl p-8 mb-8 border`}
         >
-          <h1 className="text-4xl font-bold text-primary mb-4">
-            {translations.settingsPage.title}
-          </h1>
-          <p className="text-gray-300 max-w-3xl mx-auto">
-            {translations.profile.title}
+          <h1 className="text-4xl font-bold mb-4">{settingsContent?.title}</h1>
+          <p className="text-lg text-gray-300">
+            {settingsContent?.subtitle}
           </p>
-        </motion.section>
+        </motion.div>
 
-        <div className="max-w-2xl mx-auto space-y-8">
-          {/* 语言设置 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Appearance Settings */}
           <motion.div
-            className="bg-gray-800 p-6 rounded-lg shadow-xl flex items-center justify-between"
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className={`${theme === 'dark' ? 'bg-white/10 border-white/20' : 'bg-white/50 border-gray-300'} backdrop-blur-lg rounded-2xl p-8 border`}
           >
-            <div className="flex items-center">
-              <FaGlobe className="text-accent text-2xl mr-3" />
-              <h2 className="text-xl font-semibold text-white">{translations.settingsPage.language}</h2>
-            </div>
-            <select
-              className="p-2 rounded bg-gray-700 border border-gray-600 text-white cursor-pointer"
-              value={currentLang}
-              onChange={(e) => handleLanguageChange(e.target.value)}
-            >
-              <option value="zh">简体中文</option>
-              <option value="my">Burmese</option>
-              {/* 根据需要添加更多语言选项 */}
-            </select>
-          </motion.div>
-
-          {/* 主题设置 */}
-          <motion.div
-            className="bg-gray-800 p-6 rounded-lg shadow-xl flex items-center justify-between"
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-          >
-            <div className="flex items-center">
-              {isDarkMode ? <FaMoon className="text-accent text-2xl mr-3" /> : <FaSun className="text-accent text-2xl mr-3" />}
-              <h2 className="text-xl font-semibold text-white">{translations.settingsPage.theme}</h2>
-            </div>
-            <button
-              onClick={toggleDarkMode}
-              className={`px-4 py-2 rounded font-semibold transition-colors duration-200 ${isDarkMode ? 'neon-button-small' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-            >
-              {isDarkMode ? translations.settingsPage.darkMode : translations.settingsPage.lightMode}
-            </button>
-          </motion.div>
-
-          {/* 通知设置 */}
-          <motion.div
-            className="bg-gray-800 p-6 rounded-lg shadow-xl flex items-center justify-between"
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-          >
-            <div className="flex items-center">
-              <FaBell className="text-accent text-2xl mr-3" />
-              <h2 className="text-xl font-semibold text-white">{translations.settingsPage.notifications}</h2>
-            </div>
-            <button
-              onClick={toggleNotifications}
-              className={`px-4 py-2 rounded font-semibold transition-colors duration-200 ${notificationsEnabled ? 'neon-button-small' : 'bg-gray-700 text-white hover:bg-gray-600'}`}
-            >
-              {notificationsEnabled ? translations.common.on : translations.common.off}
-            </button>
-          </motion.div>
-
-          {/* 账户设置 */}
-          <motion.div
-            className="bg-gray-800 p-6 rounded-lg shadow-xl"
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
-          >
-            <h2 className="text-xl font-semibold text-accent mb-4 flex items-center">
-              <FaUserEdit className="mr-2" />{translations.settingsPage.account}
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <FaPalette className="mr-3 text-purple-400" /> {settingsContent?.appearance}
             </h2>
             <div className="space-y-4">
+              {/* Theme Toggle */}
               <div>
-                <label className="block text-gray-400 text-sm mb-1">{translations.profile.username}</label>
-                <input type="text" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="你的用户名" />
+                <h3 className="text-xl font-semibold mb-3">{settingsContent?.theme}</h3>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={toggleTheme}
+                    className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                      theme === 'dark' 
+                        ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                        : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
+                    }`}
+                  >
+                    {theme === 'dark' ? settingsContent?.darkMode : settingsContent?.lightMode}
+                  </button>
+                </div>
               </div>
+
+              {/* Language Selection */}
               <div>
-                <label className="block text-gray-400 text-sm mb-1">{translations.profile.email}</label>
-                <input type="email" className="w-full p-2 rounded bg-gray-700 border border-gray-600 text-white" placeholder="你的邮箱" />
+                <h3 className="text-xl font-semibold mb-3">{settingsContent?.language}</h3>
+                <div className="flex space-x-4">
+                  <button
+                    onClick={() => setCurrentLang('zh')}
+                    className={`px-4 py-2 rounded-full transition-all duration-200 ${
+                      currentLang === 'zh' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-white/10 dark:text-white'
+                    }`}
+                  >
+                    中文
+                  </button>
+                  <button
+                    onClick={() => setCurrentLang('en')}
+                    className={`px-4 py-2 rounded-full transition-all duration-200 ${
+                      currentLang === 'en' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-white/10 dark:text-white'
+                    }`}
+                  >
+                    English
+                  </button>
+                  <button
+                    onClick={() => setCurrentLang('my')}
+                    className={`px-4 py-2 rounded-full transition-all duration-200 ${
+                      currentLang === 'my' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800 hover:bg-gray-300 dark:bg-white/10 dark:text-white'
+                    }`}
+                  >
+                    မြန်မာ
+                  </button>
+                </div>
               </div>
-              <button className="neon-button-small w-full py-2 rounded font-semibold">
-                {translations.settingsPage.updateProfile}
-              </button>
             </div>
           </motion.div>
 
-          {/* 安全设置 */}
+          {/* Account Management */}
           <motion.div
-            className="bg-gray-800 p-6 rounded-lg shadow-xl"
-            initial="hidden"
-            animate="visible"
-            variants={sectionVariants}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className={`${theme === 'dark' ? 'bg-white/10 border-white/20' : 'bg-white/50 border-gray-300'} backdrop-blur-lg rounded-2xl p-8 border`}
           >
-            <h2 className="text-xl font-semibold text-accent mb-4 flex items-center">
-              <FaShieldAlt className="mr-2" />{translations.settingsPage.security}
+            <h2 className="text-2xl font-bold mb-6 flex items-center">
+              <FaUser className="mr-3 text-cyan-400" /> {settingsContent?.accountManagement}
             </h2>
             <div className="space-y-4">
-              <button className="neon-button-small w-full py-2 rounded font-semibold">
-                <FaKey className="inline-block mr-2" />{translations.settingsPage.changePassword}
+              <button className="w-full flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <FaKey className="text-green-400" />
+                  <span className="text-white">{settingsContent?.changePassword}</span>
+                </div>
+                <span className="text-gray-400">→</span>
               </button>
-              <button className="neon-button-small-red w-full py-2 rounded font-semibold">
-                <FaTrash className="inline-block mr-2" />{translations.settingsPage.deleteAccount}
+              
+              <button className="w-full flex items-center justify-between p-4 bg-white/5 rounded-lg hover:bg-white/10 transition-colors">
+                <div className="flex items-center space-x-3">
+                  <FaTrash className="text-red-400" />
+                  <span className="text-white">{settingsContent?.deleteAccount}</span>
+                </div>
+                <span className="text-gray-400">→</span>
               </button>
             </div>
           </motion.div>
         </div>
-      </main>
-    </>
+      </div>
+    </div>
   );
 }
