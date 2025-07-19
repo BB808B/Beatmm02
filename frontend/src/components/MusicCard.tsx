@@ -1,148 +1,114 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Play, Pause, Heart, Share2, Download } from 'lucide-react'; // 确保 lucide-react 已安装
-import { MusicCardProps } from '@/types'; // 导入 MusicCardProps
-import MusicVisualizer from './MusicVisualizer'; // 导入 MusicVisualizer 组件
+import { Play, Pause, Heart, Share2, MoreHorizontal } from 'lucide-react'; // 确保这里导入了正确的图标
+
+import { MusicCardProps } from '@/types'; // 导入 MusicCardProps 接口
 
 const MusicCard: React.FC<MusicCardProps> = ({
   id,
   title,
   artist,
   coverImage,
-  duration, // 根据 types/index.ts，这里现在是 number 类型
+  duration, // 根据 types/index.ts，这里现在是 string | number 类型
   isLiked,
-  likes,
+  likes = 0, // 提供默认值，以防 likes 未定义
   isPlaying,
   onPlay, // 修改为 onPlay
   onPause, // 修改为 onPause
-  onLike, // 修改为 onLike
-  onShare, // 修改为 onShare
+  onLike,
+  onShare,
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // 处理播放/暂停点击事件
-  const handlePlayPauseClick = () => {
-    // MusicCard 的职责是通知父组件哪个 Track 被点击了播放/暂停
-    if (isPlaying) {
-      onPause?.(id); // 调用 onPause prop，传递 trackId
-    } else {
-      onPlay?.(id); // 调用 onPlay prop，传递 trackId
-    }
-  };
-
-  // 处理图片加载错误，显示默认封面
   const handleImageError = () => {
     setImageError(true);
   };
 
-  // 格式化时长函数，将秒数转换为 MM:SS 格式
-  const formatDuration = (timeInSeconds: number): string => {
-    if (isNaN(timeInSeconds) || timeInSeconds < 0) return '0:00';
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
-
-  // 使用默认值，防止 undefined 导致渲染问题
-  const cardCoverImage = imageError ? '/images/default-album-art.png' : coverImage;
-  const cardArtist = artist || 'Unknown Artist';
-  const cardTitle = title || 'Unknown Title';
 
   return (
     <motion.div
-      // 应用 music-card 类以实现玻璃拟态效果和报告中定义的悬停动画
-      className="music-card relative cursor-pointer group" // 使用 globals.css 中定义的 music-card
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      whileHover={{ y: -4 }} // 保持与 globals.css 中的 translateY(-4px) 效果一致
+      className="bg-white/5 rounded-lg p-3 relative group hover:bg-white/10 transition-all duration-300 overflow-hidden"
     >
-      <div className="relative overflow-hidden rounded-t-lg"> {/* 确保图片区域圆角和裁剪 */}
-        <Image
-          src={cardCoverImage}
-          alt={cardTitle}
-          width={500}
-          height={500}
-          className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-          onError={handleImageError}
-        />
-        {/* 渐变遮罩：在图片底部添加一个从透明到背景色的渐变，以增强视觉深度 */}
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-gray-900 to-transparent opacity-70 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-        {/* 播放/暂停按钮覆盖层 */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            onClick={handlePlayPauseClick}
-            // 使用 globals.css 中定义的 play-button 样式
-            className="play-button w-12 h-12" // 使用 play-button 类，其样式在 globals.css 中定义
-            aria-label={isPlaying ? '暂停' : '播放'}
-          >
-            {isPlaying ? <Pause size={20} /> : <Play size={20} />} {/* 保持图标大小与 globals.css 中的 play-button 一致 */}
-          </button>
-        </div>
-
-        {/* 音乐可视化器 */}
-        {isPlaying && (
-          <div className="absolute bottom-3 left-3">
-            <MusicVisualizer isPlaying={isPlaying} size="sm" />
+      <div className="relative w-full h-40 rounded-md overflow-hidden mb-3">
+        {imageError ? (
+          <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400">
+            Image Not Available
           </div>
+        ) : (
+          <Image
+            src={coverImage}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{ objectFit: 'cover' }}
+            className="group-hover:scale-105 transition-transform duration-300"
+            onError={handleImageError}
+          />
         )}
-
-        {/* 时长徽章 */}
-        <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded">
-          {formatDuration(duration)} {/* 使用格式化函数 */}
+        <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+          {isPlaying ? (
+            <button
+              onClick={() => onPause?.(id)}
+              className="bg-purple-500 text-white p-3 rounded-full hover:bg-purple-600 transition-colors"
+            >
+              <Pause className="w-6 h-6" />
+            </button>
+          ) : (
+            <button
+              onClick={() => onPlay?.(id)}
+              className="bg-purple-500 text-white p-3 rounded-full hover:bg-purple-600 transition-colors"
+            >
+              <Play className="w-6 h-6" />
+            </button>
+          )}
         </div>
       </div>
-
-      <div className="p-4">
-        {/* 歌曲标题 */}
-        <h3 className="text-xl font-semibold text-white mb-1 truncate">{cardTitle}</h3> {/* 直接使用 Tailwind 颜色 */}
-        {/* 艺术家名称 */}
-        <p className="text-gray-400 text-sm truncate">{cardArtist}</p> {/* 直接使用 Tailwind 颜色 */}
-        <div className="flex justify-between items-center mt-3">
-          <div className="flex items-center space-x-3">
-            {/* 喜欢按钮 */}
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation(); // 阻止事件冒泡到卡片本身
-                onLike?.(id); // 调用 onLike prop
-              }}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-white font-semibold text-lg truncate">{title}</h3>
+          <p className="text-gray-400 text-sm truncate">{artist}</p>
+        </div>
+        <div className="flex flex-col items-end space-y-2">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => onLike?.(id)}
               className={`p-2 rounded-full transition-colors ${
-                isLiked
-                  ? 'text-red-500 hover:text-red-400' // 使用 Tailwind 红色
-                  : 'text-gray-400 hover:text-white' // 使用 Tailwind 灰色
+                isLiked ? 'text-red-500' : 'text-gray-400 hover:text-white hover:bg-white/10'
               }`}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
             >
-              <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
-            </motion.button>
-            {/* 分享按钮 */}
-            <motion.button
-              onClick={(e) => {
-                e.stopPropagation(); // 阻止事件冒泡到卡片本身
-                onShare?.(id); // 调用 onShare prop
-              }}
-              className="p-2 rounded-full text-gray-400 hover:text-white transition-colors" // 使用 Tailwind 颜色
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
+              <Heart className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onShare?.(id)}
+              className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors"
             >
-              <Share2 size={16} />
-            </motion.button>
+              <Share2 className="w-4 h-4" />
+            </button>
+            <button className="p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
           </div>
 
-          <motion.button
-            className="p-2 rounded-full text-gray-400 hover:text-white transition-colors" // 使用 Tailwind 颜色
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <Download size={16} />
-          </motion.button>
+          <div className="flex items-center space-x-2 text-sm text-gray-400">
+            {likes > 0 && (
+              <span className="flex items-center space-x-1">
+                <Heart className="w-3 h-3" />
+                <span>{likes}</span>
+              </span>
+            )}
+            <span>{typeof duration === 'number' ? formatDuration(duration) : duration}</span>
+          </div>
         </div>
       </div>
     </motion.div>
