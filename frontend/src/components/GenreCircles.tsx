@@ -2,82 +2,93 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Music } from 'lucide-react'; // 使用 Lucide React 图标
+import { GenreCirclesProps } from '@/types';
 
-interface GenreCircleProps {
-  id: string;
-  name: string;
-  imageUrl: string;
-  link: string;
-}
-
-const GenreCircle: React.FC<GenreCircleProps> = ({ id, name, imageUrl, link }) => {
-  const [imageError, setImageError] = React.useState(false);
-
-  const handleImageError = () => {
-    setImageError(true);
+const GenreCircles: React.FC<GenreCirclesProps> = ({ currentLang }) => {
+  const getTitle = () => {
+    switch (currentLang) {
+      case 'zh':
+        return '发现塑造我们音乐风景的声音';
+      case 'my':
+        return 'ကျွန်ုပ်တို့၏ ဂီတရှုခင်းကို ပုံဖော်သည့် အသံများကို ရှာဖွေပါ';
+      case 'en':
+      default:
+        return 'Discover the voices that shape our musical landscape';
+    }
   };
 
-  return (
-    <Link href={link} className="block">
-      <motion.div
-        className="genre-circle relative flex items-center justify-center" // 使用 globals.css 中定义的 genre-circle 样式
-        style={{ backgroundImage: `url(${imageError ? '/images/default-genre.png' : imageUrl})` }}
-        whileHover={{ scale: 1.05 }} // 保持与 globals.css 动画一致
-        transition={{ duration: 0.3 }}
-      >
-        {/* 叠加层和图标 */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <Music size={36} className="text-white mb-2" />
-          <span className="text-white font-semibold text-lg">{name}</span>
-        </div>
-        {/* 标签，在悬停时显示 */}
-        <span className="genre-label">{name}</span> {/* 使用 globals.css 中定义的 genre-label 样式 */}
-      </motion.div>
-    </Link>
-  );
-};
-
-interface GenreCirclesProps {
-  genres: GenreCircleProps[];
-  title: string;
-}
-
-const GenreCircles: React.FC<GenreCirclesProps> = ({ genres, title }) => {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+  const genres = [
+    {
+      id: 'ethnic',
+      name: currentLang === 'zh' ? '民族音乐' : currentLang === 'my' ? 'လူမျိုးစုဂီတ' : 'Ethnic Vibes',
+      image: '/images/genres/ethnic.jpg',
+      color: 'from-orange-500 to-red-500'
     },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
+    {
+      id: 'live',
+      name: currentLang === 'zh' ? '现场演出' : currentLang === 'my' ? 'တိုက်ရိုက်ဖျော်ဖြေပွဲ' : 'Live Pop',
+      image: '/images/genres/live.jpg',
+      color: 'from-purple-500 to-pink-500'
+    },
+    {
+      id: 'electronic',
+      name: currentLang === 'zh' ? '电子音乐' : currentLang === 'my' ? 'အီလက်ထရွန်းနစ်ဂီတ' : 'Future Dreams',
+      image: '/images/genres/electronic.jpg',
+      color: 'from-blue-500 to-cyan-500'
+    },
+    {
+      id: 'crystal',
+      name: currentLang === 'zh' ? '水晶音效' : currentLang === 'my' ? 'ကြည်လင်သောအသံ' : 'Crystal Sky',
+      image: '/images/genres/crystal.jpg',
+      color: 'from-cyan-500 to-blue-500'
+    },
+    {
+      id: 'velvet',
+      name: currentLang === 'zh' ? '丝绒回声' : currentLang === 'my' ? 'ပိုးထည်တွန်ဆိုင်မှု' : 'Velvet Echo',
+      image: '/images/genres/velvet.jpg',
+      color: 'from-yellow-500 to-orange-500'
+    }
+  ];
 
   return (
-    <section className="py-12 px-4 sm:px-6 lg:px-8">
-      <h2 className="text-3xl font-bold text-center gradient-text mb-8">
-        {title}
-      </h2>
-      <motion.div
-        className="flex flex-wrap justify-center gap-8"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {genres.map((genre) => (
-          <motion.div key={genre.id} variants={itemVariants}>
-            <GenreCircle {...genre} />
-          </motion.div>
-        ))}
-      </motion.div>
+    <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="text-4xl font-bold text-white mb-6">
+            {getTitle()}
+          </h2>
+        </motion.div>
+
+        <div className="flex justify-center items-center gap-8 flex-wrap">
+          {genres.map((genre, index) => (
+            <motion.div
+              key={genre.id}
+              className="genre-circle relative cursor-pointer"
+              style={{
+                backgroundImage: `url(${genre.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-br ${genre.color} opacity-60 rounded-full`} />
+              <div className="genre-label absolute bottom-4 left-1/2 transform -translate-x-1/2 text-white font-semibold text-sm text-center px-2">
+                {genre.name}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 };
