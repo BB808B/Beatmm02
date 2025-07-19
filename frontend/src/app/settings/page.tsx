@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaPalette, FaLanguage, FaKey, FaTrash } from 'react-icons/fa';
+import { FaMoon, FaSun, FaBell, FaShieldAlt, FaKey, FaTrash, FaGlobe, FaUser } from 'react-icons/fa'; // 确保这里包含了 FaUser
 import NavbarComponent from '@/components/Navbar';
-import { Language, TranslationType } from '@/types';
+import { TranslationType, Language } from '@/types';
 
 export default function SettingsPage() {
   const [currentLang, setCurrentLang] = useState<Language>('zh');
@@ -18,6 +18,7 @@ export default function SettingsPage() {
     if (savedTheme === 'light' || savedTheme === 'dark') {
       setTheme(savedTheme);
       document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+      document.documentElement.classList.toggle('light', savedTheme === 'light'); // Ensure light class is also toggled
     } else {
       // Default to dark if no theme is saved
       document.documentElement.classList.add('dark');
@@ -152,7 +153,8 @@ export default function SettingsPage() {
             className={`${theme === 'dark' ? 'bg-white/10 border-white/20' : 'bg-white/50 border-gray-300'} backdrop-blur-lg rounded-2xl p-8 border`}
           >
             <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <FaPalette className="mr-3 text-purple-400" /> {settingsContent?.appearance}
+              {/* 根据指南，这里用 FaUser 来替代之前可能出现问题的 FaPalette */}
+              <FaUser className="mr-3 text-purple-400" /> {settingsContent?.appearance}
             </h2>
             <div className="space-y-4">
               {/* Theme Toggle */}
