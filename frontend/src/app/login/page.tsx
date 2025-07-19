@@ -20,52 +20,74 @@ export default function LoginPage() {
     const loadTranslations = async () => {
       try {
         const response = await fetch(`/locales/${currentLang}.json`);
+        if (!response.ok) {
+          throw new Error('Failed to load translations');
+        }
         const data = await response.json();
         setTranslations(data);
       } catch (error) {
         console.error('Failed to load translations:', error);
-        // 默认翻译
+        // Fallback or default translations if loading fails
         setTranslations({
           common: {
-            loading: "加载中...",
-            subscribe: "立即订阅",
-            freeTrial: "免费试用",
-            popular: "热门",
-            search: "搜索"
+            loading: '加载中...',
+            subscribe: '立即订阅',
+            freeTrial: '免费试用',
+            popular: '热门',
+            search: '搜索'
           },
           navbar: {
-            home: "首页",
-            music: "音乐",
-            radio: "电台",
-            charts: "排行榜",
-            rules: "规则"
+            home: '首页',
+            music: '音乐',
+            radio: '电台',
+            charts: '排行榜',
+            rules: '规则'
           },
           nav: {
-            home: "首页",
-            music: "音乐",
-            radio: "电台",
-            charts: "排行榜",
-            rules: "规则",
-            login: "登录"
+            home: '首页',
+            music: '音乐',
+            radio: '电台',
+            charts: '排行榜',
+            rules: '规则',
+            login: '登录',
+            dj: 'DJ',
+            live: '直播',
+            ranking: '排名',
+            profile: '个人资料',
+            register: '注册',
+            logout: '登出',
+            settings: '设置'
           },
           hero: {
-            title: "发现缅甸最好的音乐",
-            subtitle: "体验来自缅甸独立DJ和艺术家的精彩音乐作品"
+            title: 'BeatMM Pro',
+            subtitle: '缅甸领先的音乐流媒体平台，发现无尽音乐世界'
           },
           pricing: {
-            title: "选择您的套餐",
-            basic: "基础套餐",
-            premium: "高级套餐",
-            vip: "VIP套餐",
-            month: "月",
+            title: '选择您的套餐',
+            basic: '基础套餐',
+            premium: '高级套餐',
+            vip: 'VIP套餐',
+            month: '月',
             features: {
-              unlimited: "无限音乐流",
-              hq: "高品质音质",
-              offline: "离线收听",
-              exclusive: "独家内容",
-              early: "抢先体验新歌"
+              unlimited: '无限音乐流',
+              hq: '高品质音质',
+              offline: '离线收听',
+              exclusive: '独家内容',
+              early: '抢先体验新歌'
             },
-            mostPopular: "最受欢迎"
+            mostPopular: '最受欢迎'
+          },
+          login: {
+            welcome: '欢迎回到缅甸DJ平台',
+            phonePlaceholder: '请输入手机号',
+            passwordPlaceholder: '请输入密码',
+            forgotPassword: '忘记密码?',
+            loginButton: '登录',
+            orLoginWith: '或使用以下方式登录',
+            noAccount: '还没有账号？',
+            registerNow: '立即注册',
+            phoneOrPasswordError: '手机号或密码错误',
+            loginFailed: '登录失败，请重试'
           }
         });
       }
@@ -86,10 +108,10 @@ export default function LoginPage() {
       if (phone === '123456789' && password === 'password') {
         router.push('/');
       } else {
-        setError('手机号或密码错误');
+        setError(translations?.login?.phoneOrPasswordError || '手机号或密码错误');
       }
     } catch (err) {
-      setError('登录失败，请重试');
+      setError(translations?.login?.loginFailed || '登录失败，请重试');
     } finally {
       setLoading(false);
     }
@@ -102,6 +124,8 @@ export default function LoginPage() {
       </div>
     );
   }
+
+  const loginTranslations = translations.login;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
@@ -119,8 +143,8 @@ export default function LoginPage() {
           className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 w-full max-w-md mx-4 border border-white/20"
         >
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">登录</h1>
-            <p className="text-gray-300">欢迎回到缅甸DJ平台</p>
+            <h1 className="text-3xl font-bold text-white mb-2">{translations.nav.login}</h1>
+            <p className="text-gray-300">{loginTranslations?.welcome}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -135,7 +159,7 @@ export default function LoginPage() {
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="请输入手机号"
+                  placeholder={loginTranslations?.phonePlaceholder}
                   required
                 />
               </div>
@@ -152,7 +176,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="请输入密码"
+                  placeholder={loginTranslations?.passwordPlaceholder}
                   required
                 />
               </div>
@@ -174,7 +198,7 @@ export default function LoginPage() {
               ) : (
                 <>
                   <FaSignInAlt />
-                  登录
+                  {loginTranslations?.loginButton}
                 </>
               )}
             </button>
@@ -182,9 +206,9 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-gray-300">
-              还没有账号？{' '}
+              {loginTranslations?.noAccount}{' '}
               <a href="/register" className="text-purple-400 hover:text-purple-300 transition-colors">
-                立即注册
+                {loginTranslations?.registerNow}
               </a>
             </p>
           </div>
