@@ -28,7 +28,7 @@ export interface TranslationType {
     profile?: string;
     register?: string;
     logout?: string;
-    settings?: string;
+    settings?: string; // Add settings property
   };
   hero: {
     title: string;
@@ -85,7 +85,7 @@ export interface TranslationType {
     contactUs: string;
     contactMessage: string;
   };
-  settings?: {
+  settings?: { // New settings section
     title: string;
     subtitle: string;
     appearance: string;
@@ -97,6 +97,7 @@ export interface TranslationType {
     darkMode: string;
     lightMode: string;
   };
+  // 支持任意扩展属性
   [key: string]: any;
 }
 
@@ -121,6 +122,7 @@ export interface MusicCardProps {
   onLike?: (id: string) => void;
   onShare?: (id: string) => void;
   isLiked?: boolean;
+  likes?: number; // 添加缺失的 likes 属性
 }
 
 export interface Track {
@@ -159,5 +161,11 @@ export interface CarouselSlide {
   altText: string;
   link: string;
   title?: string;
-  description?: string; // 添加缺失的 description 属性，使其成为可选
+  description?: string;
+}
+
+// 新增的 CarouselProps 接口
+export interface CarouselProps {
+  slides: CarouselSlide[];
+  autoPlayInterval?: number;
 }
