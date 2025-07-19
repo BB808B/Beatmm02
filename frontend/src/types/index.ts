@@ -28,7 +28,7 @@ export interface TranslationType {
     profile?: string;
     register?: string;
     logout?: string;
-    settings?: string; // Add settings property
+    settings?: string;
   };
   hero: {
     title: string;
@@ -49,7 +49,6 @@ export interface TranslationType {
     };
     mostPopular: string;
   };
-  // Add specific properties for other pages
   login?: {
     welcome: string;
     phonePlaceholder: string;
@@ -86,7 +85,7 @@ export interface TranslationType {
     contactUs: string;
     contactMessage: string;
   };
-  settings?: { // New settings section
+  settings?: {
     title: string;
     subtitle: string;
     appearance: string;
@@ -98,7 +97,6 @@ export interface TranslationType {
     darkMode: string;
     lightMode: string;
   };
-  // 支持任意扩展属性
   [key: string]: any;
 }
 
@@ -160,4 +158,5 @@ export interface CarouselSlide {
   imageUrl: string;
   altText: string;
   link: string;
+  title?: string; // 添加缺失的 title 属性，使其成为可选
 }
