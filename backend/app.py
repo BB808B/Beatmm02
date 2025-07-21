@@ -2,18 +2,15 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
-import bcrypt
-from datetime import datetime, timedelta, timezone
-from jose import JWTError, jwt
 from supabase import create_client, Client
 import logging
+from datetime import datetime, timezone
 
 # 加载环境变量
 load_dotenv()
 
 # 创建Flask应用
 app = Flask(__name__)
-# 允许所有来源的跨域请求
 CORS(app, origins="*")
 
 # 配置日志
@@ -22,47 +19,21 @@ logger = logging.getLogger(__name__)
 
 # --- 配置 ---
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-default-secret-key-change-it")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") # 使用 Service Key 进行后端操作
 
-if not all([SUPABASE_URL, SUPABASE_KEY]):
-    logger.error("Supabase URL and Key must be set in environment variables.")
+if not all([SUPABASE_URL, SUPABASE_SERVICE_KEY]):
+    logger.error("Supabase URL and Service Key must be set in environment variables.")
 
-# --- Supabase 客户端 ---
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# --- Supabase 客户端 (使用 Service Role Key) ---
+# 这给了我们在后端足够的权限去操作数据
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
-# --- 工具函数 (精简和优化) ---
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
-def verify_password(password: str, hashed: str) -> bool:
-    try:
-        return bcrypt.checkpw(password.encode("utf-8"), hashed.encode("utf-8"))
-    except (ValueError, TypeError):
-        return False
-
-def create_jwt_token(user_id: str, role: str) -> str:
-    payload = {
-        "user_id": user_id,
-        "role": role,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=24),
-        "iat": datetime.now(timezone.utc)
-    }
-    return jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
-
-def get_current_user_from_token(req):
-    auth_header = req.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        return None
-    token = auth_header.split(" ")[1]
-    try:
-        return jwt.decode(token, JWT_SECRET_KEY, algorithms=["HS256"])
-    except JWTError:
-        return None
 
 # --- API 路由 ---
+
 @app.route("/api/auth/register", methods=["POST"])
 def register():
+    """用户注册 - 使用 Supabase Auth"""
     data = request.get_json()
     phone = data.get("phone")
     password = data.get("password")
@@ -71,67 +42,70 @@ def register():
         return jsonify({"error": "手机号和密码不能为空"}), 400
 
     try:
-        # 检查手机号是否已存在
-        res = supabase.table("users").select("id").eq("phone", phone).execute()
-        if res.data:
-            return jsonify({"error": "该手机号已被注册"}), 409
-
-        hashed_password = hash_password(password)
-        # 新用户有3天试用期
-        trial_end_date = datetime.now(timezone.utc) + timedelta(days=3)
-
-        new_user = {
-            "phone": phone,
-            "password": hashed_password,
-            "trial_end_date": trial_end_date.isoformat()
-        }
+        # 使用 Supabase 官方方法注册用户
+        # 这里的 phone 是为了演示，Supabase Auth 默认使用 email
+        # 如果要用 phone，需要在 Supabase 后台开启手机号登录
+        # 我们假设使用 email 代替 phone
+        email = f"{phone}@example.com" # 临时将手机号转为邮箱格式
+        auth_response = supabase.auth.sign_up({
+            "email": email,
+            "password": password,
+        })
         
-        insert_res = supabase.table("users").insert(new_user).execute()
-        if not insert_res.data:
-            raise Exception("创建用户失败")
-
-        user = insert_res.data[0]
-        return jsonify({"message": f"用户 {user['phone']} 注册成功"}), 201
+        # 注册成功后，我们的数据库触发器会自动创建 profile
+        return jsonify({"message": "注册成功，请检查您的邮箱进行验证"}), 201
 
     except Exception as e:
         logger.error(f"注册错误: {e}")
+        # 处理 Supabase 返回的特定错误
+        if "User already registered" in str(e):
+            return jsonify({"error": "该用户已被注册"}), 409
         return jsonify({"error": "服务器内部错误"}), 500
+
 
 @app.route("/api/auth/login", methods=["POST"])
 def login():
+    """用户登录 - 使用 Supabase Auth"""
     data = request.get_json()
     phone = data.get("phone")
     password = data.get("password")
 
     if not phone or not password:
         return jsonify({"error": "手机号和密码不能为空"}), 400
-
+    
     try:
-        res = supabase.table("users").select("*").eq("phone", phone).single().execute()
-        user = res.data
+        email = f"{phone}@example.com" # 同样，用邮箱格式登录
+        auth_response = supabase.auth.sign_in_with_password({
+            "email": email,
+            "password": password
+        })
 
-        if not verify_password(password, user["password"]):
-            return jsonify({"error": "密码错误"}), 401
+        # 从返回结果中获取 token 和用户 ID
+        token = auth_response.session.access_token
+        user_id = auth_response.user.id
 
-        token = create_jwt_token(user_id=user["id"], role=user["role"])
-        
+        # 查询 profiles 表获取角色信息
+        profile_res = supabase.table("profiles").select("role").eq("id", user_id).single().execute()
+
         return jsonify({
             "message": "登录成功",
             "token": token,
             "user": {
-                "id": user["id"],
-                "phone": user["phone"],
-                "role": user["role"]
+                "id": user_id,
+                "role": profile_res.data.get("role", "user") if profile_res.data else "user"
             }
         })
     except Exception as e:
         logger.error(f"登录错误: {e}")
-        return jsonify({"error": "用户不存在或服务器错误"}), 404
-        
+        if "Invalid login credentials" in str(e):
+             return jsonify({"error": "手机号或密码错误"}), 401
+        return jsonify({"error": "服务器错误"}), 500
+
+
 # --- 健康检查 ---
 @app.route("/")
 def index():
-    return "Backend is running!"
+    return "BeatMM Pro Backend is running!"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
