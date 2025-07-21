@@ -1,15 +1,20 @@
 // file: frontend/src/app/login/page.tsx
+'use client';
 import React from 'react';
+import Navbar from '@/components/Navbar';
 
 const LoginPage = () => {
   return (
-    <div className="min-h-screen bg-black text-white flex items-center justify-center">
-      <div className="text-center p-8">
-        <h1 className="text-4xl font-bold mb-4">登录</h1>
-        <p className="text-lg text-gray-400">登录页面正在建设中...</p>
-      </div>
+    <div className="min-h-screen">
+      <Navbar />
+      <main className="py-20 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="max-w-md w-full text-center">
+          <h1 className="text-4xl font-bold text-white mb-8">Log In to BeatMM Pro</h1>
+          {/* 在这里可以添加登录表单 */}
+          <p className="text-gray-400">Login form will be here.</p>
+        </div>
+      </main>
     </div>
   );
 };
-
 export default LoginPage;
