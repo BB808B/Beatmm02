@@ -1,3 +1,4 @@
+// file: frontend/src/components/PricingSection.tsx
 'use client';
 
 import React, { useState } from 'react';
@@ -22,9 +23,8 @@ interface PricingSectionProps {
 const PricingSection: React.FC<PricingSectionProps> = ({ currentLang }) => {
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  // 简化的翻译函数, 实际项目中应该使用更完整的i18n库
   const getTranslation = (key: string, fallback: string) => {
-    const translations: Record<Language, Record<string, string>> = {
+    const translations: Record<Language, any> = {
       zh: {
         'pricing.title': '选择您的套餐',
         'pricing.subtitle': '选择最适合您的音乐体验套餐,享受无限音乐世界',
@@ -89,7 +89,6 @@ const PricingSection: React.FC<PricingSectionProps> = ({ currentLang }) => {
     return translations[currentLang]?.[key] || fallback;
   };
 
-
   const plans: PricingPlan[] = [
     {
       id: 'basic',
@@ -135,7 +134,6 @@ const PricingSection: React.FC<PricingSectionProps> = ({ currentLang }) => {
   const handleSubscribe = async (planId: string) => {
     setIsLoading(planId);
     console.log(`Subscribing to ${planId}...`);
-    // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 2000));
     console.log(`Subscribed to plan: ${planId}`);
     setIsLoading(null);
@@ -146,4 +144,64 @@ const PricingSection: React.FC<PricingSectionProps> = ({ currentLang }) => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-white mb-4">
-            {get
+            {getTranslation('pricing.title', 'Choose Your Plan')}
+          </h2>
+          <p className="text-xl text-gray-400 max-w-3xl mx-auto">
+            {getTranslation('pricing.subtitle', 'Choose the perfect music experience plan for you and enjoy unlimited music world')}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          {plans.map((plan) => (
+            <div key={plan.id} className={`pricing-card ${plan.popular ? 'popular' : ''}`}>
+              {plan.popular && (
+                <div className="flex justify-center mb-4">
+                  <span className="popular-badge">
+                    <Star className="w-4 h-4" />
+                    {getTranslation('pricing.popular', 'Most Popular')}
+                  </span>
+                </div>
+              )}
+              <div className="text-center mb-6">
+                <div className={`inline-block p-3 rounded-full mb-4 ${plan.popular ? 'bg-green-500' : 'bg-gray-700'}`}>
+                  {plan.icon}
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+                <div className="flex items-baseline justify-center">
+                  <span className="text-4xl font-bold text-white">{plan.currency}{plan.price}</span>
+                  <span className="text-gray-400 ml-2">/{plan.period}</span>
+                </div>
+              </div>
+              <ul className="space-y-4 mb-8">
+                {plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <Check className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                    <span className="text-gray-300">{feature}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => handleSubscribe(plan.id)}
+                disabled={!!isLoading}
+                className={`w-full py-3 px-6 rounded-lg font-semibold transition-all duration-300 ${
+                  plan.popular
+                    ? 'bg-green-500 text-white hover:bg-green-600'
+                    : 'bg-white text-black hover:bg-gray-200'
+                } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {isLoading === plan.id ? getTranslation('common.loading', 'Processing...') : getTranslation('common.subscribe', 'Subscribe Now')}
+              </button>
+            </div>
+          ))}
+        </div>
+        <div className="mt-12 text-center">
+          <p className="text-gray-400">
+            {getTranslation('pricing.trial', 'New users get 3 days free trial, cancel anytime')}
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+// 这里是关键！之前的代码可能在这里少了一个 `}`
+}; 
+
+export default PricingSection;
