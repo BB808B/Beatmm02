@@ -1,20 +1,11 @@
+// file: frontend/src/components/MusicPlayer.tsx
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, List } from 'lucide-react';
 import Image from 'next/image';
+import { Track } from '@/types'; // 从 types/index.ts 导入 Track 类型
 
-// 定义歌曲的数据结构
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  coverImage: string;
-  audioUrl?: string;
-  duration: number;
-}
-
-// 定义播放器组件需要的属性
 interface MusicPlayerProps {
   tracks: Track[];
   currentTrackIndex: number;
@@ -37,20 +28,27 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const [isShuffle, setIsShuffle] = useState(false);
   const [imageError, setImageError] = useState(false);
 
-  // 用来引用 <audio> 元素
   const audioRef = useRef<HTMLAudioElement>(null);
-  // 用来引用进度条的 <div> 元素
   const progressRef = useRef<HTMLDivElement>(null);
 
   const currentTrack = tracks[currentTrackIndex];
+  
+  useEffect(() => {
+    // 当歌曲切换时，重置图片错误状态
+    setImageError(false);
+    // 如果当前有歌曲，尝试播放
+    if(currentTrack) {
+      setIsPlaying(true);
+    }
+  }, [currentTrackIndex]);
 
-  // 当歌曲切换或重复/随机设置改变时，设置音频事件监听
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
+    
     const updateTime = () => setCurrentTime(audio.currentTime);
-    const updateDuration = () => setDuration(audio.duration);
+    const updateDuration = () => setDuration(audio.duration || 0);
     const handleEnded = () => {
       if (isRepeat) {
         audio.currentTime = 0;
@@ -64,15 +62,13 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleEnded);
 
-    // 组件卸载时移除监听，防止内存泄漏
     return () => {
       audio.removeEventListener('timeupdate', updateTime);
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [currentTrackIndex, isRepeat]); // isShuffle 在 handleNext/Previous 中处理，不需在此监听
+  }, [currentTrackIndex, isRepeat]); 
 
-  // 控制播放和暂停
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -81,47 +77,46 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     } else {
       audio.pause();
     }
-  }, [isPlaying, currentTrackIndex]); // 依赖 currentTrackIndex 确保切歌后能自动播放
-
-  // 控制音量
+  }, [isPlaying, currentTrack]); 
+  
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
     audio.volume = isMuted ? 0 : volume;
   }, [volume, isMuted]);
 
-  // 播放/暂停切换函数
   const togglePlay = () => setIsPlaying(!isPlaying);
 
-  // 下一曲
+  // --- 这里是关键修改 ---
   const handleNext = () => {
+    if (tracks.length === 0) return;
+    let nextIndex;
     if (isShuffle) {
-      let randomIndex;
       do {
-        randomIndex = Math.floor(Math.random() * tracks.length);
-      } while (tracks.length > 1 && randomIndex === currentTrackIndex); // 避免随机到同一首歌
-      setCurrentTrackIndex(randomIndex);
+        nextIndex = Math.floor(Math.random() * tracks.length);
+      } while (tracks.length > 1 && nextIndex === currentTrackIndex);
     } else {
-      setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % tracks.length);
+      nextIndex = (currentTrackIndex + 1) % tracks.length;
     }
-    setIsPlaying(true);
+    // 直接传入计算好的数字
+    setCurrentTrackIndex(nextIndex);
   };
 
-  // 上一曲
+  // --- 这里是关键修改 ---
   const handlePrevious = () => {
+    if (tracks.length === 0) return;
+    let prevIndex;
     if (isShuffle) {
-        let randomIndex;
-        do {
-          randomIndex = Math.floor(Math.random() * tracks.length);
-        } while (tracks.length > 1 && randomIndex === currentTrackIndex);
-        setCurrentTrackIndex(randomIndex);
+      do {
+        prevIndex = Math.floor(Math.random() * tracks.length);
+      } while (tracks.length > 1 && prevIndex === currentTrackIndex);
     } else {
-        setCurrentTrackIndex((prevIndex) => (prevIndex - 1 + tracks.length) % tracks.length);
+      prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
     }
-    setIsPlaying(true);
+    // 直接传入计算好的数字
+    setCurrentTrackIndex(prevIndex);
   };
 
-  // 点击进度条跳转
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
     const progressBar = progressRef.current;
@@ -134,7 +129,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     setCurrentTime(newTime);
   };
 
-  // 格式化时间，从秒数变为 "分:秒"
   const formatTime = (time: number) => {
     if (isNaN(time) || time === 0) return '0:00';
     const minutes = Math.floor(time / 60);
@@ -142,10 +136,8 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
-  // 处理图片加载失败
   const handleImageError = () => setImageError(true);
   
-  // 如果没有歌曲，不显示播放器
   if (!currentTrack) return null;
 
   return (
@@ -153,7 +145,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
       
       <div className="max-w-7xl mx-auto grid grid-cols-3 items-center gap-4">
-        {/* 左侧：歌曲信息 */}
         <div className="flex items-center space-x-3 min-w-0">
           <div className="relative w-14 h-14 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
             {!imageError && currentTrack.coverImage ? (
@@ -168,13 +159,11 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
           </div>
         </div>
 
-        {/* 中间：播放控制器 */}
         <div className="flex flex-col items-center space-y-1">
             <div className="flex items-center space-x-2 md:space-x-4">
                 <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? 'text-green-500' : 'text-gray-400 hover:text-white'}`}><Shuffle size={18} /></button>
                 <button onClick={handlePrevious} className="p-2 rounded-full text-gray-400 hover:text-white transition-colors"><SkipBack size={20} /></button>
                 <button onClick={togglePlay} className="bg-white text-black w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                  {/* 这里是修正后的代码 */}
                   {isPlaying ? <Pause size={20} /> : <Play size={20} className="fill-black" />}
                 </button>
                 <button onClick={handleNext} className="p-2 rounded-full text-gray-400 hover:text-white transition-colors"><SkipForward size={20} /></button>
@@ -187,7 +176,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
             </div>
         </div>
 
-        {/* 右侧：音量和列表 */}
         <div className="flex items-center space-x-2 justify-end">
           <button onClick={() => setIsMuted(!isMuted)} className="p-2 text-gray-400 hover:text-white">{isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
           <input 
