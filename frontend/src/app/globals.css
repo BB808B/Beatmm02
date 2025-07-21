@@ -14,10 +14,10 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
-  color: #ffffff; /* 默认文本颜色 */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', sans-serif;
+  background: #000000;
+  color: #ffffff;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -28,34 +28,30 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: #1a1a1a;
 }
 
 ::-webkit-scrollbar-thumb {
-  /* 使用指南中指定的渐变颜色 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  background: #333333;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  /* 使用指南中指定的渐变颜色 */
-  background: linear-gradient(135deg, #7C3AED, #0891B2);
+  background: #555555;
 }
 
 /* 导航栏样式 */
 .navbar-container {
-  /* 使用指南中指定的背景和模糊效果 */
-  background: rgba(15, 15, 35, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   position: sticky;
   top: 0;
   z-index: 50;
 }
 
 .navbar-brand {
-  /* 使用指南中指定的渐变文本效果 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  background: linear-gradient(135deg, #ffffff, #cccccc);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -70,22 +66,22 @@ body {
 }
 
 .navbar-link {
-  color: #d1d5db; /* 默认链接颜色 */
+  color: #d1d5db;
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
   position: relative;
-  display: flex; /* 确保图标和文本在同一行 */
-  align-items: center; /* 垂直居中对齐 */
-  gap: 0.5rem; /* 图标和文本之间的间距 */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .navbar-link:hover {
-  color: #8B5CF6; /* 悬停颜色 */
+  color: #ffffff;
 }
 
 .navbar-link.active {
-  color: #8B5CF6; /* 激活状态颜色 */
+  color: #ffffff;
 }
 
 .navbar-link.active::after {
@@ -95,8 +91,7 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  /* 激活状态下划线渐变 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  background: #ffffff;
   border-radius: 1px;
 }
 
@@ -107,9 +102,9 @@ body {
 }
 
 .language-button {
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  color: #8B5CF6;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
@@ -118,8 +113,8 @@ body {
 }
 
 .language-button:hover {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.5);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .language-dropdown {
@@ -127,10 +122,9 @@ body {
   top: 100%;
   right: 0;
   margin-top: 0.5rem;
-  /* 使用指南中指定的背景和模糊效果 */
-  background: rgba(31, 41, 55, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 0.5rem;
   padding: 0.5rem;
   min-width: 120px;
@@ -152,14 +146,15 @@ body {
 }
 
 .language-option:hover {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8B5CF6;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
 }
 
 .language-option.active {
-  background: rgba(139, 92, 246, 0.2);
-  color: #8B5CF6;
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
 }
+
 
 /* Hero区域样式 */
 .hero-section {
@@ -169,20 +164,22 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
 }
 
 .hero-background {
   position: absolute;
   inset: 0;
-  /* 使用指南中指定的径向渐变背景 */
-  background: radial-gradient(circle at 30% 20%, rgba(139, 92, 246, 0.3) 0%, transparent 50%),
-              radial-gradient(circle at 70% 80%, rgba(6, 182, 212, 0.3) 0%, transparent 50%);
+  background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.05) 0%,
+      transparent 50%),
+    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.05) 0%,
+      transparent 50%);
 }
 
 .hero-content {
   text-align: center;
   z-index: 10;
-  max-width: 4xl; /* Tailwind max-w-4xl */
+  max-width: 4xl;
   padding: 0 1rem;
 }
 
@@ -194,8 +191,7 @@ body {
 }
 
 .hero-title-gradient {
-  /* 使用指南中指定的渐变文本效果 */
-  background: linear-gradient(135deg, #ffffff 0%, #8B5CF6 50%, #06B6D4 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #cccccc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -219,11 +215,10 @@ body {
 }
 
 .btn-primary {
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-  color: white;
+  background: #ffffff;
+  color: #000000;
   padding: 1rem 2rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -235,15 +230,15 @@ body {
 }
 
 .btn-primary:hover {
+  background: #f0f0f0;
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
 }
 
 .btn-secondary {
   background: rgba(255, 255, 255, 0.1);
   color: white;
   padding: 1rem 2rem;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -262,11 +257,9 @@ body {
 
 /* 音乐卡片样式 */
 .music-card {
-  /* 使用指南中指定的背景、模糊和边框 */
-  background: rgba(31, 41, 55, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 1rem;
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
   padding: 1.5rem;
   transition: all 0.3s ease;
   position: relative;
@@ -275,24 +268,14 @@ body {
 
 .music-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
-}
-
-.music-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 .album-cover {
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   object-fit: cover;
   margin-bottom: 1rem;
 }
@@ -302,8 +285,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  background: #00c853;
   color: white;
   border: none;
   border-radius: 50%;
@@ -323,46 +305,21 @@ body {
 
 .play-button:hover {
   transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+  background: #00a042;
 }
 
 /* 音乐播放器样式 */
 .player-container {
-  /* 使用指南中指定的背景和模糊效果 */
-  background: rgba(15, 15, 35, 0.95);
+  background: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(139, 92, 246, 0.2);
-}
-
-/* 注意：此处 play-button 与 music-card 中的 play-button 定义重复，
-   在实际项目中应避免，或通过更具体的选择器区分。
-   这里为了严格遵循指南，保留其重复定义。 */
-.play-button {
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.play-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* 定价卡片样式 */
 .pricing-card {
-  /* 使用指南中指定的背景、模糊和边框 */
-  background: rgba(31, 41, 55, 0.8);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 92, 246, 0.2);
-  border-radius: 1.5rem;
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
   padding: 2rem;
   transition: all 0.3s ease;
   position: relative;
@@ -371,13 +328,13 @@ body {
 
 .pricing-card:hover {
   transform: translateY(-8px);
-  border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 25px 50px rgba(139, 92, 246, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
 }
 
 .pricing-card.popular {
-  border-color: rgba(139, 92, 246, 0.5);
-  background: rgba(139, 92, 246, 0.1);
+  border-color: #00c853;
+  background: rgba(0, 200, 83, 0.05);
 }
 
 .pricing-card.popular::before {
@@ -387,12 +344,11 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, #8B5CF6, #06B6D4, #8B5CF6);
+  background: #00c853;
 }
 
 .popular-badge {
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
+  background: #00c853;
   color: white;
   padding: 0.5rem 1rem;
   border-radius: 9999px;
@@ -403,183 +359,25 @@ body {
   gap: 0.25rem;
 }
 
-/* 圆形音乐类型样式 */
-.genre-circle {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
-  background-size: cover;
-  background-position: center;
-  position: relative;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.genre-circle:hover {
-  transform: scale(1.05);
-  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
-}
-
-.genre-circle::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(6, 182, 212, 0.8));
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.genre-circle:hover::before {
-  opacity: 1;
-}
-
-.genre-circle::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.genre-circle:hover::after {
-  opacity: 1;
-}
-
-.genre-label {
-  position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  color: white;
-  font-weight: 600;
-  text-align: center;
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.genre-circle:hover .genre-label {
-  opacity: 1;
-}
-
-/* 音乐可视化器样式 */
-.music-visualizer {
-  display: flex;
-  align-items: end;
-  gap: 2px;
-  height: 20px;
-}
-
-.visualizer-bar {
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(to top, #8B5CF6, #06B6D4);
-  width: 3px;
-  border-radius: 1px;
-  animation: musicBeat 0.8s ease-in-out infinite alternate;
-}
-
-.visualizer-bar:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.visualizer-bar:nth-child(3) {
-  animation-delay: 0.2s;
-}
-
-.visualizer-bar:nth-child(4) {
-  animation-delay: 0.3s;
-}
-
-.visualizer-bar:nth-child(5) {
-  animation-delay: 0.4s;
-}
-
-@keyframes musicBeat {
-  0% {
-    height: 4px;
-  }
-  100% {
-    height: 20px;
-  }
-}
-
-/* 玻璃效果 */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* 渐变文字效果 */
-.gradient-text {
-  /* 使用指南中指定的渐变背景 */
-  background: linear-gradient(135deg, #8B5CF6, #06B6D4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* 浮动动画 */
-.floating {
-  animation: floating 3s ease-in-out infinite;
-}
-
-@keyframes floating {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-
-/* 脉冲动画 */
-.pulse-glow {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
-  }
-}
-
 /* 响应式设计 */
 @media (max-width: 768px) {
   .navbar-menu {
     flex-direction: column;
     gap: 1rem;
   }
-
   .hero-buttons {
     flex-direction: column;
     align-items: center;
   }
-
   .btn-primary,
   .btn-secondary {
     width: 100%;
     max-width: 300px;
     justify-content: center;
   }
-
-  .genre-circle {
-    width: 120px;
-    height: 120px;
-  }
-
   .music-card {
     padding: 1rem;
   }
-
   .pricing-card {
     padding: 1.5rem;
   }
@@ -589,21 +387,15 @@ body {
   .hero-title {
     font-size: 2.5rem;
   }
-
   .hero-subtitle {
     font-size: 1rem;
-  }
-
-  .genre-circle {
-    width: 100px;
-    height: 100px;
   }
 }
 
 /* 深色主题优化 */
 @media (prefers-color-scheme: dark) {
   body {
-    background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+    background: #000000;
   }
 }
 
@@ -613,7 +405,6 @@ body {
   .pricing-card {
     border-width: 2px;
   }
-
   .btn-primary,
   .btn-secondary {
     border-width: 2px;
