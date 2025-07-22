@@ -4,30 +4,117 @@
 
 /* 全局基础样式 */
 :root {
-  --background-color: #0a0a0a; /* 极深的灰色，比纯黑更柔和 */
-  --text-color: #e5e5e5; /* 柔和的白色 */
-  --text-muted-color: #a3a3a3; /* 暗示性文字颜色 */
-  --border-color: rgba(255, 255, 255, 0.1);
+  --background-primary: #0A0A0A; /* 主背景色，深邃黑 */
+  --background-secondary: #1A1A1A; /* 次级背景色，用于卡片、面板等 */
+  --text-primary: #E0E0E0; /* 主文本色，柔和白 */
+  --text-secondary: #A0A0A0; /* 次级文本色，用于描述、辅助信息 */
+  --accent-color-1: #8A2BE2; /* 强调色1，紫罗兰 */
+  --accent-color-2: #FF1493; /* 强调色2，深粉红 */
+  --border-color: rgba(255, 255, 255, 0.1); /* 边框颜色 */
+  --gradient-purple-blue: linear-gradient(to right, #8A2BE2, #4169E1); /* 紫蓝渐变 */
+  --gradient-pink-purple: linear-gradient(to right, #FF1493, #8A2BE2); /* 粉紫渐变 */
 }
 
-body {
-  background-color: var(--background-color);
-  color: var(--text-color);
+html, body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth; /* 平滑滚动 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 容器和布局 */
+.container {
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* 按钮基础样式 */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: var(--gradient-purple-blue);
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 输入框样式 */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  transition: border-color 0.3s ease-in-out;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--accent-color-1);
+}
+
+/* 卡片基础样式 */
+.card {
+  background-color: var(--background-secondary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
 }
 
 /* 导航栏样式 (Navbar) */
 .navbar-link {
-  color: var(--text-muted-color);
-  transition: color 0.2s ease-in-out;
+  color: var(--text-secondary);
+  transition: color 0.2s ease-in-out, transform 0.2s ease-in-out;
   position: relative;
   padding-bottom: 4px;
 }
 .navbar-link:hover {
-  color: var(--text-color);
+  color: var(--text-primary);
+  transform: translateY(-2px);
 }
 .navbar-link.active {
-  color: var(--text-color);
+  color: var(--text-primary);
   font-weight: 500;
 }
 .navbar-link.active::after {
@@ -37,19 +124,8 @@ body {
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--text-color);
-}
-
-/* 登录按钮 */
-.login-button {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--text-color);
-  padding: 8px 16px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease-in-out;
-}
-.login-button:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background: var(--gradient-purple-blue);
+  border-radius: 1px;
 }
 
 /* 音乐卡片 (MusicCard) */
@@ -57,6 +133,7 @@ body {
   background-color: transparent; /* 卡片背景透明 */
   border-radius: 8px;
   overflow: hidden;
+  cursor: pointer;
 }
 .music-card-image-wrapper {
   aspect-ratio: 1 / 1;
@@ -67,12 +144,103 @@ body {
   background-color: #1a1a1a; /* 图片加载前的占位背景色 */
 }
 .music-card-title {
-  color: var(--text-color);
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 1rem;
   margin-bottom: 4px;
 }
 .music-card-artist {
-  color: var(--text-muted-color);
+  color: var(--text-secondary);
   font-size: 0.875rem;
 }
+
+/* 播放器样式 */
+.player-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.play-button {
+  background: var(--gradient-pink-purple);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease-in-out;
+}
+
+.play-button:hover {
+  transform: scale(1.05);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-purple-blue);
+  border-radius: 4px;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-color-1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color-2);
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.6s ease-out forwards;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.pulse-animation {
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+

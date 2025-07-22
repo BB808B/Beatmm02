@@ -2,27 +2,19 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Repeat, Shuffle, List } from 'lucide-react';
+import { FaPlay, FaPause, FaStepBackward, FaStepForward, FaVolumeUp, FaVolumeMute, FaRedo, FaRandom, FaList } from 'react-icons/fa';
 import Image from 'next/image';
-import { Track } from '@/types'; // 从 types/index.ts 导入 Track 类型
+import { Track } from '@/types';
 
 interface MusicPlayerProps {
-  tracks: Track[];
-  currentTrackIndex: number;
-  setCurrentTrackIndex: (index: number) => void;
-  onShowPlaylist?: () => void;
+  currentTrack?: Track; // 当前播放的歌曲，可选
 }
 
-const MusicPlayer: React.FC<MusicPlayerProps> = ({
-  tracks,
-  currentTrackIndex,
-  setCurrentTrackIndex,
-  onShowPlaylist,
-}) => {
+const MusicPlayer: React.FC<MusicPlayerProps> = ({ currentTrack }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(1);
+  const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
@@ -31,31 +23,31 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   const audioRef = useRef<HTMLAudioElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
 
-  const currentTrack = tracks[currentTrackIndex];
-  
-  useEffect(() => {
-    // 当歌曲切换时，重置图片错误状态
-    setImageError(false);
-    // 如果当前有歌曲，尝试播放
-    if(currentTrack) {
-      setIsPlaying(true);
-    }
-  }, [currentTrackIndex]);
-
-
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    
+
+    // 当 currentTrack 变化时，更新音频源并尝试播放
+    if (currentTrack) {
+      audio.src = currentTrack.audioUrl || ''; // 假设 Track 包含 audioUrl
+      audio.load(); // 重新加载音频
+      audio.play().then(() => setIsPlaying(true)).catch(e => {
+        console.error("Audio play failed:", e);
+        setIsPlaying(false);
+      });
+      setCurrentTime(0);
+      setDuration(0);
+      setImageError(false);
+    } else {
+      audio.pause();
+      setIsPlaying(false);
+    }
+
     const updateTime = () => setCurrentTime(audio.currentTime);
     const updateDuration = () => setDuration(audio.duration || 0);
     const handleEnded = () => {
-      if (isRepeat) {
-        audio.currentTime = 0;
-        audio.play();
-      } else {
-        handleNext();
-      }
+      setIsPlaying(false);
+      // 这里可以添加播放下一首的逻辑，如果需要全局播放列表
     };
 
     audio.addEventListener('timeupdate', updateTime);
@@ -67,7 +59,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
       audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [currentTrackIndex, isRepeat]); 
+  }, [currentTrack]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -77,7 +69,7 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
     } else {
       audio.pause();
     }
-  }, [isPlaying, currentTrack]); 
+  }, [isPlaying]);
   
   useEffect(() => {
     const audio = audioRef.current;
@@ -86,36 +78,6 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
   }, [volume, isMuted]);
 
   const togglePlay = () => setIsPlaying(!isPlaying);
-
-  // --- 这里是关键修改 ---
-  const handleNext = () => {
-    if (tracks.length === 0) return;
-    let nextIndex;
-    if (isShuffle) {
-      do {
-        nextIndex = Math.floor(Math.random() * tracks.length);
-      } while (tracks.length > 1 && nextIndex === currentTrackIndex);
-    } else {
-      nextIndex = (currentTrackIndex + 1) % tracks.length;
-    }
-    // 直接传入计算好的数字
-    setCurrentTrackIndex(nextIndex);
-  };
-
-  // --- 这里是关键修改 ---
-  const handlePrevious = () => {
-    if (tracks.length === 0) return;
-    let prevIndex;
-    if (isShuffle) {
-      do {
-        prevIndex = Math.floor(Math.random() * tracks.length);
-      } while (tracks.length > 1 && prevIndex === currentTrackIndex);
-    } else {
-      prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-    }
-    // 直接传入计算好的数字
-    setCurrentTrackIndex(prevIndex);
-  };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const audio = audioRef.current;
@@ -138,58 +100,63 @@ const MusicPlayer: React.FC<MusicPlayerProps> = ({
 
   const handleImageError = () => setImageError(true);
   
-  if (!currentTrack) return null;
+  // 如果没有 currentTrack，则不渲染播放器
+  if (!currentTrack) {
+    return (
+      <div className="flex flex-col items-center space-y-1 w-full">
+        <div className="flex items-center space-x-2 md:space-x-4">
+          <button className="p-2 rounded-full text-gray-600 cursor-not-allowed"><FaRandom size={18} /></button>
+          <button className="p-2 rounded-full text-gray-600 cursor-not-allowed"><FaStepBackward size={20} /></button>
+          <button className="bg-gray-700 text-gray-500 w-10 h-10 flex items-center justify-center rounded-full cursor-not-allowed">
+            <FaPlay size={20} />
+          </button>
+          <button className="p-2 rounded-full text-gray-600 cursor-not-allowed"><FaStepForward size={20} /></button>
+          <button className="p-2 rounded-full text-gray-600 cursor-not-allowed"><FaRedo size={18} /></button>
+        </div>
+        <div className="flex items-center space-x-2 w-full max-w-xs">
+          <span className="text-xs text-gray-600 w-10 text-right">0:00</span>
+          <div className="flex-1 h-1 bg-gray-800 rounded-full"></div>
+          <span className="text-xs text-gray-600 w-10">0:00</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg border-t border-white/10 p-4 z-50">
-      <audio ref={audioRef} src={currentTrack.audioUrl} preload="metadata" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
+    <div className="flex flex-col items-center space-y-1 w-full">
+      <audio ref={audioRef} preload="metadata" onPlay={() => setIsPlaying(true)} onPause={() => setIsPlaying(false)} />
       
-      <div className="max-w-7xl mx-auto grid grid-cols-3 items-center gap-4">
-        <div className="flex items-center space-x-3 min-w-0">
-          <div className="relative w-14 h-14 rounded-md overflow-hidden bg-gray-800 flex-shrink-0">
-            {!imageError && currentTrack.coverImage ? (
-              <Image src={currentTrack.coverImage} alt={currentTrack.title} fill sizes="56px" style={{ objectFit: 'cover' }} onError={handleImageError} />
-            ) : (
-              <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-400 text-xs">No Image</div>
-            )}
-          </div>
-          <div className="min-w-0">
-            <h4 className="text-white font-medium truncate">{currentTrack.title}</h4>
-            <p className="text-gray-400 text-sm truncate">{currentTrack.artist}</p>
-          </div>
+      <div className="flex items-center space-x-2 md:space-x-4">
+        <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? 'text-accent-color-1' : 'text-text-secondary hover:text-text-primary'}`}><FaRandom size={18} /></button>
+        <button onClick={() => { /* handlePrevious */ }} className="p-2 rounded-full text-text-secondary hover:text-text-primary transition-colors"><FaStepBackward size={20} /></button>
+        <button onClick={togglePlay} className="play-button w-14 h-14 flex items-center justify-center rounded-full">
+          {isPlaying ? <FaPause size={20} /> : <FaPlay size={20} className="ml-1" />}
+        </button>
+        <button onClick={() => { /* handleNext */ }} className="p-2 rounded-full text-text-secondary hover:text-text-primary transition-colors"><FaStepForward size={20} /></button>
+        <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 rounded-full transition-colors ${isRepeat ? 'text-accent-color-1' : 'text-text-secondary hover:text-text-primary'}`}><FaRedo size={18} /></button>
+      </div>
+      <div className="flex items-center space-x-2 w-full max-w-xs">
+        <span className="text-xs text-text-secondary w-10 text-right">{formatTime(currentTime)}</span>
+        <div ref={progressRef} onClick={handleProgressClick} className="progress-bar-container flex-1">
+          <div className="progress-bar-fill" style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }} />
         </div>
-
-        <div className="flex flex-col items-center space-y-1">
-            <div className="flex items-center space-x-2 md:space-x-4">
-                <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 rounded-full transition-colors ${isShuffle ? 'text-green-500' : 'text-gray-400 hover:text-white'}`}><Shuffle size={18} /></button>
-                <button onClick={handlePrevious} className="p-2 rounded-full text-gray-400 hover:text-white transition-colors"><SkipBack size={20} /></button>
-                <button onClick={togglePlay} className="bg-white text-black w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors">
-                  {isPlaying ? <Pause size={20} /> : <Play size={20} className="fill-black" />}
-                </button>
-                <button onClick={handleNext} className="p-2 rounded-full text-gray-400 hover:text-white transition-colors"><SkipForward size={20} /></button>
-                <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 rounded-full transition-colors ${isRepeat ? 'text-green-500' : 'text-gray-400 hover:text-white'}`}><Repeat size={18} /></button>
-            </div>
-            <div className="flex items-center space-x-2 w-full max-w-xs">
-                <span className="text-xs text-gray-400 w-10 text-right">{formatTime(currentTime)}</span>
-                <div ref={progressRef} onClick={handleProgressClick} className="flex-1 h-1 bg-gray-600 rounded-full cursor-pointer group"><div className="h-full bg-white rounded-full group-hover:bg-green-500 transition-all" style={{ width: duration ? `${(currentTime / duration) * 100}%` : '0%' }} /></div>
-                <span className="text-xs text-gray-400 w-10">{formatTime(duration)}</span>
-            </div>
-        </div>
-
-        <div className="flex items-center space-x-2 justify-end">
-          <button onClick={() => setIsMuted(!isMuted)} className="p-2 text-gray-400 hover:text-white">{isMuted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}</button>
-          <input 
-            type="range" 
-            min="0" max="1" step="0.01" 
-            value={isMuted ? 0 : volume} 
-            onChange={(e) => setVolume(parseFloat(e.target.value))} 
-            className="w-20 md:w-24 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-white"
-          />
-          <button onClick={onShowPlaylist} className="p-2 rounded-full text-gray-400 hover:text-white transition-colors"><List size={18} /></button>
-        </div>
+        <span className="text-xs text-text-secondary w-10">{formatTime(duration)}</span>
+      </div>
+      <div className="flex items-center space-x-2">
+        <button onClick={() => setIsMuted(!isMuted)} className="p-2 text-text-secondary hover:text-text-primary">{isMuted || volume === 0 ? <FaVolumeMute size={18} /> : <FaVolumeUp size={18} />}</button>
+        <input 
+          type="range" 
+          min="0" max="1" step="0.01" 
+          value={isMuted ? 0 : volume} 
+          onChange={(e) => setVolume(parseFloat(e.target.value))} 
+          className="w-20 md:w-24 h-1 bg-background-secondary rounded-lg appearance-none cursor-pointer accent-accent-color-1"
+        />
+        {/* <button onClick={() => { /* onShowPlaylist */ /*}} className="p-2 rounded-full text-text-secondary hover:text-text-primary transition-colors"><FaList size={18} /></button> */}
       </div>
     </div>
   );
 };
 
 export default MusicPlayer;
+
+

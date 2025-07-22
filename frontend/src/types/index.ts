@@ -9,6 +9,73 @@ export interface TranslationType {
     freeTrial: string;
     popular: string;
     search: string;
+    home: string;
+    browse: string;
+    library: string;
+    leaderboard: string;
+    vip: string;
+    login: string;
+    signup: string;
+    euphoric_beats: string;
+    recommended_music: string;
+    hot_tracks: string;
+    become_vip: string;
+    vip_benefits_desc: string;
+    learn_more: string;
+    login_to_beatmm_pro: string;
+    phone_login: string;
+    username_login: string;
+    phone_number: string;
+    username: string;
+    password: string;
+    logging_in: string;
+    no_account_yet: string;
+    sign_up_now: string;
+    forgot_password: string;
+    edit_profile_feature_coming_soon: string;
+    followers: string;
+    following: string;
+    edit_profile: string;
+    uploaded_songs: string;
+    liked_songs: string;
+    no_songs_found: string;
+    no_playlists_found: string;
+    no_liked_songs_found: string;
+    platform_rules: string;
+    terms_of_service: string;
+    terms_of_service_content_p1: string;
+    terms_of_service_content_p2: string;
+    privacy_policy: string;
+    privacy_policy_content_p1: string;
+    privacy_policy_content_p2: string;
+    community_guidelines: string;
+    community_guidelines_content_p1: string;
+    community_guidelines_content_p2: string;
+    settings: string;
+    general_settings: string;
+    language: string;
+    myanmar: string;
+    chinese: string;
+    english: string;
+    theme: string;
+    dark_theme: string;
+    light_theme: string;
+    enable_notifications: string;
+    auto_play_next_song: string;
+    save_settings: string;
+    account_settings: string;
+    change_password: string;
+    manage_privacy: string;
+    delete_account: string;
+    music_categories: string;
+    vietnamese_drum: string;
+    traditional_myanmar: string;
+    electronic_dance: string;
+    hip_hop: string;
+    pop: string;
+    featured_music: string;
+    playlists: string;
+    songs: string;
   };
   navbar: {
     home: string;
@@ -54,7 +121,7 @@ export interface Track {
   title: string;
   artist: string;
   coverImage: string;
-  audioUrl?: string;
+  audioUrl?: string; // 音频文件URL
   duration: number;
   plays?: number;
   likes?: number;
@@ -65,7 +132,9 @@ export interface Track {
 
 export interface User {
   id: string;
-  phone: string;
+  phone?: string; // 手机号可选
+  username?: string; // 用户名可选
+  email?: string; // 邮箱可选
   role: 'user' | 'dj' | 'admin' | 'super_admin';
   balance: number;
   isDj?: boolean;
@@ -73,6 +142,11 @@ export interface User {
   createdAt?: string;
   lastLogin?: string;
   trialEndDate?: string;
+  avatar?: string; // 用户头像
+  bio?: string; // 个人简介
+  level?: string; // 用户等级
+  followers?: number; // 粉丝数
+  following?: number; // 关注数
 }
 
 export interface Subscription {
@@ -94,3 +168,5 @@ export interface DjApplication {
   createdAt: string;
   updatedAt: string;
 }
+
+

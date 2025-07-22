@@ -23,9 +23,9 @@ SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY") # 使用 Service Key �
 
 if not all([SUPABASE_URL, SUPABASE_SERVICE_KEY]):
     logger.error("Supabase URL and Service Key must be set in environment variables.")
+    # 生产环境中应抛出异常或退出
 
 # --- Supabase 客户端 (使用 Service Role Key) ---
-# 这给了我们在后端足够的权限去操作数据
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 
@@ -33,54 +33,76 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
 
 @app.route("/api/auth/register", methods=["POST"])
 def register():
-    """用户注册 - 使用 Supabase Auth"""
+    """用户注册 - 支持手机号/用户名/密码注册"""
     data = request.get_json()
     phone = data.get("phone")
     password = data.get("password")
+    username = data.get("username") # 新增用户名注册
 
-    if not phone or not password:
-        return jsonify({"error": "手机号和密码不能为空"}), 400
+    if not (phone or username) or not password:
+        return jsonify({"error": "手机号/用户名和密码不能为空"}), 400
 
     try:
-        # 使用 Supabase 官方方法注册用户
-        # 这里的 phone 是为了演示，Supabase Auth 默认使用 email
-        # 如果要用 phone，需要在 Supabase 后台开启手机号登录
-        # 我们假设使用 email 代替 phone
-        email = f"{phone}@example.com" # 临时将手机号转为邮箱格式
-        auth_response = supabase.auth.sign_up({
-            "email": email,
-            "password": password,
-        })
-        
-        # 注册成功后，我们的数据库触发器会自动创建 profile
-        return jsonify({"message": "注册成功，请检查您的邮箱进行验证"}), 201
+        # 优先使用手机号注册，如果提供
+        if phone:
+            auth_response = supabase.auth.sign_up({
+                "phone": phone,
+                "password": password,
+            })
+            user_id = auth_response.user.id
+            # 注册成功后，在profiles表中创建用户资料
+            supabase.table("profiles").insert({"id": user_id, "phone": phone, "username": username, "role": "user"}).execute()
+            return jsonify({"message": "注册成功，请检查您的手机进行验证"}), 201
+        elif username:
+            # 如果只提供用户名，则需要一个虚拟邮箱或在Supabase后台配置用户名登录
+            # 考虑到Supabase Auth默认基于Email/Phone，这里暂时用虚拟Email处理用户名注册
+            # 实际部署时，建议在Supabase后台配置自定义用户名字段或使用第三方认证
+            email = f"{username}@beatmm.pro" # 虚拟邮箱
+            auth_response = supabase.auth.sign_up({
+                "email": email,
+                "password": password,
+            })
+            user_id = auth_response.user.id
+            supabase.table("profiles").insert({"id": user_id, "username": username, "email": email, "role": "user"}).execute()
+            return jsonify({"message": "注册成功"}), 201
 
     except Exception as e:
         logger.error(f"注册错误: {e}")
-        # 处理 Supabase 返回的特定错误
-        if "User already registered" in str(e):
-            return jsonify({"error": "该用户已被注册"}), 409
+        error_message = str(e)
+        if "User already registered" in error_message or "duplicate key value violates unique constraint" in error_message:
+            return jsonify({"error": "该手机号或用户名已被注册"}), 409
         return jsonify({"error": "服务器内部错误"}), 500
 
 
 @app.route("/api/auth/login", methods=["POST"])
 def login():
-    """用户登录 - 使用 Supabase Auth"""
+    """用户登录 - 支持手机号/用户名/密码登录"""
     data = request.get_json()
     phone = data.get("phone")
+    username = data.get("username")
     password = data.get("password")
 
-    if not phone or not password:
-        return jsonify({"error": "手机号和密码不能为空"}), 400
+    if not (phone or username) or not password:
+        return jsonify({"error": "手机号/用户名和密码不能为空"}), 400
     
     try:
-        email = f"{phone}@example.com" # 同样，用邮箱格式登录
-        auth_response = supabase.auth.sign_in_with_password({
-            "email": email,
-            "password": password
-        })
+        auth_response = None
+        if phone:
+            auth_response = supabase.auth.sign_in_with_password({
+                "phone": phone,
+                "password": password
+            })
+        elif username:
+            # 同样，使用虚拟邮箱进行登录
+            email = f"{username}@beatmm.pro"
+            auth_response = supabase.auth.sign_in_with_password({
+                "email": email,
+                "password": password
+            })
 
-        # 从返回结果中获取 token 和用户 ID
+        if not auth_response or not auth_response.session or not auth_response.user:
+            return jsonify({"error": "手机号/用户名或密码错误"}), 401
+
         token = auth_response.session.access_token
         user_id = auth_response.user.id
 
@@ -97,8 +119,9 @@ def login():
         })
     except Exception as e:
         logger.error(f"登录错误: {e}")
-        if "Invalid login credentials" in str(e):
-             return jsonify({"error": "手机号或密码错误"}), 401
+        error_message = str(e)
+        if "Invalid login credentials" in error_message or "AuthApiError" in error_message:
+             return jsonify({"error": "手机号/用户名或密码错误"}), 401
         return jsonify({"error": "服务器错误"}), 500
 
 
@@ -110,3 +133,5 @@ def index():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
+
