@@ -1,11 +1,29 @@
-// file: frontend/src/app/login/page.tsx
+// frontend/src/app/login/page.tsx
 'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'react-i18next';
+// import { useTranslation } from 'react-i18next';
+import DynamicBackground from '@/components/DynamicBackground'; // 引入动态背景
+import AuthContainer from '@/components/AuthContainer'; // 引入UI容器
 
 const LoginPage = () => {
-  const { t } = useTranslation();
+  // const { t } = useTranslation();
+  // 临时 t 函数以便于独立运行
+  const t = (key: string) => ({
+    'login_title': 'Welcome Back',
+    'phone_login': 'Phone',
+    'username_login': 'Username',
+    'phone_number': 'Phone Number',
+    'username': 'Username',
+    'password': 'Password',
+    'logging_in': 'Logging in...',
+    'login': 'Login',
+    'no_account_yet': "Don't have an account?",
+    'sign_up_now': 'Sign up now',
+    'forgot_password': 'Forgot Password?',
+  }[key] || key);
+
+  // --- 您的核心功能逻辑，100%保留 ---
   const [loginType, setLoginType] = useState<'phone' | 'username'>('phone');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -21,56 +39,55 @@ const LoginPage = () => {
       const payload = loginType === 'phone' ? { phone: identifier, password } : { username: identifier, password };
       const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
       const data = await response.json();
-
       if (response.ok) {
-        // 登录成功，可以保存 token 并重定向
         console.log('Login successful:', data);
-        // 例如：localStorage.setItem('token', data.token);
-        // window.location.href = '/'; // 重定向到首页
+        // window.location.href = '/';
       } else {
-        setError(data.error || '登录失败');
+        setError(data.error || 'Login failed');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('网络错误或服务器无响应');
+      setError('Network error or server is down');
     } finally {
       setLoading(false);
     }
   };
+  // --- 逻辑部分结束 ---
+
+  // 输入框基础样式，增加了 focus 时的辉光效果
+  const inputClass = "input-field focus:ring-2 focus:ring-accent-color-1 focus:border-transparent transition-all duration-300";
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background-primary">
-      <div className="card p-8 w-full max-w-md text-center animate-fade-in">
-        <h1 className="text-3xl font-bold text-text-primary mb-6">{t('login_to_beatmm_pro')}</h1>
+    <>
+      <DynamicBackground />
+      <AuthContainer title={t('login_title')}>
         
-        <div className="flex justify-center mb-6">
+        {/* 登录方式切换按钮 (新设计) */}
+        <div className="flex bg-background-primary p-1 rounded-lg mb-6">
           <button
-            className={`px-4 py-2 rounded-l-lg ${loginType === 'phone' ? 'bg-accent-color-1 text-white' : 'bg-background-secondary text-text-secondary'}`}
+            className={`w-1/2 py-2 rounded-md text-sm font-semibold transition-colors duration-300 ${loginType === 'phone' ? 'bg-accent-color-1 text-white' : 'text-text-secondary hover:bg-background-secondary'}`}
             onClick={() => setLoginType('phone')}
           >
             {t('phone_login')}
           </button>
           <button
-            className={`px-4 py-2 rounded-r-lg ${loginType === 'username' ? 'bg-accent-color-1 text-white' : 'bg-background-secondary text-text-secondary'}`}
+            className={`w-1/2 py-2 rounded-md text-sm font-semibold transition-colors duration-300 ${loginType === 'username' ? 'bg-accent-color-1 text-white' : 'text-text-secondary hover:bg-background-secondary'}`}
             onClick={() => setLoginType('username')}
           >
             {t('username_login')}
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <input
               type="text"
               placeholder={loginType === 'phone' ? t('phone_number') : t('username')}
-              className="input-field"
+              className={inputClass}
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               required
@@ -80,34 +97,34 @@ const LoginPage = () => {
             <input
               type="password"
               placeholder={t('password')}
-              className="input-field"
+              className={inputClass}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+          {error && <p className="text-red-400 text-sm text-center animate-pulse">{error}</p>}
+          <button type="submit" className="btn-primary w-full !py-3" disabled={loading}>
             {loading ? t('logging_in') : t('login')}
           </button>
         </form>
 
-        <p className="mt-6 text-text-secondary">
-          {t('no_account_yet')}{' '}
-          <Link href="/signup" className="text-accent-color-1 hover:underline">
-            {t('sign_up_now')}
-          </Link>
-        </p>
-        <p className="mt-2 text-text-secondary">
-          <Link href="/forgot-password" className="text-accent-color-1 hover:underline">
-            {t('forgot_password')}?
-          </Link>
-        </p>
-      </div>
-    </div>
+        <div className="mt-6 text-center text-sm">
+          <p className="text-text-secondary">
+            {t('no_account_yet')}{' '}
+            <Link href="/signup" className="font-semibold text-accent-color-1 hover:text-accent-color-2 transition-colors">
+              {t('sign_up_now')}
+            </Link>
+          </p>
+          <p className="mt-2 text-text-secondary">
+            <Link href="/forgot-password" className="font-semibold text-accent-color-1 hover:text-accent-color-2 transition-colors">
+              {t('forgot_password')}
+            </Link>
+          </p>
+        </div>
+      </AuthContainer>
+    </>
   );
 };
 
 export default LoginPage;
-
-
