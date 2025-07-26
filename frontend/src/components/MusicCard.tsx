@@ -1,61 +1,62 @@
-// file: frontend/src/components/MusicCard.tsx
+// src/components/MusicCard.tsx
 'use client';
-import React, { useState } from 'react';
-import Image from 'next/image';
-import { Track } from '@/types';
-import { FaPlay, FaPause } from 'react-icons/fa'; // 引入播放/暂停图标
 
-interface MusicCardProps extends Track {
-  onPlay?: (track: Track) => void; // 添加播放事件回调
+import Image from 'next/image';
+import { Play } from 'lucide-react';
+import { Track } from '@/types'; // 确保 @/types/index.ts 文件已创建
+
+// 定义组件接收的属性，我们只需要 Track 的一部分
+interface MusicCardProps {
+  track: Partial<Track>; // 使用 Partial，因为我们可能只传递部分数据
+  onClick?: (id: string) => void; // 定义点击事件，传递 track ID
 }
 
-const MusicCard: React.FC<MusicCardProps> = ({ id, title, artist, coverImage, duration, onPlay }) => {
-  const [imageError, setImageError] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false); // 模拟播放状态
+const MusicCard: React.FC<MusicCardProps> = ({ track, onClick }) => {
+  
+  // 从 track 中解构所需的数据，并提供默认值
+  const { id = '', title = 'Untitled', artist = 'Unknown Artist', coverImage } = track;
 
-  const handlePlayClick = () => {
-    // 模拟播放逻辑
-    setIsPlaying(!isPlaying);
-    if (onPlay) {
-      onPlay({ id, title, artist, coverImage, duration });
+  const handleCardClick = () => {
+    if (onClick && id) {
+      onClick(id);
     }
   };
 
   return (
-    <div className="music-card group relative rounded-lg overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-xl">
-      <div className="music-card-image-wrapper relative">
-        {!imageError && coverImage ? (
-          <Image
-            src={coverImage}
-            alt={title}
-            fill
-            sizes="(max-width: 768px) 50vw, 20vw"
-            className="object-cover transition-transform duration-300 group-hover:scale-110"
-            onError={() => setImageError(true)}
+    <div 
+      className="group animate-fade-in cursor-pointer"
+      onClick={handleCardClick}
+    >
+      <div className="relative mb-3 aspect-square rounded-lg overflow-hidden shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+        
+        {/* 图片或占位符 */}
+        {coverImage ? (
+          <Image 
+            src={coverImage} 
+            alt={title} 
+            fill 
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
           />
         ) : (
-          <div className="w-full h-full bg-background-secondary flex items-center justify-center text-text-secondary text-sm">
-            <span>{title}</span>
+          <div className="w-full h-full bg-background-secondary flex items-center justify-center">
+            <Music className="w-1/3 h-1/3 text-text-secondary opacity-50" />
           </div>
         )}
-        {/* 播放按钮叠加层 */}
-        <div
-          className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          onClick={handlePlayClick}
-        >
-          <button className="play-button w-14 h-14 text-2xl">
-            {isPlaying ? <FaPause /> : <FaPlay />}
-          </button>
+
+        {/* 悬停时的播放按钮叠加层 */}
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+          <div className="w-14 h-14 bg-gradient-to-br from-accent-color-1 to-accent-color-2 rounded-full flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-300">
+            <Play className="w-7 h-7 text-white ml-1" />
+          </div>
         </div>
       </div>
-      <div className="p-3">
-        <h3 className="music-card-title truncate text-text-primary text-base font-semibold">{title}</h3>
-        <p className="music-card-artist truncate text-text-secondary text-sm">{artist}</p>
-      </div>
+
+      {/* 标题和艺术家信息 */}
+      <h4 className="font-semibold truncate text-text-primary">{title}</h4>
+      <p className="text-sm text-text-secondary truncate">{artist}</p>
     </div>
   );
 };
 
 export default MusicCard;
-
-
