@@ -5,6 +5,7 @@ import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { UploadCloud, Music, Image as ImageIcon, X, Loader2, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image'; // 确保导入了 next/image
 // 注意：确保你的项目中已经有了Supabase的Provider设置，以便这里能获取到client
 import { useSupabaseClient } from '@supabase/auth-helpers-react'; 
 
@@ -122,7 +123,9 @@ const UploadPage = () => {
                 <input {...getCoverInputProps()} />
                 {coverPreview ? (
                   <>
-                    <Image src={coverPreview} alt="Cover preview" layout="fill" className="object-cover" />
+                    {/* ========== THIS IS THE FIX ========== */}
+                    <Image src={coverPreview} alt="Cover preview" fill className="object-cover" />
+                    {/* ==================================== */}
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                       <p className="text-white font-bold">{t('change_cover')}</p>
                     </div>
