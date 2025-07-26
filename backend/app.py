@@ -1,225 +1,148 @@
 # backend/app.py
-
+import os
+import uuid
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os
-from dotenv import load_dotenv
 from supabase import create_client, Client
-import logging
-from datetime import datetime, timezone
-import uuid # 用于生成唯一文件名
+from dotenv import load_dotenv
+from werkzeug.utils import secure_filename
+import mimetypes
 
-# 加载环境变量
-load_dotenv()
+# --- 初始化与配置 ---
+load_dotenv()  # 加载 .env 文件中的环境变量
 
-# 创建Flask应用
 app = Flask(__name__)
-CORS(app, origins="*") # 在生产环境中应配置为你的前端域名
+# 注意：在生产环境中，应该更精确地指定允许的来源，而不是 "*"
+CORS(app, resources={r"/api/*": {"origins": "*"}}) 
 
-# 配置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# 从环境变量中获取 Supabase 配置
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
 
-# --- 配置 ---
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+if not url or not key:
+    raise ValueError("Supabase URL and Key must be set in the .env file")
 
-if not all([SUPABASE_URL, SUPABASE_SERVICE_KEY]):
-    logger.error("Supabase URL and Service Key must be set in environment variables.")
-    # 在实际应用中，这里应该引发异常或退出程序
+supabase: Client = create_client(url, key)
 
-# --- Supabase 客户端 (使用 Service Role Key) ---
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
-except Exception as e:
-    logger.error(f"Failed to create Supabase client: {e}")
-    # 同样，这里也应该有更健壮的错误处理
+# --- 配置项 (根据您的情报定制) ---
+AUDIO_BUCKET_NAME = "音乐文件"
+COVER_ART_BUCKET_NAME = "DJ上传"
+ALLOWED_AUDIO_EXTENSIONS = {'mp3', 'wav', 'flac', 'm4a'}
+ALLOWED_IMAGE_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
-# ##############################################
-# ###           您的原有代码，保持不变           ###
-# ##############################################
 
-@app.route("/api/auth/register", methods=["POST"])
-def register():
-    """用户注册 - 支持手机号/用户名/密码注册"""
-    # ... (您的代码保持不变) ...
-    data = request.get_json()
-    phone = data.get("phone")
-    password = data.get("password")
-    username = data.get("username") # 新增用户名注册
+# --- 辅助函数 ---
+def allowed_file(filename, allowed_extensions):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-    if not (phone or username) or not password:
-        return jsonify({"error": "手机号/用户名和密码不能为空"}), 400
+# --- API 端点 ---
+@app.route("/")
+def hello_world():
+    return "<p>BeatMM Pro Backend is running!</p>"
 
+@app.route("/api/upload", methods=["POST"])
+def upload_track():
     try:
-        # 优先使用手机号注册，如果提供
-        if phone:
-            auth_response = supabase.auth.sign_up({
-                "phone": phone,
-                "password": password,
-            })
-            user_id = auth_response.user.id
-            # 注册成功后，在profiles表中创建用户资料
-            supabase.table("profiles").insert({"id": user_id, "phone": phone, "username": username, "role": "user"}).execute()
-            return jsonify({"message": "注册成功，请检查您的手机进行验证"}), 201
-        elif username:
-            email = f"{username}@beatmm.pro" # 虚拟邮箱
-            auth_response = supabase.auth.sign_up({
-                "email": email,
-                "password": password,
-            })
-            user_id = auth_response.user.id
-            supabase.table("profiles").insert({"id": user_id, "username": username, "email": email, "role": "user"}).execute()
-            return jsonify({"message": "注册成功"}), 201
-
-    except Exception as e:
-        logger.error(f"注册错误: {e}")
-        error_message = str(e)
-        if "User already registered" in error_message or "duplicate key value violates unique constraint" in error_message:
-            return jsonify({"error": "该手机号或用户名已被注册"}), 409
-        return jsonify({"error": "服务器内部错误"}), 500
-
-
-@app.route("/api/auth/login", methods=["POST"])
-def login():
-    """用户登录 - 支持手机号/用户名/密码登录"""
-    # ... (您的代码保持不变) ...
-    data = request.get_json()
-    phone = data.get("phone")
-    username = data.get("username")
-    password = data.get("password")
-
-    if not (phone or username) or not password:
-        return jsonify({"error": "手机号/用户名和密码不能为空"}), 400
-    
-    try:
-        auth_response = None
-        if phone:
-            auth_response = supabase.auth.sign_in_with_password({
-                "phone": phone,
-                "password": password
-            })
-        elif username:
-            email = f"{username}@beatmm.pro"
-            auth_response = supabase.auth.sign_in_with_password({
-                "email": email,
-                "password": password
-            })
-
-        if not auth_response or not auth_response.session or not auth_response.user:
-            return jsonify({"error": "手机号/用户名或密码错误"}), 401
-
-        token = auth_response.session.access_token
-        user_id = auth_response.user.id
-        
-        profile_res = supabase.table("profiles").select("role").eq("id", user_id).single().execute()
-
-        return jsonify({
-            "message": "登录成功",
-            "token": token,
-            "user": {
-                "id": user_id,
-                "role": profile_res.data.get("role", "user") if profile_res.data else "user"
-            }
-        })
-    except Exception as e:
-        logger.error(f"登录错误: {e}")
-        error_message = str(e)
-        if "Invalid login credentials" in error_message or "AuthApiError" in error_message:
-             return jsonify({"error": "手机号/用户名或密码错误"}), 401
-        return jsonify({"error": "服务器错误"}), 500
-
-
-# ##############################################
-# ###           新增的音乐上传路由            ###
-# ##############################################
-
-@app.route("/api/music/upload", methods=["POST"])
-def upload_music():
-    """处理音乐上传的请求"""
-    try:
-        # --- 1. 验证用户身份 (这是关键!) ---
-        # 实际应用中，需要从 Authorization header 获取 JWT，然后验证用户
-        # 这里我们暂时硬编码一个用户ID和用户名用于测试
-        # TODO: 替换为真实的JWT验证逻辑
+        # 1. --- 验证和解析表单数据 ---
+        # 检查JWT（从请求头中获取用户认证信息）
         auth_header = request.headers.get("Authorization")
-        if not auth_header:
-            # return jsonify({"error": "Authorization header is missing"}), 401
-            pass # 暂时允许
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Missing or invalid authorization token"}), 401
         
-        # user = supabase.auth.get_user(auth_header.replace("Bearer ", "")).user
-        # if not user:
-        #     return jsonify({"error": "Invalid token"}), 401
+        token = auth_header.split(" ")[1]
+        user_response = supabase.auth.get_user(token)
+        user = user_response.user
+        if not user:
+            return jsonify({"error": "Invalid token, user not found"}), 401
         
-        # 假设我们已经验证了用户
-        artist_id = "a1b2c3d4-e5f6-a1b2-c3d4-e5f6a1b2c3d4" # 这是一个示例UUID，你需要替换
-        artist_name = "DJ_TestUser"
+        uploader_id = user.id
 
-        # --- 2. 获取表单数据和文件 ---
-        if 'audio' not in request.files or 'cover' not in request.files:
-            return jsonify({"error": "Audio and cover files are required"}), 400
-
-        audio_file = request.files['audio']
-        cover_file = request.files['cover']
-        title = request.form.get('title')
-        description = request.form.get('description', '')
-        price = int(request.form.get('price', 0))
-
-        if not title:
-            return jsonify({"error": "Title is required"}), 400
-
-        # --- 3. 上传文件到 Supabase Storage ---
-        # 为文件生成唯一名称，避免冲突
-        audio_ext = os.path.splitext(audio_file.filename)[1]
-        cover_ext = os.path.splitext(cover_file.filename)[1]
+        # 获取表单字段
+        title = request.form.get("title")
+        artist = request.form.get("artist")
+        genre = request.form.get("genre")
+        # 其他字段可以按需添加
         
-        audio_filename = f"{artist_id}/{uuid.uuid4()}{audio_ext}"
-        cover_filename = f"{artist_id}/{uuid.uuid4()}{cover_ext}"
+        if not all([title, artist, genre]):
+            return jsonify({"error": "Missing required fields: title, artist, genre"}), 400
 
-        # 上传音频
-        supabase.storage.from_("tracks").upload(
-            file=audio_file.read(), 
-            path=audio_filename, 
-            file_options={"content-type": audio_file.mimetype}
+        # 2. --- 验证和处理文件 ---
+        if 'audioFile' not in request.files or 'coverImage' not in request.files:
+            return jsonify({"error": "audioFile and coverImage are required"}), 400
+
+        audio_file = request.files['audioFile']
+        cover_file = request.files['coverImage']
+
+        if audio_file.filename == '' or cover_file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+
+        if not (allowed_file(audio_file.filename, ALLOWED_AUDIO_EXTENSIONS) and 
+                allowed_file(cover_file.filename, ALLOWED_IMAGE_EXTENSIONS)):
+            return jsonify({"error": "Invalid file type"}), 400
+
+        # 3. --- 安全上传到 Supabase Storage (私有桶) ---
+        
+        # 为文件生成独一无二的路径，避免重名和恶意路径
+        audio_ext = audio_file.filename.rsplit('.', 1)[1].lower()
+        cover_ext = cover_file.filename.rsplit('.', 1)[1].lower()
+        
+        # 路径格式: user_id/random_uuid.extension
+        audio_path_in_bucket = f"{uploader_id}/{uuid.uuid4()}.{audio_ext}"
+        cover_path_in_bucket = f"{uploader_id}/{uuid.uuid4()}.{cover_ext}"
+
+        # 读取文件内容为二进制
+        audio_data = audio_file.read()
+        cover_data = cover_file.read()
+
+        # 上传音频文件
+        supabase.storage.from_(AUDIO_BUCKET_NAME).upload(
+            file=audio_data,
+            path=audio_path_in_bucket,
+            file_options={"content-type": mimetypes.guess_type(audio_file.filename)[0] or 'application/octet-stream'}
         )
-        
-        # 上传封面
-        supabase.storage.from_("tracks").upload(
-            file=cover_file.read(), 
-            path=cover_filename, 
-            file_options={"content-type": cover_file.mimetype}
+
+        # 上传封面图片
+        supabase.storage.from_(COVER_ART_BUCKET_NAME).upload(
+            file=cover_data,
+            path=cover_path_in_bucket,
+            file_options={"content-type": mimetypes.guess_type(cover_file.filename)[0] or 'application/octet-stream'}
         )
 
-        # --- 4. 将元数据写入数据库 ---
+        # 4. --- 将元数据写入数据库 '轨道' 表 ---
+        # 注意：这里的列名完全匹配您提供的截图
+        # `文件网址` 和 `封面网址` 存储的是文件在桶中的路径，而不是公开URL！
         track_data = {
-            "title": title,
-            "description": description,
-            "price": price,
-            "artist_id": artist_id,
-            "artist_name": artist_name,
-            "audio_path": audio_filename,
-            "cover_path": cover_filename
+            "标题": title,
+            "艺术家": artist,
+            "标签": genre.split(','), # 假设标签是逗号分隔的字符串，存为数组
+            "类型": genre, # 您可以根据需要定义'类型'和'标签'的区别
+            "上传者 ID": uploader_id,
+            "文件网址": audio_path_in_bucket, 
+            "封面网址": cover_path_in_bucket,
+            "处于活动状态": True, # 默认为True
+            # 戏剧, 喜欢, 期间 等字段可以由数据库设置默认值(如0)，或在之后更新
         }
         
-        insert_res = supabase.table("tracks").insert(track_data).execute()
+        insert_response = supabase.table("轨道").insert(track_data).execute()
 
-        if not insert_res.data:
-            # 如果数据库插入失败，应考虑删除已上传的文件（回滚操作）
-            # supabase.storage.from_("tracks").remove([audio_filename, cover_filename])
-            return jsonify({"error": "Failed to save track metadata"}), 500
+        # 检查数据库插入是否成功
+        if not insert_response.data:
+            # 如果数据库插入失败，我们应该尝试删除刚刚上传的文件，以避免产生孤立数据
+            # (这是一个更高级的错误处理，暂时简化)
+            print("Database insert failed:", insert_response.error)
+            return jsonify({"error": "Failed to save track metadata to database"}), 500
 
-        return jsonify({"message": "Track uploaded successfully", "track": insert_res.data[0]}), 201
+        return jsonify({
+            "message": "Track uploaded successfully!",
+            "data": insert_response.data[0]
+        }), 201
 
     except Exception as e:
-        logger.error(f"文件上传错误: {e}")
+        # 捕获所有其他异常，并返回一个通用的服务器错误
+        print(f"An unexpected error occurred: {e}")
         return jsonify({"error": "An internal server error occurred"}), 500
 
 
-# --- 健康检查 ---
-@app.route("/")
-def index():
-    return "BeatMM Pro Backend is running!"
-
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True) # 开启debug模式方便开发
+    app.run(debug=True, port=5001)
