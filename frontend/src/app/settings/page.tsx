@@ -1,6 +1,6 @@
 // src/app/settings/page.tsx
 'use client';
-import React, 'useState } from 'react';
+import React, { useState } from 'react'; // <-- 这是修正后的行
 import { ChevronDown, Bell, LogOut, Shield, Palette, Trash2, Save } from 'lucide-react';
 
 // 一个自定义的 Switch 开关组件，更符合我们的设计风格
