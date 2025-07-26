@@ -1,205 +1,176 @@
-// frontend/src/app/upload/page.tsx
+// src/app/upload/page.tsx
 'use client';
-import React, { useState, useCallback, useRef } from 'react';
-// import { useTranslation } from 'react-i18next';
-import Navbar from '@/components/Navbar'; // 假设Navbar存在
 
-// --- 临时的 Navbar 组件 ---
-const Navbar = () => (
-  <header className="bg-background-primary/80 backdrop-blur-sm sticky top-0 z-50 border-b border-border-color">
-    <nav className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-      <a href="/" className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-purple-blue">BeatMM Pro</a>
-      <div className="flex items-center gap-4">
-        <a href="/profile" className="btn-secondary">My Profile</a>
-      </div>
-    </nav>
-  </header>
-);
-// --- 临时组件结束 ---
+import React, { useState, useCallback } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { UploadCloud, Music, Image as ImageIcon, X, Loader2, CheckCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+// 注意：确保你的项目中已经有了Supabase的Provider设置，以便这里能获取到client
+import { useSupabaseClient } from '@supabase/auth-helpers-react'; 
+
+// --- 主页面组件 ---
 
 const UploadPage = () => {
-  // const { t } = useTranslation();
-  const t = (key: string) => ({...})[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  // 修复了语法错误，并为未来的多语言功能提供一个安全的占位符
+  const t = (key: string) => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-  // --- 核心逻辑状态 ---
-  const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  // --- 状态管理 ---
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [isFree, setIsFree] = useState(true);
-  const [price, setPrice] = useState('');
+  const [artist, setArtist] = useState('');
+  const [genre, setGenre] = useState(''); // 根据我们的后端，需要 genre 字段
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   
   const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // 用于触发文件输入的引用
-  const audioInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const supabase = useSupabaseClient();
 
-  // --- 文件处理逻辑 ---
-  const handleAudioDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setAudioFile(e.dataTransfer.files[0]);
-    }
-  }, []);
-
-  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setAudioFile(e.target.files[0]);
-    }
-  };
-
-  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setCoverImage(file);
-      // 创建预览 URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setCoverPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // --- 表单提交逻辑 ---
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!audioFile || !coverImage || !title) {
-      setError('Please fill all required fields: Audio, Cover, and Title.');
+  // --- 文件拖放区域逻辑 (使用 react-dropzone 库，更专业) ---
+  const onDrop = useCallback((acceptedFiles: File[], fileRejections: any[], type: 'audio' | 'cover') => {
+    if (fileRejections.length > 0) {
+      setError(`Invalid file. Please check file type and size.`);
       return;
     }
-    setError('');
-    setSuccess('');
-    setIsUploading(true);
-
-    const formData = new FormData();
-    formData.append('audio', audioFile);
-    formData.append('cover', coverImage);
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('price', isFree ? '0' : price);
-
-    try {
-      // 这里的 API 端点需要后端支持
-      const response = await fetch('/api/music/upload', {
-        method: 'POST',
-        // 'Content-Type' is not needed, browser sets it for FormData
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess('Track uploaded successfully!');
-        // 清空表单
-        setAudioFile(null);
-        setCoverImage(null);
-        setCoverPreview(null);
-        setTitle('');
-        setDescription('');
-        setIsFree(true);
-        setPrice('');
-      } else {
-        setError(data.error || 'Upload failed. Please try again.');
+    const file = acceptedFiles[0];
+    if (type === 'audio') {
+      setAudioFile(file);
+    } else {
+      setCoverFile(file);
+      // 清理上一个预览图的内存，防止内存泄漏
+      if (coverPreview) {
+        URL.revokeObjectURL(coverPreview);
       }
-    } catch (err) {
-      setError('An network error occurred.');
-      console.error(err);
+      setCoverPreview(URL.createObjectURL(file));
+    }
+    setError(null);
+  }, [coverPreview]);
+
+  const { getRootProps: getAudioRootProps, getInputProps: getAudioInputProps, isDragActive: isAudioDragActive } = useDropzone({
+    onDrop: (accepted, rejected) => onDrop(accepted, rejected, 'audio'),
+    accept: { 'audio/*': ['.mp3', '.wav', '.flac', '.m4a'] },
+    maxFiles: 1,
+  });
+
+  const { getRootProps: getCoverRootProps, getInputProps: getCoverInputProps, isDragActive: isCoverDragActive } = useDropzone({
+    onDrop: (accepted, rejected) => onDrop(accepted, rejected, 'cover'),
+    accept: { 'image/*': ['.jpeg', 'image/png', '.jpg', '.webp'] },
+    maxFiles: 1,
+  });
+  
+  // --- 表单提交逻辑 ---
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!title || !artist || !genre || !audioFile || !coverFile) {
+      setError('Please fill all fields and upload both files.');
+      return;
+    }
+    
+    setIsUploading(true);
+    setError(null);
+    setSuccessMessage(null);
+
+    // 未来，我们会将这里替换为调用真实后端API的代码
+    // 现在，我们先用一个模拟上传来展示流程
+    try {
+      console.log("Simulating upload with data:", { title, artist, genre, audioFile, coverFile });
+      
+      // 模拟网络延迟
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      setSuccessMessage('Track has been successfully uploaded!');
+
+      // 上传成功后，2秒后跳转到首页
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+
+    } catch (e: any) {
+      setError(e.message || "An unknown error occurred during upload.");
     } finally {
       setIsUploading(false);
     }
   };
-  
-  const inputClass = "input-field focus:ring-2 focus:ring-accent-color-1 focus:border-transparent transition-all duration-300";
+
+  const dropzoneBaseClasses = 'border-2 border-dashed rounded-xl flex flex-col items-center justify-center p-8 text-center cursor-pointer transition-colors duration-300 h-48';
+  const dropzoneActiveClasses = 'border-accent-color-1 bg-accent-color-1/10';
+  const dropzoneInactiveClasses = 'border-border-color hover:border-accent-color-2';
 
   return (
-    <div className="min-h-screen bg-background-primary">
-      <Navbar />
-      <main className="container mx-auto py-10 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-extrabold text-white mb-2">Upload Your Track</h1>
-          <p className="text-text-secondary mb-8">Share your music with the world.</p>
+    <main className="flex-grow py-10 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-4xl">
+        <div className="bg-background-secondary p-8 rounded-2xl shadow-2xl animate-fade-in">
+          <h1 className="text-3xl font-bold text-white mb-2">{t('upload_your_track')}</h1>
+          <p className="text-text-secondary mb-8">{t('share_your_music_with_the_world')}</p>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              
-              {/* 左侧：封面上传 */}
-              <div className="md:col-span-1">
-                <h2 className="text-xl font-semibold mb-2">Cover Art</h2>
-                <input type="file" ref={coverInputRef} onChange={handleCoverChange} accept="image/*" className="hidden" />
-                <div 
-                  onClick={() => coverInputRef.current?.click()}
-                  className="aspect-square bg-background-secondary rounded-lg border-2 border-dashed border-border-color flex items-center justify-center text-center text-text-secondary cursor-pointer hover:border-accent-color-1 transition-colors"
-                >
-                  {coverPreview ? (
-                    <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover rounded-lg" />
-                  ) : (
-                    <p>Click or Drag<br/>to Upload Cover</p>
-                  )}
-                </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* 音频上传 */}
+              <div {...getAudioRootProps()} className={`${dropzoneBaseClasses} ${isAudioDragActive ? dropzoneActiveClasses : dropzoneInactiveClasses}`}>
+                <input {...getAudioInputProps()} />
+                <UploadCloud className="w-12 h-12 text-accent-color-1 mb-4" />
+                <p className="text-text-primary font-semibold">{t('drag_n_drop_audio')}</p>
+                <p className="text-sm text-text-secondary">{t('MP3, WAV, FLAC')}</p>
+                {audioFile && <div className="mt-4 flex items-center gap-2 text-sm bg-background-primary px-3 py-2 rounded-md"><Music size={16} className="text-accent-color-1"/> {audioFile.name}</div>}
               </div>
-
-              {/* 右侧：信息填写 */}
-              <div className="md:col-span-2 space-y-6">
-                <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-text-secondary mb-1">Track Title *</label>
-                  <input type="text" id="title" value={title} onChange={e => setTitle(e.target.value)} className={inputClass} required />
-                </div>
-                <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-text-secondary mb-1">Description</label>
-                  <textarea id="description" value={description} onChange={e => setDescription(e.target.value)} rows={4} className={`${inputClass} resize-none`}></textarea>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-1">Pricing</label>
-                  <div className="flex bg-background-secondary p-1 rounded-lg">
-                    <button type="button" onClick={() => setIsFree(true)} className={`w-1/2 py-2 rounded-md text-sm font-semibold transition-colors ${isFree ? 'bg-accent-color-1 text-white' : 'text-text-secondary hover:bg-white/10'}`}>Free</button>
-                    <button type="button" onClick={() => setIsFree(false)} className={`w-1/2 py-2 rounded-md text-sm font-semibold transition-colors ${!isFree ? 'bg-accent-color-1 text-white' : 'text-text-secondary hover:bg-white/10'}`}>Priced</button>
-                  </div>
-                  {!isFree && (
-                    <div className="mt-2">
-                      <input type="number" placeholder="Price in MMK" value={price} onChange={e => setPrice(e.target.value)} className={inputClass} />
+              {/* 封面上传 */}
+              <div {...getCoverRootProps()} className={`${dropzoneBaseClasses} ${isCoverDragActive ? dropzoneActiveClasses : dropzoneInactiveClasses} relative overflow-hidden`}>
+                <input {...getCoverInputProps()} />
+                {coverPreview ? (
+                  <>
+                    <Image src={coverPreview} alt="Cover preview" layout="fill" className="object-cover" />
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <p className="text-white font-bold">{t('change_cover')}</p>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* 底部：音频上传和提交 */}
-            <div>
-              <h2 className="text-xl font-semibold mb-2">Audio File *</h2>
-              <input type="file" ref={audioInputRef} onChange={handleAudioChange} accept="audio/*" className="hidden" />
-              <div
-                onDrop={handleAudioDrop}
-                onDragOver={e => e.preventDefault()}
-                onClick={() => audioInputRef.current?.click()}
-                className="w-full p-6 bg-background-secondary rounded-lg border-2 border-dashed border-border-color text-center cursor-pointer hover:border-accent-color-1 transition-colors"
-              >
-                {audioFile ? (
-                  <p className="text-green-400">File selected: <span className="font-semibold">{audioFile.name}</span></p>
+                  </>
                 ) : (
-                  <p className="text-text-secondary">Click or Drag & Drop your audio file here (MP3, WAV, FLAC)</p>
+                  <>
+                    <ImageIcon className="w-12 h-12 text-accent-color-2 mb-4" />
+                    <p className="text-text-primary font-semibold">{t('drag_n_drop_cover')}</p>
+                    <p className="text-sm text-text-secondary">{t('JPG, PNG, WEBP')}</p>
+                  </>
                 )}
               </div>
             </div>
 
-            <div className="text-right">
-              {error && <p className="text-red-400 text-sm mb-4 text-center">{error}</p>}
-              {success && <p className="text-green-400 text-sm mb-4 text-center">{success}</p>}
-              <button type="submit" className="btn-primary !py-3 !px-8" disabled={isUploading}>
-                {isUploading ? 'Uploading...' : 'Publish Track'}
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium text-text-secondary mb-2">{t('title')} *</label>
+                <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-background-primary border border-border-color rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-accent-color-1 focus:border-accent-color-1 outline-none transition" required />
+              </div>
+              <div>
+                <label htmlFor="artist" className="block text-sm font-medium text-text-secondary mb-2">{t('artist')} *</label>
+                <input type="text" id="artist" value={artist} onChange={(e) => setArtist(e.target.value)} className="w-full bg-background-primary border border-border-color rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-accent-color-1 focus:border-accent-color-1 outline-none transition" required />
+              </div>
+              <div>
+                <label htmlFor="genre" className="block text-sm font-medium text-text-secondary mb-2">{t('genre')} *</label>
+                <input type="text" id="genre" placeholder="e.g. Techno, House, EDM" value={genre} onChange={(e) => setGenre(e.target.value)} className="w-full bg-background-primary border border-border-color rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-accent-color-1 focus:border-accent-color-1 outline-none transition" required />
+              </div>
+            </div>
+            
+            {error && <div className="text-red-400 bg-red-500/10 p-3 rounded-md text-sm flex items-center gap-2 animate-fade-in"><X size={16} /> {error}</div>}
+            {successMessage && <div className="text-green-400 bg-green-500/10 p-3 rounded-md text-sm flex items-center gap-2 animate-fade-in"><CheckCircle size={16} /> {successMessage}</div>}
+
+            <div className="flex justify-end pt-4">
+              <button type="submit" disabled={isUploading || !!successMessage} className="bg-gradient-to-r from-accent-color-1 to-accent-color-2 text-white font-bold py-3 px-8 rounded-full hover:opacity-90 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 min-w-[150px]">
+                {isUploading ? (
+                  <>
+                    <Loader2 className="animate-spin" />
+                    <span>{t('uploading...')}</span>
+                  </>
+                ) : (
+                  t('submit_track')
+                )}
               </button>
             </div>
-
           </form>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 };
 
