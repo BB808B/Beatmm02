@@ -1,109 +1,112 @@
-// file: frontend/src/app/settings/page.tsx
+// src/app/settings/page.tsx
 'use client';
-import React, { useState } from 'react';
-import Navbar from '@/components/Navbar';
-import { useTranslation } from 'react-i18next';
+import React, 'useState } from 'react';
+import { ChevronDown, Bell, LogOut, Shield, Palette, Trash2, Save } from 'lucide-react';
+
+// 一个自定义的 Switch 开关组件，更符合我们的设计风格
+const CustomSwitch = ({ checked, onChange, label }: { checked: boolean, onChange: (checked: boolean) => void, label: string }) => (
+  <label className="flex items-center justify-between cursor-pointer">
+    <span className="text-text-primary text-base">{label}</span>
+    <div className="relative">
+      <input type="checkbox" className="sr-only" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <div className={`block w-14 h-8 rounded-full transition-colors ${checked ? 'bg-accent-color-1' : 'bg-background-primary'}`}></div>
+      <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${checked ? 'transform translate-x-6' : ''}`}></div>
+    </div>
+  </label>
+);
 
 const SettingsPage = () => {
-  const { t, i18n } = useTranslation();
-  const [language, setLanguage] = useState(i18n.language);
-  const [theme, setTheme] = useState('dark');
+  const t = (key: string) => key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
+  // 状态管理
+  const [language, setLanguage] = useState('en');
   const [notifications, setNotifications] = useState(true);
   const [autoPlay, setAutoPlay] = useState(false);
 
-  const handleLanguageChange = (newLanguage: string) => {
-    setLanguage(newLanguage);
-    i18n.changeLanguage(newLanguage);
-  };
-
   const handleSaveSettings = () => {
-    // TODO: 保存设置到后端或本地存储
-    alert(t('settings_saved'));
+    alert(t('settings_saved_successfully'));
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background-primary">
-      <Navbar />
-      <main className="flex-grow py-10 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto max-w-2xl">
-          <h1 className="text-3xl font-bold text-text-primary mb-8 animate-fade-in">{t('settings')}</h1>
+    <div className="container mx-auto max-w-3xl py-10 px-4 sm:px-6 lg:px-8">
+      <h1 className="text-4xl font-bold text-text-primary mb-10 text-center animate-fade-in">{t('settings')}</h1>
 
-          <section className="bg-background-secondary rounded-lg shadow-xl p-6 md:p-8 mb-8">
-            <h2 className="text-2xl font-bold text-text-primary mb-6">{t('general_settings')}</h2>
-            
+      <div className="space-y-12">
+        {/* 通用设置 */}
+        <section className="bg-background-secondary rounded-xl shadow-xl p-6 md:p-8 animate-fade-in-up">
+          <h2 className="text-2xl font-bold text-text-primary mb-6">{t('general')}</h2>
+          <div className="space-y-6">
             {/* 语言设置 */}
-            <div className="mb-6">
-              <label className="block text-text-primary text-lg font-semibold mb-2">{t('language')}</label>
-              <select
-                value={language}
-                onChange={(e) => handleLanguageChange(e.target.value)}
-                className="input-field"
-              >
-                <option value="my">{t('myanmar')}</option>
-                <option value="zh">{t('chinese')}</option>
-                <option value="en">{t('english')}</option>
-              </select>
+            <div>
+              <label htmlFor="language" className="block text-sm font-medium text-text-secondary mb-2">{t('language')}</label>
+              <div className="relative">
+                <select
+                  id="language"
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="w-full bg-background-primary border border-border-color rounded-md px-4 py-3 text-white appearance-none focus:ring-2 focus:ring-accent-color-1 focus:border-accent-color-1 outline-none transition"
+                >
+                  <option value="en">{t('english')}</option>
+                  <option value="my">{t('myanmar')}</option>
+                  <option value="zh">{t('chinese')}</option>
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary pointer-events-none" />
+              </div>
             </div>
-
-            {/* 主题设置 */}
-            <div className="mb-6">
-              <label className="block text-text-primary text-lg font-semibold mb-2">{t('theme')}</label>
-              <select
-                value={theme}
-                onChange={(e) => setTheme(e.target.value)}
-                className="input-field"
-              >
-                <option value="dark">{t('dark_theme')}</option>
-                <option value="light">{t('light_theme')}</option>
-              </select>
-            </div>
-
-            {/* 通知设置 */}
-            <div className="mb-6">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={notifications}
-                  onChange={(e) => setNotifications(e.target.checked)}
-                  className="mr-3 w-5 h-5 text-accent-color-1 bg-background-secondary border-border-color rounded focus:ring-accent-color-1"
-                />
-                <span className="text-text-primary text-lg font-semibold">{t('enable_notifications')}</span>
-              </label>
-            </div>
-
-            {/* 自动播放设置 */}
-            <div className="mb-6">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={autoPlay}
-                  onChange={(e) => setAutoPlay(e.target.checked)}
-                  className="mr-3 w-5 h-5 text-accent-color-1 bg-background-secondary border-border-color rounded focus:ring-accent-color-1"
-                />
-                <span className="text-text-primary text-lg font-semibold">{t('auto_play_next_song')}</span>
-              </label>
-            </div>
-
-            <button onClick={handleSaveSettings} className="btn btn-primary">
-              {t('save_settings')}
-            </button>
-          </section>
-
-          <section className="bg-background-secondary rounded-lg shadow-xl p-6 md:p-8">
-            <h2 className="text-2xl font-bold text-text-primary mb-6">{t('account_settings')}</h2>
             
-            <div className="space-y-4">
-              <button className="btn btn-secondary w-full">{t('change_password')}</button>
-              <button className="btn btn-secondary w-full">{t('manage_privacy')}</button>
-              <button className="btn btn-secondary w-full text-red-500 border-red-500 hover:bg-red-500 hover:text-white">{t('delete_account')}</button>
+            {/* 主题设置 (暂时禁用，因为我们目前只有暗黑主题) */}
+            <div>
+               <label htmlFor="theme" className="block text-sm font-medium text-text-secondary mb-2">{t('theme')}</label>
+               <div className="relative">
+                 <select id="theme" defaultValue="dark" disabled className="w-full bg-background-primary border border-border-color rounded-md px-4 py-3 text-text-secondary appearance-none outline-none transition cursor-not-allowed">
+                   <option value="dark">{t('dark_theme')} (Default)</option>
+                 </select>
+                 <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" />
+               </div>
             </div>
-          </section>
 
+            <hr className="border-border-color" />
+            
+            {/* 开关设置 */}
+            <CustomSwitch checked={notifications} onChange={setNotifications} label={t('enable_push_notifications')} />
+            <CustomSwitch checked={autoPlay} onChange={setAutoPlay} label={t('auto_play_next_song')} />
+          </div>
+        </section>
+
+        {/* 账户设置 */}
+        <section className="bg-background-secondary rounded-xl shadow-xl p-6 md:p-8 animate-fade-in-up" style={{ animationDelay: '150ms' }}>
+          <h2 className="text-2xl font-bold text-text-primary mb-6">{t('account')}</h2>
+          <div className="space-y-4">
+            <button className="w-full flex items-center justify-between p-4 bg-background-primary rounded-lg hover:bg-white/5 transition-colors">
+              <span className="flex items-center gap-3"><Shield size={18} /> {t('change_password')}</span>
+              <span>→</span>
+            </button>
+            <button className="w-full flex items-center justify-between p-4 bg-background-primary rounded-lg hover:bg-white/5 transition-colors">
+              <span className="flex items-center gap-3"><Palette size={18} /> {t('manage_privacy')}</span>
+              <span>→</span>
+            </button>
+          </div>
+        </section>
+
+        {/* 危险区域 */}
+        <section className="border-2 border-red-500/30 rounded-xl p-6 md:p-8 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
+          <h2 className="text-2xl font-bold text-red-400 mb-4">{t('danger_zone')}</h2>
+          <p className="text-text-secondary mb-6">{t('these_actions_are_irreversible_please_be_certain')}</p>
+          <button className="w-full btn-secondary text-red-400 border-red-500/50 hover:bg-red-500/10 hover:border-red-500 hover:text-red-400 flex items-center justify-center gap-3">
+             <Trash2 size={18} /> {t('delete_my_account')}
+          </button>
+        </section>
+
+        {/* 保存按钮 */}
+        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '450ms' }}>
+          <button onClick={handleSaveSettings} className="btn-primary flex items-center gap-2">
+            <Save size={18} /> {t('save_changes')}
+          </button>
         </div>
-      </main>
+
+      </div>
     </div>
   );
 };
 
 export default SettingsPage;
-
