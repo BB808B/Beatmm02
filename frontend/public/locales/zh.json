@@ -23,22 +23,22 @@
   },
   "hero": {
     "title": "BeatMM Pro",
-    "subtitle": "缅甸领先的音乐流媒体平台,发现无尽音乐世界"
+    "subtitle": "缅甸领先的音乐流媒体平台，探索无尽的音乐世界"
   },
   "pricing": {
-    "title": "选择您的套餐",
+    "title": "选择您的计划",
     "basic": "基础套餐",
     "premium": "高级套餐",
     "vip": "VIP套餐",
     "month": "月",
     "features": {
-      "unlimited": "无限音乐流",
-      "hq": "高品质音质",
+      "unlimited": "无限音乐流媒体",
+      "hq": "高品质音频",
       "offline": "离线收听",
       "exclusive": "独家内容",
-      "early": "抢先体验新歌",
+      "early": "新歌抢先听",
       "ads": "无广告体验",
-      "support": "优先客服支持",
+      "support": "优先客户支持",
       "devices": "多设备同步"
     },
     "mostPopular": "最受欢迎"
