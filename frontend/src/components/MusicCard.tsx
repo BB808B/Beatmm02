@@ -25,14 +25,14 @@ const MusicCard: React.FC<MusicCardProps> = ({ track, onClick }) => {
       className="group animate-fade-in cursor-pointer"
       onClick={handleCardClick}
     >
-      <div className="relative mb-3 aspect-square rounded-lg overflow-hidden shadow-lg transition-transform duration-300 group-hover:-translate-y-1">
+      <div className="relative mb-3 aspect-square rounded-xl overflow-hidden transition-all duration-300 group-hover:shadow-2xl">
         
         {coverImage ? (
           <Image 
             src={coverImage} 
             alt={title} 
             fill 
-            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
           />
         ) : (
@@ -41,9 +41,9 @@ const MusicCard: React.FC<MusicCardProps> = ({ track, onClick }) => {
           </div>
         )}
 
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-          <div className="w-14 h-14 bg-gradient-to-br from-accent-color-1 to-accent-color-2 rounded-full flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform duration-300">
-            <Play className="w-7 h-7 text-white ml-1" />
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center scale-75 group-hover:scale-100 transition-transform duration-300">
+            <Play className="w-6 h-6 text-white ml-1" />
           </div>
         </div>
       </div>

@@ -13,22 +13,22 @@ const HeroMusicPlayer = () => {
       {/* 播放控制按钮 */}
       <div className="flex items-center justify-center gap-8 my-4">
         <button className="text-text-secondary hover:text-white transition-colors disabled:opacity-50" disabled>
-          <SkipBack size={24} />
+          <SkipBack size={28} />
         </button>
-        <button className="w-16 h-16 bg-gradient-to-br from-accent-color-1 to-accent-color-2 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-105 transition-transform">
-          <Play size={32} className="ml-1" />
+        <button className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-all transform hover:scale-105">
+          <Play size={40} className="ml-1" />
         </button>
         <button className="text-text-secondary hover:text-white transition-colors disabled:opacity-50" disabled>
-          <SkipForward size={24} />
+          <SkipForward size={28} />
         </button>
       </div>
 
       {/* 进度条 */}
       <div className="flex items-center gap-4 text-sm text-text-secondary">
         <span>1:10</span>
-        <div className="w-full bg-background-primary h-1.5 rounded-full cursor-pointer group relative">
+        <div className="w-full bg-white/10 h-1.5 rounded-full cursor-pointer group relative">
           <div 
-            className="bg-gradient-to-r from-accent-color-2 to-accent-color-1 h-1.5 rounded-full" 
+            className="bg-white h-1.5 rounded-full"
             style={{ width: '30%' }} 
           />
           <div 

@@ -1,17 +1,17 @@
-// src/app/layout.tsx
-import './globals.css';
+// src/app/[lang]/layout.tsx
+import '../globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { dir } from 'i18next'; // 导入 dir 函数，用于根据语言设置 RTL/LTR
+import { dir } from 'i18next';
 
 // --- 组件导入 ---
 import SupabaseProvider from '@/providers/SupabaseProvider';
 import UserProvider from '@/providers/UserProvider';
 import Navbar from '@/components/Navbar';
-import DynamicBackground from '@/components/DynamicBackground'; // 引入动态背景
+import BottomNav from '@/components/BottomNav';
+import DynamicBackground from '@/components/DynamicBackground';
 
-// 导入获取当前语言的 hook (Next.js 13 App Router 推荐方式)
-import { getLocale } from '@/lib/i18n'; // 我们将创建一个新的 i18n 工具文件
+import { i18nConfig } from '@/lib/i18n';
 
 // --- 字体配置 (你的代码，非常棒，予以保留) ---
 const inter = Inter({
@@ -38,29 +38,30 @@ export const metadata: Metadata = {
   },
 };
 
+export async function generateStaticParams() {
+  return i18nConfig.locales.map(locale => ({ lang: locale }));
+}
+
 // --- 根布局 ---
-export default async function RootLayout({
+export default function RootLayout({
   children,
-  params: { lang }, // 从路由参数中获取当前语言
+  params: { lang },
 }: {
   children: React.ReactNode;
   params: { lang: string };
 }) {
-  const locale = getLocale(); // 获取当前请求的语言环境
-
   return (
-    <html lang={locale} dir={dir(locale)} className={`${inter.variable}`}>
+    <html lang={lang} dir={dir(lang)} className={`${inter.variable}`}>
       <body className="font-sans bg-background-primary text-text-primary antialiased">
-        <DynamicBackground /> {/* 添加动态背景层 */}
+        <DynamicBackground />
         <SupabaseProvider>
           <UserProvider>
             <div className="relative z-10 flex flex-col min-h-screen">
-              <Navbar /> {/* 在这里全局应用我们的超级导航栏 */}
-              <main className="flex-grow">
+              <Navbar />
+              <main className="flex-grow pb-16 md:pb-0">
                 {children}
               </main>
-              {/* 在这里为未来的全局播放器预留空间 */}
-              {/* <GlobalPlayer /> */}
+              <BottomNav />
             </div>
           </UserProvider>
         </SupabaseProvider>
