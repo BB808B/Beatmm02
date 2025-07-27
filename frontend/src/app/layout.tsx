@@ -2,12 +2,16 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { dir } from 'i18next'; // 导入 dir 函数，用于根据语言设置 RTL/LTR
 
 // --- 组件导入 ---
 import SupabaseProvider from '@/providers/SupabaseProvider';
 import UserProvider from '@/providers/UserProvider';
 import Navbar from '@/components/Navbar';
 import DynamicBackground from '@/components/DynamicBackground'; // 引入动态背景
+
+// 导入获取当前语言的 hook (Next.js 13 App Router 推荐方式)
+import { getLocale } from '@/lib/i18n'; // 我们将创建一个新的 i18n 工具文件
 
 // --- 字体配置 (你的代码，非常棒，予以保留) ---
 const inter = Inter({
@@ -35,13 +39,17 @@ export const metadata: Metadata = {
 };
 
 // --- 根布局 ---
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params: { lang }, // 从路由参数中获取当前语言
 }: {
   children: React.ReactNode;
+  params: { lang: string };
 }) {
+  const locale = getLocale(); // 获取当前请求的语言环境
+
   return (
-    <html lang="my" className={`${inter.variable}`}>
+    <html lang={locale} dir={dir(locale)} className={`${inter.variable}`}>
       <body className="font-sans bg-background-primary text-text-primary antialiased">
         <DynamicBackground /> {/* 添加动态背景层 */}
         <SupabaseProvider>
