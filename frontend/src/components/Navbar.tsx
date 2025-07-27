@@ -14,7 +14,6 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // 临时的多语言占位符
@@ -35,7 +34,6 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setIsMenuOpen(false);
     router.push('/'); // 登出后跳转到首页
   };
 
@@ -61,43 +59,8 @@ const Navbar = () => {
     </Link>
   );
 
-  // 移动端菜单
-  const MobileMenu = () => (
-    <motion.div
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="absolute top-full left-0 right-0 md:hidden bg-background-secondary border-t border-border-color shadow-lg p-4"
-    >
-      <div className="flex flex-col gap-4">
-        {navItems.map(item => <NavLink key={item.href} item={item} />)}
-        <hr className="border-border-color" />
-        {user ? (
-          <>
-            <Link href="/upload" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-text-secondary hover:text-text-primary hover:bg-white/5">
-              <Upload size={18} /><span>{t('Upload')}</span>
-            </Link>
-            {userMenuItems.map(item => (
-              <Link key={item.href} href={item.href} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-text-secondary hover:text-text-primary hover:bg-white/5">
-                <item.icon size={18} /><span>{t(item.label)}</span>
-              </Link>
-            ))}
-            <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-red-400 hover:bg-red-500/10">
-              <LogOut size={18} /><span>{t('Logout')}</span>
-            </button>
-          </>
-        ) : (
-          <>
-            <Link href="/login" className="btn-secondary w-full"><LogIn size={18} />{t('Login')}</Link>
-            <Link href="/signup" className="btn-primary w-full"><UserPlus size={18} />{t('Sign Up')}</Link>
-          </>
-        )}
-      </div>
-    </motion.div>
-  );
-
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background-primary/80 backdrop-blur-md border-b border-border-color' : 'bg-transparent'}`}>
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-background-primary/80 backdrop-blur-md border-b border-border-color' : 'bg-transparent'} hidden md:block`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
@@ -108,12 +71,12 @@ const Navbar = () => {
           </Link>
 
           {/* 中间导航链接 (桌面端) */}
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="flex items-center gap-2">
             {navItems.map(item => <NavLink key={item.href} item={item} />)}
           </nav>
 
           {/* 右侧区域 (桌面端) */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="flex items-center gap-4">
              {/* Search Bar Placeholder */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary" size={18}/>
@@ -149,20 +112,8 @@ const Navbar = () => {
               </div>
             )}
           </div>
-          
-          {/* 移动端菜单按钮 */}
-          <div className="md:hidden">
-            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-text-primary p-2">
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
         </div>
       </div>
-      
-      {/* 移动端弹出菜单 */}
-      <AnimatePresence>
-        {isMenuOpen && <MobileMenu />}
-      </AnimatePresence>
     </header>
   );
 };
